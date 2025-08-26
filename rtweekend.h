@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <random>
 
 // C++ std usings
 using std::make_shared;
@@ -23,6 +24,22 @@ const double pi = 3.1415926535897932385;
 inline double deg_to_rad(double deg)
 {
 	return deg * pi / 180.0;
+}
+
+/// Returns random double from [0, 1).
+inline double rand_double()
+{
+	// c++ 11
+	static std::uniform_real_distribution<double> distribution(0.0, 1.0); // [0, 1)
+	static std::mt19937 generator;
+
+	return distribution(generator);
+}
+
+/// Returns random double from [min, max).
+inline double rand_double(double min, double max)
+{
+	return min + (max-min) * rand_double();
 }
 
 // Common headers

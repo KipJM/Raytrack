@@ -13,4 +13,4 @@ add_executable(RaytracingWeekend main.cpp
         rtweekend.h
         interval.h
         camera.h)
-target_link_libraries(RaytracingWeekend -static)
+target_link_libraries(RaytracingWeekend)

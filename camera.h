@@ -14,6 +14,7 @@ public:
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
 	std::ofstream	output;				   // Path to ppm image file
+	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
 
 	void render(const hittable& world)
 	{
@@ -26,12 +27,19 @@ public:
 			std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 			for (int i = 0; i < image_width; i++)
 			{
-				auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-				auto ray_direction = pixel_center - center;
-				ray r(center, ray_direction); // Not unit vector
+				// Per pixel operations
+				color pixel_color(0,0,0);
 
-				color pixel_color = ray_color(r, world);
-				write_color(output, pixel_color);
+				for (int sample = 0; sample < sample_count; sample++)
+				{
+					// Per sample operations
+
+					// technically HDR supported
+					ray r = get_ray(i, j);
+					pixel_color += ray_color(r, world);
+				}
+
+				write_color(output, sample_contribution * pixel_color);
 
 			}
 		}
@@ -41,6 +49,7 @@ public:
 
 private:
 	int		image_height;	// Image height (px)
+	double	sample_contribution; // the factor of each sample's influence on the pixel
 	point3	center;			// Camera Center (3D)
 	point3	pixel00_loc;	// Location of screen pixel (0,0) (3D)
 	vec3	pixel_delta_u;	// Offset for one pixel to the right (3D)
@@ -50,6 +59,8 @@ private:
 	{
 		image_height = int(image_width / aspect_ratio);
 		image_height = (image_height < 1) ? 1 : image_height;
+
+		sample_contribution = 1.0 / sample_count;
 
 		center = point3(0, 0, 0);
 
@@ -73,6 +84,30 @@ private:
 		pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v); //centered
 
 
+	}
+
+	vec3 sample_square() const
+	{
+		// ramdom point in a square [-.5, +.5)
+		//	[-+.5-]
+		//	|  0  |
+		//	[_-.5_]
+		return {rand_double() - 0.5, rand_double() - 0.5, 0};
+	}
+
+	/// Returns a random ray for pixel (i, j)
+	/// a ray from origin to a randomly sampled point around pixel (i,j) on the near plane
+	ray get_ray(int i, int j) const
+	{
+		auto offset = sample_square();
+		auto pixel_sample = pixel00_loc
+								+ ((i + offset.x()) * pixel_delta_u)
+								+ ((j + offset.y()) * pixel_delta_v);
+
+		auto ray_origin = center;
+		auto ray_direction = pixel_sample - ray_origin;
+
+		return ray(ray_origin, ray_direction);
 	}
 
 	color ray_color(const ray& r, const hittable& world) const
