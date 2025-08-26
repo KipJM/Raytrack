@@ -1,16 +1,14 @@
-﻿//
-// Created by mayua on 2025/08/24.
-//
-
-#ifndef RAYTRACINGWEEKEND_HITTABLE_H
+﻿#ifndef RAYTRACINGWEEKEND_HITTABLE_H
 #define RAYTRACINGWEEKEND_HITTABLE_H
 
+class material;
 
 class hit_record
 {
 public:
 	point3 p;
 	vec3 normal;
+	shared_ptr<material> mat;
 	double t;
 	bool front_face;
 

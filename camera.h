@@ -1,12 +1,8 @@
-﻿//
-// Created by mayua on 2025/08/25.
-//
-
-#ifndef RAYTRACINGWEEKEND_CAMERA_H
+﻿#ifndef RAYTRACINGWEEKEND_CAMERA_H
 #define RAYTRACINGWEEKEND_CAMERA_H
 
-#include "rtweekend.h"
 #include "hittable.h"
+#include "material.h"
 
 class camera
 {
@@ -116,15 +112,20 @@ private:
 	color ray_color(const ray& r, int depth, const hittable& world) const
 	{
 		if (depth <= 0)
-		{
 			return {0,0,0}; // TODO: Should be able to modify ambient light from world
-		}
 
 		hit_record rec;
+
 		if (world.hit(r, interval(bias, infinity), rec))
 		{
-			vec3 direction = rec.normal + rand_unit_vector();
-			return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
+			ray scattered;
+			color attenuation;
+
+			if (rec.mat->scatter(r, rec, attenuation, scattered))
+			{
+				return attenuation * ray_color(scattered, depth-1, world);
+			}
+			return color(0,0,0);
 		}
 
 		// sky

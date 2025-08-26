@@ -1,8 +1,4 @@
-﻿//
-// Created by mayua on 2025/08/24.
-//
-
-#ifndef RAYTRACINGWEEKEND_RTWEEKEND_H
+﻿#ifndef RAYTRACINGWEEKEND_RTWEEKEND_H
 #define RAYTRACINGWEEKEND_RTWEEKEND_H
 
 #include <limits>

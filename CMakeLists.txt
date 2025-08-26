@@ -12,5 +12,6 @@ add_executable(RaytracingWeekend main.cpp
         hittable_list.h
         rtweekend.h
         interval.h
-        camera.h)
+        camera.h
+        material.h)
 target_link_libraries(RaytracingWeekend)
