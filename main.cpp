@@ -15,8 +15,8 @@ int main()
 	// Material
 	auto material_ground = make_shared<lambert>(color(0.8, 0.8, 0.0));
 	auto material_diffuse = make_shared<lambert>(color(0.1, 0.2, 0.5));
-	auto material_metal_a   = make_shared<metal>(color(0.8, 0.8, 0.8));
-	auto material_metal_b  = make_shared<metal>(color(0.8, 0.6, 0.2));
+	auto material_metal_a   = make_shared<metal>(color(0.8, 0.8, 0.8), .1);
+	auto material_metal_b  = make_shared<metal>(color(0.8, 0.6, 0.2), 0);
 
 	world.add(make_shared<sphere>(point3(0,0,-1), 0.5, material_metal_b));
 	world.add(make_shared<sphere>(point3(.3,0.3,-.5), 0.3, material_metal_a));
