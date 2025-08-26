@@ -123,7 +123,7 @@ private:
 		hit_record rec;
 		if (world.hit(r, interval(bias, infinity), rec))
 		{
-			vec3 direction = rand_hemisphere_vector(rec.normal);
+			vec3 direction = rec.normal + rand_unit_vector();
 			return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
 		}
 
