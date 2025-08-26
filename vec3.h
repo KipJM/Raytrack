@@ -3,51 +3,63 @@
 
 class vec3
 {
-	public:
-		double e[3];
+public:
+	double e[3];
 
-		vec3() : e{0, 0, 0}	{};
-		vec3(double e0, double e1, double e2) : e{e0, e1, e2} {};
+	vec3() : e{0, 0, 0}	{};
+	vec3(double e0, double e1, double e2) : e{e0, e1, e2} {};
 
-		double x() const {return e[0];};
-		double y() const {return e[1];};
-		double z() const {return e[2];};
+	double x() const {return e[0];};
+	double y() const {return e[1];};
+	double z() const {return e[2];};
 
-		vec3 operator -() const { return vec3(-e[0], -e[1], -e[2]); };
-		double operator [](int i) const { return e[i]; };
-		double& operator [](int i ) { return e[i]; };
+	vec3 operator -() const { return vec3(-e[0], -e[1], -e[2]); };
+	double operator [](int i) const { return e[i]; };
+	double& operator [](int i ) { return e[i]; };
 
-		vec3& operator +=(const vec3& v)
-		{
-			e[0] += v.e[0];
-			e[1] += v.e[1];
-			e[2] += v.e[2];
-			return *this;
-		}
+	vec3& operator +=(const vec3& v)
+	{
+		e[0] += v.e[0];
+		e[1] += v.e[1];
+		e[2] += v.e[2];
+		return *this;
+	}
 
-		vec3& operator *=(double t)
-		{
-			e[0] *= t;
-			e[1] *= t;
-			e[2] *= t;
-			return *this;
-		}
+	vec3& operator *=(double t)
+	{
+		e[0] *= t;
+		e[1] *= t;
+		e[2] *= t;
+		return *this;
+	}
 
-		vec3& operator /=(double t)
-		{
-			return *this *= 1/t;
-		}
+	vec3& operator /=(double t)
+	{
+		return *this *= 1/t;
+	}
 
-		double length() const
-		{
-			return std::sqrt(length_squared());
-		}
+	double length() const
+	{
+		return std::sqrt(length_squared());
+	}
 
-		double length_squared() const
-		{
-			return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
-		}
+	double length_squared() const
+	{
+		return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+	}
 
+	// Static
+
+	static vec3 random()
+	{
+		return {rand_double(), rand_double(), rand_double()};
+	}
+
+	static vec3 random(double min, double max)
+	{
+		// More random to do this than random * min max I think?
+		return {rand_double(min, max), rand_double(min, max), rand_double(min, max)};
+	}
 };
 
 // point3 as alias for vec3
@@ -84,14 +96,14 @@ inline vec3 operator / (const vec3& v, double t)
 	return (1/t) * v;
 }
 
-inline double dot (const vec3& u, const vec3& v)
+inline double dot(const vec3& u, const vec3& v)
 {
 	return u.e[0] * v.e[0]
 		+ u.e[1] * v.e[1]
 		+ u.e[2] * v.e[2];
 }
 
-inline vec3 cross (const vec3& u, const vec3& v)
+inline vec3 cross(const vec3& u, const vec3& v)
 {
 	return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
 				u.e[2] * v.e[0] - u.e[0] * v.e[2],
@@ -101,6 +113,30 @@ inline vec3 cross (const vec3& u, const vec3& v)
 inline vec3 unit_vector(const vec3& v)
 {
 	return v / v.length();
+}
+
+inline vec3 rand_unit_vector()
+{
+	// brute force a solution
+	while (true)
+	{
+		auto p = vec3::random(-1,1);
+		auto lensq = p.length_squared();
+		// only accept vectors in sphere and non-zero for uniform distribution
+		if (lensq <= 1 && lensq > 1e-160)
+		{
+			return p / sqrt(lensq); // Skips a square this way
+		}
+	}
+}
+
+inline vec3 rand_hemisphere_vector(const vec3& normal)
+{
+	vec3 on_unit_sphere = rand_unit_vector();
+	if (dot(on_unit_sphere, normal) > 0.0) // Same hemisphere
+		return on_unit_sphere;
+	else
+		return -on_unit_sphere; // Inverted, now on same hemisphere
 }
 
 #endif
