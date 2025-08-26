@@ -23,5 +23,8 @@ int main()
 	cam.image_width = 400;
 	cam.output = std::ofstream("image.ppm");
 
+	cam.sample_count = 50;
+	cam.max_bounces = 50;
+
 	cam.render(world);
 }

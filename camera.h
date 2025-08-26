@@ -14,7 +14,10 @@ public:
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
 	std::ofstream	output;				   // Path to ppm image file
+
 	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
+	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
+	double			bias			= 0.001; // Fix shadow acne
 
 	void render(const hittable& world)
 	{
@@ -36,7 +39,7 @@ public:
 
 					// technically HDR supported
 					ray r = get_ray(i, j);
-					pixel_color += ray_color(r, world);
+					pixel_color += ray_color(r, max_bounces, world);
 				}
 
 				write_color(output, sample_contribution * pixel_color);
@@ -110,13 +113,18 @@ private:
 		return ray(ray_origin, ray_direction);
 	}
 
-	color ray_color(const ray& r, const hittable& world) const
+	color ray_color(const ray& r, int depth, const hittable& world) const
 	{
+		if (depth <= 0)
+		{
+			return {0,0,0}; // TODO: Should be able to modify ambient light from world
+		}
+
 		hit_record rec;
-		if (world.hit(r, interval(0, infinity), rec))
+		if (world.hit(r, interval(bias, infinity), rec))
 		{
 			vec3 direction = rand_hemisphere_vector(rec.normal);
-			return 0.5 * ray_color(ray(rec.p, direction), world);
+			return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
 		}
 
 		// sky
