@@ -33,6 +33,9 @@ int main()
 	cam.output = std::ofstream("image.ppm");
 
 	cam.vfov = 85;
+	cam.position = point3(-.5,1,.5);
+	cam.lookat = point3(0,0,-1);
+	cam.vup = vec3(0,1,0);
 
 	cam.sample_count = 50;
 	cam.max_bounces = 50;

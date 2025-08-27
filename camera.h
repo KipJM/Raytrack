@@ -11,12 +11,15 @@ public:
 
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
-	double			vfov			= 90;  // Vertical FOV, in degrees
-
 
 	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
 	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
 	double			bias			= 0.001; // Fix shadow acne
+
+	double			vfov			= 90;  // Vertical FOV, in degrees
+	point3			position		= point3(0,0,0); // camera position
+	point3			lookat			= point3(0,0,-1); // look at this point
+	vec3			vup				= vec3(0,1,0);    // Camera-relative up direction
 
 	void render(const hittable& world)
 	{
@@ -56,6 +59,7 @@ private:
 	point3	pixel00_loc;	// Location of screen pixel (0,0) (3D)
 	vec3	pixel_delta_u;	// Offset for one pixel to the right (3D)
 	vec3	pixel_delta_v;	// Offset for one pixel down (3D)
+	vec3	u, v, w;		// Basis
 
 	void initialize()
 	{
@@ -64,27 +68,30 @@ private:
 
 		sample_contribution = 1.0 / sample_count;
 
-		center = point3(0, 0, 0);
+		center = position;
 
 		// Determine viewport dimensions
-		auto focal_length = 1.0;
+		auto focal_length = (position - lookat).length();
 		auto theta = deg_to_rad(vfov);
 		auto h = std::tan(theta/2);
 		auto viewport_height = 2 * h * focal_length;
-
 		auto viewport_width = viewport_height * (double(image_width) / image_height);
+
+		w = unit_vector((center - lookat));
+		u = unit_vector(cross(vup, w));
+		v = cross(w, u);
 
 		// Calc viewport UV
 		// 3D: right-handed y-up | Screen: x-right y-down
-		auto viewport_u = vec3(viewport_width, 0, 0);
-		auto viewport_v = vec3(0, -viewport_height, 0);
+		auto viewport_u = viewport_width * u;
+		auto viewport_v = viewport_height * -v;
 
 		// Convert viewport UV to pixel 3D
 		pixel_delta_u = viewport_u / image_width;
 		pixel_delta_v = viewport_v / image_height;
 
 		// Calc location of upper-left(0,0) pixel
-		auto viewport_upper_left = center - vec3(0,0, focal_length) - viewport_u/2 - viewport_v/2;
+		auto viewport_upper_left = center - (focal_length * w) - viewport_u/2 - viewport_v/2;
 		pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v); //centered
 
 
