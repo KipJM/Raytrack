@@ -7,9 +7,12 @@
 class camera
 {
 public:
+	std::ofstream	output;				   // Path to ppm image file
+
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
-	std::ofstream	output;				   // Path to ppm image file
+	double			vfov			= 90;  // Vertical FOV, in degrees
+
 
 	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
 	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
@@ -65,7 +68,9 @@ private:
 
 		// Determine viewport dimensions
 		auto focal_length = 1.0;
-		auto viewport_height = 2.0;
+		auto theta = deg_to_rad(vfov);
+		auto h = std::tan(theta/2);
+		auto viewport_height = 2 * h * focal_length;
 
 		auto viewport_width = viewport_height * (double(image_width) / image_height);
 

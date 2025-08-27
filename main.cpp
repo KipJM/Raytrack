@@ -15,13 +15,15 @@ int main()
 	// Material
 	auto material_ground = make_shared<lambert>(color(0.8, 0.8, 0.0));
 	auto material_diffuse = make_shared<lambert>(color(0.1, 0.2, 0.5));
-	auto material_metal_a   = make_shared<metal>(color(0.8, 0.8, 0.8), .1);
+	auto material_dielectric = make_shared<dielectric>(1.5);
+	auto material_inside = make_shared<dielectric>(1.0/1.5);
 	auto material_metal_b  = make_shared<metal>(color(0.8, 0.6, 0.2), 0);
 
-	world.add(make_shared<sphere>(point3(0,0,-1), 0.5, material_metal_b));
-	world.add(make_shared<sphere>(point3(.3,0.3,-.5), 0.3, material_metal_a));
-	world.add(make_shared<sphere>(point3(-.5, .4, -1.1), 0.5, material_diffuse));
-	world.add(make_shared<sphere>(point3(0,-100.5,-1), 100, material_ground));
+	world.add(make_shared<sphere>(point3(0,0,-1),			0.5, material_dielectric	));
+	world.add(make_shared<sphere>(point3(0,0,-1),			0.3, material_inside		));
+	world.add(make_shared<sphere>(point3(.3,0.3,-.5),		0.3, material_metal_b		));
+	world.add(make_shared<sphere>(point3(-.5, .4, -1.1),	0.5, material_diffuse		));
+	world.add(make_shared<sphere>(point3(0,-100.5,-1),		100, material_ground		));
 
 
 	camera cam;
@@ -29,6 +31,8 @@ int main()
 	cam.aspect_ratio = 16.0 / 9.0;
 	cam.image_width = 400;
 	cam.output = std::ofstream("image.ppm");
+
+	cam.vfov = 85;
 
 	cam.sample_count = 50;
 	cam.max_bounces = 50;
