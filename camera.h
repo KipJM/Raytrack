@@ -21,6 +21,9 @@ public:
 	point3			lookat			= point3(0,0,-1); // look at this point
 	vec3			vup				= vec3(0,1,0);    // Camera-relative up direction
 
+	double			defocus_angle	= 0; // Variation angle of rays through each pixel
+	double			focus_distance	= 10; // Distance to perfect focus
+
 	void render(const hittable& world)
 	{
 		initialize();
@@ -61,6 +64,9 @@ private:
 	vec3	pixel_delta_v;	// Offset for one pixel down (3D)
 	vec3	u, v, w;		// Basis
 
+	vec3 defocus_disk_u;
+	vec3 defocus_disk_v;
+
 	void initialize()
 	{
 		image_height = int(image_width / aspect_ratio);
@@ -71,10 +77,9 @@ private:
 		center = position;
 
 		// Determine viewport dimensions
-		auto focal_length = (position - lookat).length();
 		auto theta = deg_to_rad(vfov);
 		auto h = std::tan(theta/2);
-		auto viewport_height = 2 * h * focal_length;
+		auto viewport_height = 2 * h * focus_distance;
 		auto viewport_width = viewport_height * (double(image_width) / image_height);
 
 		w = unit_vector((center - lookat));
@@ -91,9 +96,13 @@ private:
 		pixel_delta_v = viewport_v / image_height;
 
 		// Calc location of upper-left(0,0) pixel
-		auto viewport_upper_left = center - (focal_length * w) - viewport_u/2 - viewport_v/2;
+		auto viewport_upper_left = center - (focus_distance * w) - viewport_u/2 - viewport_v/2;
 		pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v); //centered
 
+		// defocus
+		auto defocus_radius = focus_distance * std::tan(deg_to_rad(defocus_angle / 2));
+		defocus_disk_u = u * defocus_radius;
+		defocus_disk_v = v * defocus_radius;
 
 	}
 
@@ -106,8 +115,14 @@ private:
 		return {rand_double() - 0.5, rand_double() - 0.5, 0};
 	}
 
+	point3 defocus_disk_sample() const
+	{
+		auto p = rand_unit_disk_vector();
+		return center + (p.x() * defocus_disk_u) + (p.y() * defocus_disk_v);
+	}
+
 	/// Returns a random ray for pixel (i, j)
-	/// a ray from origin to a randomly sampled point around pixel (i,j) on the near plane
+	/// a ray from defocus disk to a randomly sampled point around pixel (i,j) on the near plane
 	ray get_ray(int i, int j) const
 	{
 		auto offset = sample_square();
@@ -115,7 +130,7 @@ private:
 								+ ((i + offset.x()) * pixel_delta_u)
 								+ ((j + offset.y()) * pixel_delta_v);
 
-		auto ray_origin = center;
+		auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
 		auto ray_direction = pixel_sample - ray_origin;
 
 		return ray(ray_origin, ray_direction);

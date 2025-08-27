@@ -150,6 +150,19 @@ inline vec3 rand_hemisphere_vector(const vec3& normal)
 		return -on_unit_sphere; // Inverted, now on same hemisphere
 }
 
+inline vec3 rand_unit_disk_vector()
+{
+	// brute force solution again
+	while (true)
+	{
+		auto p = vec3(rand_double(-1,1), rand_double(-1,1), 0);
+		if (p.length_squared() < 1)
+		{
+			return p;
+		}
+	}
+}
+
 inline vec3 reflect(const vec3& v, const vec3& n) // normal is normalized
 {
 	return v - 2 * dot(v, n) * n;

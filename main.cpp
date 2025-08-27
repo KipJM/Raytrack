@@ -32,12 +32,15 @@ int main()
 	cam.image_width = 400;
 	cam.output = std::ofstream("image.ppm");
 
-	cam.vfov = 85;
-	cam.position = point3(-.5,1,.5);
+	cam.vfov = 20;
+	cam.position = point3(-2,2,1);
 	cam.lookat = point3(0,0,-1);
 	cam.vup = vec3(0,1,0);
 
-	cam.sample_count = 50;
+	cam.defocus_angle = 10.0;
+	cam.focus_distance = 3.4;
+
+	cam.sample_count = 100;
 	cam.max_bounces = 50;
 
 	cam.render(world);
