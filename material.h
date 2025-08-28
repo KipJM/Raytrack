@@ -102,4 +102,20 @@ private:
 	}
 };
 
+class normal_debug : public material
+{
+public:
+	normal_debug() : internal_lambert(lambert(color(1,1,1))){}
+
+	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
+	{
+		internal_lambert.scatter(r_in, rec, attenuation, scattered);
+		attenuation = color(unit_vector(rec.normal));
+		return true;
+	}
+
+private:
+	lambert internal_lambert;
+};
+
 #endif //RAYTRACINGWEEKEND_MATERIAL_H
