@@ -14,5 +14,7 @@ add_executable(RaytracingWeekend main.cpp
         interval.h
         camera.h
         material.h
-        disk.h)
+        disk.h
+        aabb.h
+        bvh.h)
 target_link_libraries(RaytracingWeekend)

@@ -8,7 +8,11 @@ class disk : public hittable
 {
 public:
 	disk(double height, double radius, shared_ptr<material> mat):
-		height(height), radius_sqr(radius * radius), mat(mat) {}
+		height(height), radius_sqr(radius * radius), mat(mat)
+	{
+		interval horiz(-radius, radius);
+		bbox = aabb(horiz, interval(height, height).expand(0.01), horiz);
+	}
 
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
@@ -26,10 +30,16 @@ public:
 		return true;
 	}
 
+	aabb bounding_box() const override
+	{
+		return bbox;
+	}
+
 private:
 	double height;
 	double radius_sqr;
 	shared_ptr<material> mat;
+	aabb bbox;
 };
 
 #endif //RAYTRACINGWEEKEND_PLANE_H

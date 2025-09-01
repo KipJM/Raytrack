@@ -5,6 +5,8 @@
 #ifndef RAYTRACINGWEEKEND_INTERVAL_H
 #define RAYTRACINGWEEKEND_INTERVAL_H
 
+#include "rtweekend.h"
+
 class interval
 {
 public:
@@ -12,6 +14,13 @@ public:
 
 	interval() : min(+infinity), max(-infinity) {} // Default: empty interval
 	interval(double min, double max) : min(min), max(max) {}
+
+	/// returns an interval tightly encosing the two intervals
+	interval(const interval& a, const interval& b)
+	{
+		min = a.min <= b.min ? a.min : b.min;
+		max = a.max >= b.max ? a.max : b.max;
+	}
 
 	double size() const
 	{
@@ -34,6 +43,12 @@ public:
 		if (x < min) return min;
 		if (x > max) return max;
 		return x;
+	}
+
+	interval expand(double delta) const
+	{
+		auto padding = delta/2;
+		return {min - padding, max + padding};
 	}
 
 	static const interval empty, universe;

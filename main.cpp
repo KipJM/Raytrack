@@ -6,8 +6,8 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "bvh.h"
 #include "disk.h"
-
 
 //stub
 
@@ -66,6 +66,7 @@ int main()
 	world.add(make_shared<sphere>(point3(-4,1,0), 1, mat_b));
 	world.add(make_shared<sphere>(point3(4,1,0), 1, mat_c));
 
+	world = hittable_list(make_shared<bvh_node>(world));
 
 	camera cam;
 
@@ -81,7 +82,7 @@ int main()
 	cam.defocus_angle = .6;
 	cam.focus_distance = 10.0;
 
-	cam.sample_count = 100;
+	cam.sample_count = 50;
 	cam.max_bounces = 24;
 
 	cam.render(world);

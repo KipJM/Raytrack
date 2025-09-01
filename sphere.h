@@ -8,11 +8,22 @@ class sphere : public hittable
 public:
 	/// Static
 	sphere(const point3& center, double radius, shared_ptr<material> mat) :
-				center(center, vec3(0,0,0)), radius(std::fmax(0,radius)), mat(mat) {}
+				center(center, vec3(0,0,0)), radius(std::fmax(0,radius)), mat(mat)
+	{
+		auto rvec = vec3::one * radius;
+		bbox = aabb(center - rvec, center + rvec);
+	}
 
 	/// Dynamic
 	sphere(const point3& center_start, const point3& center_end, double radius, shared_ptr<material> mat) :
-		center(center_start, center_end - center_start), radius(std::fmax(0,radius)), mat(mat) {}
+		center(center_start, center_end - center_start), radius(std::fmax(0,radius)), mat(mat)
+	{
+		auto rvec = vec3::one * radius;
+
+		aabb box0(center.at(0) - rvec, center.at(0) + rvec);
+		aabb box1(center.at(1) - rvec, center.at(1) + rvec);
+		bbox = aabb(box0, box1);
+	}
 
 
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
@@ -50,10 +61,13 @@ public:
 		return true;
 	}
 
+	aabb bounding_box() const override { return bbox; }
+
 private:
 	ray center;
 	double radius;
 	shared_ptr<material> mat;
+	aabb bbox;
 };
 
 #endif //RAYTRACINGWEEKEND_SPHERE_H
