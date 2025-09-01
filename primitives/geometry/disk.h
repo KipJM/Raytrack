@@ -1,8 +1,8 @@
 ﻿#ifndef RAYTRACINGWEEKEND_PLANE_H
 #define RAYTRACINGWEEKEND_PLANE_H
 
-#include "hittable.h"
-#include "rtweekend.h"
+#include "../../hittable.h"
+#include "../../misc.h"
 
 class disk : public hittable
 {

@@ -8,13 +8,17 @@ add_executable(RaytracingWeekend main.cpp
         vec3.h color.h
         ray.h
         hittable.h
-        sphere.h
+        primitives/geometry/sphere.h
         hittable_list.h
-        rtweekend.h
+        misc.h
         interval.h
         camera.h
         material.h
-        disk.h
+        primitives/geometry/disk.h
         aabb.h
-        bvh.h)
+        bvh.h
+        primitives/materials/basic_materials.h
+        texture.h
+        primitives/textures/tex_color.h
+        primitives/textures/tex_checker.h)
 target_link_libraries(RaytracingWeekend)

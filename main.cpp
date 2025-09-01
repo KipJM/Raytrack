@@ -1,13 +1,15 @@
 ﻿#include <chrono>
 
-#include "rtweekend.h"
+#include "misc.h"
 
 #include "camera.h"
 #include "hittable.h"
 #include "hittable_list.h"
-#include "sphere.h"
 #include "bvh.h"
-#include "disk.h"
+#include "primitives/materials/basic_materials.h"
+#include "primitives/geometry/sphere.h"
+#include "primitives/geometry/disk.h"
+#include "primitives/textures/tex_checker.h"
 
 //stub
 
@@ -16,7 +18,8 @@ int main()
 	hittable_list world;
 
 	// Material
-	auto mat_ground = make_shared<lambert>(color(.5,.5,.5));
+	auto tex_checker = make_shared<::tex_checker>(0.32, color(0,0,0), color(1,1,1));
+	auto mat_ground = make_shared<lambert>(tex_checker);
 	world.add(make_shared<disk>(0,500, mat_ground));
 
 	for (int a = -11; a < 11; a++)
@@ -82,7 +85,7 @@ int main()
 	cam.defocus_angle = .6;
 	cam.focus_distance = 10.0;
 
-	cam.sample_count = 50;
+	cam.sample_count = 100;
 	cam.max_bounces = 24;
 
 	cam.render(world);

@@ -1,7 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_AABB_H
 #define RAYTRACINGWEEKEND_AABB_H
 
-#include "rtweekend.h"
+#include "misc.h"
 
 class aabb
 {

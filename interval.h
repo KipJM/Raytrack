@@ -5,7 +5,7 @@
 #ifndef RAYTRACINGWEEKEND_INTERVAL_H
 #define RAYTRACINGWEEKEND_INTERVAL_H
 
-#include "rtweekend.h"
+#include "misc.h"
 
 class interval
 {

@@ -1,7 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_SPHERE_H
 #define RAYTRACINGWEEKEND_SPHERE_H
 
-#include "hittable.h"
+#include "../../hittable.h"
 
 class sphere : public hittable
 {
