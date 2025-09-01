@@ -7,7 +7,7 @@
 class camera
 {
 public:
-	std::unique_ptr<std::ofstream>	output;				   // Path to ppm image file
+	std::ofstream	output;				   // Path to ppm image file
 
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
@@ -28,7 +28,7 @@ public:
 	{
 		initialize();
 
-		*output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
+		output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
 
 		for (int j = 0; j < image_height; j++)
 		{
@@ -47,12 +47,12 @@ public:
 					pixel_color += ray_color(r, max_bounces, world);
 				}
 
-				write_color(*output, sample_contribution * pixel_color);
+				write_color(output, sample_contribution * pixel_color);
 
 			}
 		}
 		std::clog << "\rDone.                 \n";
-		(*output).close();
+		output.close();
 	}
 
 private:
@@ -132,8 +132,9 @@ private:
 
 		auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
 		auto ray_direction = pixel_sample - ray_origin;
+		auto ray_time = rand_double();
 
-		return ray(ray_origin, ray_direction);
+		return ray(ray_origin, ray_direction, ray_time);
 	}
 
 	color ray_color(const ray& r, int depth, const hittable& world) const

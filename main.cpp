@@ -34,8 +34,11 @@ int main()
 				{
 					// diffuse
 					auto albedo = color::random() * color::random();
+
+					auto center_end = center + vec3::up * rand_double(0,.5);
+
 					mat_sphere = make_shared<lambert>(albedo);
-					world.add(make_shared<sphere>(center, 0.2, mat_sphere));
+					world.add(make_shared<sphere>(center, center_end, 0.2, mat_sphere));
 				}
 				else if (choose_mat < 0.95)
 				{
@@ -68,7 +71,7 @@ int main()
 
 	cam.aspect_ratio = 16.0 / 9.0;
 	cam.image_width = 400;
-	cam.output = std::make_unique<std::ofstream>("image.ppm");
+	cam.output = std::ofstream("image.ppm");
 
 	cam.vfov = 20;
 	cam.position = point3(13,2,3);
@@ -78,7 +81,7 @@ int main()
 	cam.defocus_angle = .6;
 	cam.focus_distance = 10.0;
 
-	cam.sample_count = 50;
+	cam.sample_count = 100;
 	cam.max_bounces = 24;
 
 	cam.render(world);

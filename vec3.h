@@ -66,6 +66,14 @@ public:
 		// More random to do this than random * min max I think?
 		return {rand_double(min, max), rand_double(min, max), rand_double(min, max)};
 	}
+
+
+	// constants
+	static vec3 const zero;
+	static vec3 const one;
+	static vec3 const up;
+	static vec3 const forward;
+	static vec3 const right;
 };
 
 // point3 as alias for vec3
@@ -175,5 +183,13 @@ inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat)
 	vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
 	return r_out_perp + r_out_parallel;
 }
+
+
+vec3 const vec3::zero(0,0,0);
+vec3 const vec3::one(1,1,1);
+vec3 const vec3::up(0,1,0);
+vec3 const vec3::forward(0,0,-1);
+vec3 const vec3::right(1,0,0);
+
 
 #endif
