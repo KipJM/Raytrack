@@ -56,8 +56,8 @@ public:
 	}
 
 private:
-	int		image_height;	// Image height (px)
-	double	sample_contribution; // the factor of each sample's influence on the pixel
+	int		image_height = 0;	// Image height (px)
+	double	sample_contribution = 0; // the factor of each sample's influence on the pixel
 	point3	center;			// Camera Center (3D)
 	point3	pixel00_loc;	// Location of screen pixel (0,0) (3D)
 	vec3	pixel_delta_u;	// Offset for one pixel to the right (3D)

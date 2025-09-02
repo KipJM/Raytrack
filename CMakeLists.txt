@@ -20,5 +20,6 @@ add_executable(RaytracingWeekend main.cpp
         primitives/materials/basic_materials.h
         texture.h
         primitives/textures/tex_color.h
-        primitives/textures/tex_checker.h)
+        primitives/textures/tex_checker.h
+        scene.h)
 target_link_libraries(RaytracingWeekend)
