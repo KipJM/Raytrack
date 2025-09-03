@@ -6,15 +6,16 @@
 class tex_perlin : public texture
 {
 public:
-	tex_perlin() {}
+	tex_perlin(double scale) : scale(scale) {}
 
 	color value(double u, double v, const point3& p) const override
 	{
-		return color::one * noise.noise(p);
+		return color::one * 0.5 * (1.0 + noise.noise(scale * p));
 	}
 
 private:
 	perlin noise;
+	double scale;
 };
 
 #endif //RAYTRACINGWEEKEND_TEX_PERLIN_H

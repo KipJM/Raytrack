@@ -153,7 +153,7 @@ void scn_perlin()
 {
 	hittable_list world;
 
-	auto noise_tex = make_shared<tex_perlin>();
+	auto noise_tex = make_shared<tex_perlin>(4);
 	auto noise_mat = make_shared<lambert>(noise_tex);
 	world.add(make_shared<sphere>(point3(0,2,0), 2, noise_mat));
 	world.add(make_shared<sphere>(point3(0,-1000,0), 1000, noise_mat));
