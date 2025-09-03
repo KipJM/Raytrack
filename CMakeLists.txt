@@ -21,5 +21,10 @@ add_executable(RaytracingWeekend main.cpp
         texture.h
         primitives/textures/tex_color.h
         primitives/textures/tex_checker.h
-        scene.h)
+        scene.h
+        external/stb_image.h
+        rtw_image.h
+        primitives/textures/tex_image.h
+        primitives/textures/tex_uv_debug.h
+        primitives/generator/perlin.h)
 target_link_libraries(RaytracingWeekend)

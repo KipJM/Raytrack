@@ -56,6 +56,7 @@ public:
 		rec.p = r.at(rec.t);
 		vec3 outward_normal = (rec.p - center_current) / radius;
 		rec.set_face_normal(r, outward_normal);
+		get_uv(outward_normal, rec.u, rec.v);
 		rec.mat = mat;
 
 		return true;
@@ -68,6 +69,16 @@ private:
 	double radius;
 	shared_ptr<material> mat;
 	aabb bbox;
+
+	/// Sets U, V based on normal (point on unit sphere)
+	static void get_uv(const point3& p, double& u, double& v)
+	{
+		auto theta = std::acos(-p.y());
+		auto phi = std::atan2(-p.z(), p.x()) + pi;
+
+		u = phi / (2 * pi);
+		v = theta / pi;
+	}
 };
 
 #endif //RAYTRACINGWEEKEND_SPHERE_H

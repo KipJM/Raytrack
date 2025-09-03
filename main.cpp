@@ -10,10 +10,12 @@
 #include "primitives/geometry/sphere.h"
 #include "primitives/geometry/disk.h"
 #include "primitives/textures/tex_checker.h"
+#include "primitives/textures/tex_image.h"
+#include "primitives/textures/tex_uv_debug.h"
 
 //stub
 
-int main()
+void scn_lots_of_spheres()
 {
 	hittable_list world;
 
@@ -85,8 +87,69 @@ int main()
 	cam.defocus_angle = .6;
 	cam.focus_distance = 10.0;
 
-	cam.sample_count = 100;
+	cam.sample_count = 1000;
 	cam.max_bounces = 24;
 
 	cam.render(world);
+}
+
+void scn_checked_spheres()
+{
+	hittable_list world;
+	auto checker_texture = make_shared<tex_checker>(.03, color(.2, .3, .1), color(.9, .9, .9));
+
+	world.add(make_shared<sphere>(point3(0, -10, 0), 10, make_shared<lambert>(checker_texture)));
+	world.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambert>(checker_texture)));
+
+	camera cam;
+
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 400;
+
+	cam.sample_count = 100;
+	cam.max_bounces = 50;
+
+	cam.output = std::ofstream("image.ppm");
+
+	cam.vfov = 20;
+	cam.position = point3(13, 2, 3);
+	cam.lookat = point3(0, 0, 0);
+	cam.vup = vec3(0, 1, 0);
+
+	cam.defocus_angle = 0;
+	cam.focus_distance = 10;
+
+	cam.render(world);
+}
+
+void scn_earth()
+{
+	auto earth_texture = make_shared<tex_image>("earthmap.jpg");
+	// auto earth_texture = make_shared<tex_uv_debug>();
+	auto earth_material = make_shared<lambert>(earth_texture);
+	auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_material);
+
+	camera cam;
+
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 400;
+	cam.sample_count = 100;
+	cam.max_bounces = 50;
+
+	cam.vfov = 20;
+	cam.position = point3(0,0,12);
+	cam.lookat = point3(0,0,0);
+	cam.vup = vec3(0,1,0);
+
+	cam.defocus_angle = 0;
+
+	cam.output = std::ofstream("image.ppm");
+
+	cam.render(hittable_list(globe));
+}
+
+int main(int argc, char** argv)
+{
+	// scn_checked_spheres();
+	scn_earth();
 }

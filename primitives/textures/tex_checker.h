@@ -16,11 +16,11 @@ public:
 
 	color value(double u, double v, const point3& p) const override
 	{
-		auto x_int = int(std::floor(inv_scale*p.x()));
-		auto y_int = int(std::floor(inv_scale*p.y()));
-		auto z_int = int(std::floor(inv_scale*p.z()));
+		auto x_int = int(std::floor(inv_scale*u));
+		auto y_int = int(std::floor(inv_scale*v));
+		// auto z_int = int(std::floor(inv_scale*p.z()));
 
-		bool is_even = (x_int + y_int + z_int) % 2 == 0;
+		bool is_even = (x_int + y_int) % 2 == 0;
 
 		return is_even ? even->value(u, v, p) : odd->value(u, v, p);
 	}
