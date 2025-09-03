@@ -11,6 +11,7 @@
 #include "primitives/geometry/disk.h"
 #include "primitives/textures/tex_checker.h"
 #include "primitives/textures/tex_image.h"
+#include "primitives/textures/tex_perlin.h"
 #include "primitives/textures/tex_uv_debug.h"
 
 //stub
@@ -87,7 +88,7 @@ void scn_lots_of_spheres()
 	cam.defocus_angle = .6;
 	cam.focus_distance = 10.0;
 
-	cam.sample_count = 1000;
+	cam.sample_count = 10;
 	cam.max_bounces = 24;
 
 	cam.render(world);
@@ -148,8 +149,41 @@ void scn_earth()
 	cam.render(hittable_list(globe));
 }
 
+void scn_perlin()
+{
+	hittable_list world;
+
+	auto noise_tex = make_shared<tex_perlin>();
+	auto noise_mat = make_shared<lambert>(noise_tex);
+	world.add(make_shared<sphere>(point3(0,2,0), 2, noise_mat));
+	world.add(make_shared<sphere>(point3(0,-1000,0), 1000, noise_mat));
+
+	camera cam;
+
+	cam.aspect_ratio      = 16.0 / 9.0;
+	cam.image_width       = 400;
+	cam.sample_count	  = 100;
+	cam.max_bounces       = 50;
+
+	cam.vfov     = 20;
+	cam.position = point3(13,2,3);
+	cam.lookat   = point3(0,0,0);
+	cam.vup      = vec3(0,1,0);
+
+	cam.defocus_angle = 0;
+
+	cam.output = std::ofstream("image.ppm");
+
+
+	// cam.render(bvh_node(world));
+
+	cam.render(world);
+}
+
 int main(int argc, char** argv)
 {
+	// scn_lots_of_spheres();
 	// scn_checked_spheres();
-	scn_earth();
+	// scn_earth();
+	scn_perlin();
 }
