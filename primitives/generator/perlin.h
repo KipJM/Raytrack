@@ -18,6 +18,22 @@ public:
 		perlin_generate_perm(perm_z);
 	}
 
+	double turbulence(const point3& p, int depth) const
+	{
+		auto accum =0.0;
+		auto temp_p = p;
+		auto weight = 1.0;
+
+		for (int i = 0; i < depth; i++)
+		{
+			accum += weight * noise(temp_p);
+			weight *= 0.5;
+			temp_p *= 2;
+		}
+
+		return std::fabs(accum);
+	}
+
 	double noise(const point3& p) const
 	{
 		auto u = p.x() - std::floor(p.x());

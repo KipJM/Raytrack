@@ -74,6 +74,7 @@ public:
 	static vec3 const up;
 	static vec3 const forward;
 	static vec3 const right;
+	static vec3 const half;
 };
 
 // point3 as alias for vec3
@@ -190,6 +191,7 @@ vec3 const vec3::one(1,1,1);
 vec3 const vec3::up(0,1,0);
 vec3 const vec3::forward(0,0,-1);
 vec3 const vec3::right(1,0,0);
+vec3 const vec3::half(.5,.5,.5);
 
 
 #endif
