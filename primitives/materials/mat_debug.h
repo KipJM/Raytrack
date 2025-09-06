@@ -1,14 +1,14 @@
 ﻿#ifndef RAYTRACINGWEEKEND_BASIC_MATERIALS_H
 #define RAYTRACINGWEEKEND_BASIC_MATERIALS_H
 
-#include "diffuse.h"
+#include "mat_diffuse.h"
 #include "../../texture.h"
 
 
-class debug_normal : public material
+class mat_debug_normal : public material
 {
 public:
-	debug_normal() : internal_lambert(diffuse(color(1,1,1))){}
+	mat_debug_normal() : internal_lambert(mat_diffuse(color(1,1,1))){}
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
@@ -18,7 +18,7 @@ public:
 	}
 
 private:
-	diffuse internal_lambert;
+	mat_diffuse internal_lambert;
 };
 
 #endif //RAYTRACINGWEEKEND_BASIC_MATERIALS_H

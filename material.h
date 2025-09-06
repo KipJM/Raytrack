@@ -13,6 +13,11 @@ class material
 	{
 		return false;
 	}
+
+	virtual color emitted(double u, double v, const point3& p) const
+	{
+		return color::zero;
+	}
 };
 
 #endif //RAYTRACINGWEEKEND_MATERIAL_H

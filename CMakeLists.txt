@@ -8,16 +8,16 @@ add_executable(RaytracingWeekend main.cpp
         vec3.h color.h
         ray.h
         hittable.h
-        primitives/geometry/sphere.h
+        primitives/geometry/geo_sphere.h
         hittable_list.h
         misc.h
         interval.h
         camera.h
         material.h
-        primitives/geometry/disk.h
+        primitives/geometry/geo_disk.h
         aabb.h
         bvh.h
-        primitives/materials/debug.h
+        primitives/materials/mat_debug.h
         texture.h
         primitives/textures/tex_color.h
         primitives/textures/tex_checker.h
@@ -28,8 +28,9 @@ add_executable(RaytracingWeekend main.cpp
         primitives/textures/tex_uv_debug.h
         primitives/generator/perlin.h
         primitives/textures/tex_perlin.h
-        primitives/geometry/quad.h
-        primitives/materials/diffuse.h
-        primitives/materials/metallic.h
-        primitives/materials/translucent.h)
+        primitives/geometry/geo_quad.h
+        primitives/materials/mat_diffuse.h
+        primitives/materials/mat_metallic.h
+        primitives/materials/mat_translucent.h
+        primitives/materials/mat_emissive.h)
 target_link_libraries(RaytracingWeekend)

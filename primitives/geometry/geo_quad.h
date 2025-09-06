@@ -2,10 +2,10 @@
 #define RAYTRACINGWEEKEND_QUAD_H
 #include "../../hittable.h"
 
-class quad : public hittable
+class geo_quad : public hittable
 {
 public:
-	quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
+	geo_quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
 		: Q(Q), u(u), v(v), mat(mat)
 	{
 		auto n = cross(u, v);

@@ -1,17 +1,17 @@
 ﻿#ifndef RAYTRACINGWEEKEND_PLANE_H
 #define RAYTRACINGWEEKEND_PLANE_H
 
-#include "quad.h"
+#include "geo_quad.h"
 #include "../../hittable.h"
 #include "../../misc.h"
 
 #include <cmath>
 
-class disk : public quad
+class geo_disk : public geo_quad
 {
 public:
-	disk(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
-		: quad(Q, u, v, mat) {}
+	geo_disk(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
+		: geo_quad(Q, u, v, mat) {}
 
 	virtual void set_bounding_box() override
 	{

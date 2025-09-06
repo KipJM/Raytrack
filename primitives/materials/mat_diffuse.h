@@ -5,11 +5,11 @@
 #include "../textures/tex_color.h"
 #include "../../material.h"
 
-class diffuse : public material
+class mat_diffuse : public material
 {
 public:
-	diffuse(const color& albedo) : albedo(make_shared<tex_color>(albedo)) {};
-	diffuse(shared_ptr<texture> albedo) : albedo(albedo) {};
+	mat_diffuse(const color& albedo) : albedo(make_shared<tex_color>(albedo)) {};
+	mat_diffuse(shared_ptr<texture> albedo) : albedo(albedo) {};
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{

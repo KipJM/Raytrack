@@ -15,6 +15,7 @@ public:
 	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
 	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
 	double			bias			= 0.001; // Fix shadow acne
+	color			background		= color(0.70,0.80,1.00); // background color
 
 	double			vfov			= 90;  // Vertical FOV, in degrees
 	point3			position		= point3(0,0,0); // camera position
@@ -144,22 +145,20 @@ private:
 
 		hit_record rec;
 
-		if (world.hit(r, interval(bias, infinity), rec))
-		{
-			ray scattered;
-			color attenuation;
+		if (!world.hit(r, interval(bias, infinity), rec))
+			return background;
 
-			if (rec.mat->scatter(r, rec, attenuation, scattered))
-			{
-				return attenuation * ray_color(scattered, depth-1, world);
-			}
-			return color(0,0,0);
-		}
 
-		// sky
-		vec3 unit_direction = unit_vector(r.direction());
-		auto a = 0.5*(unit_direction.y() + 1.0); // [-1, 1] => [0, 2] => [0, 1]
-		return color(1.0, 1.0, 1.0) * (1.0-a) + color(0.5, 0.7, 1.0) * a;
+		ray scattered;
+		color attenuation;
+		color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+
+		if (!rec.mat->scatter(r, rec, attenuation, scattered))
+			return color_from_emission;
+
+
+		color color_from_scatter = attenuation * ray_color(scattered, depth - 1, world);
+		return color_from_emission + color_from_scatter;
 	}
 };
 

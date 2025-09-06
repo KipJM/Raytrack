@@ -1,10 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_TRANSLUCENT_H
 #define RAYTRACINGWEEKEND_TRANSLUCENT_H
 
-class translucent : public material
+class mat_translucent : public material
 {
 public:
-	translucent(double refraction_index) : refraction_index(refraction_index) {}
+	mat_translucent(double refraction_index) : refraction_index(refraction_index) {}
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{

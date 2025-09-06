@@ -3,11 +3,11 @@
 
 #include "../../hittable.h"
 
-class sphere : public hittable
+class geo_sphere : public hittable
 {
 public:
 	/// Static
-	sphere(const point3& center, double radius, shared_ptr<material> mat) :
+	geo_sphere(const point3& center, double radius, shared_ptr<material> mat) :
 				center(center, vec3(0,0,0)), radius(std::fmax(0,radius)), mat(mat)
 	{
 		auto rvec = vec3::one * radius;
@@ -15,7 +15,7 @@ public:
 	}
 
 	/// Dynamic
-	sphere(const point3& center_start, const point3& center_end, double radius, shared_ptr<material> mat) :
+	geo_sphere(const point3& center_start, const point3& center_end, double radius, shared_ptr<material> mat) :
 		center(center_start, center_end - center_start), radius(std::fmax(0,radius)), mat(mat)
 	{
 		auto rvec = vec3::one * radius;

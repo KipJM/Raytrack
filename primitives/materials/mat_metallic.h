@@ -5,10 +5,10 @@
 #include "../textures/tex_color.h"
 #include "../../material.h"
 
-class metallic : public material
+class mat_metallic : public material
 {
 public:
-	metallic(const color& albedo, double roughness) : albedo(albedo), roughness(roughness < 1? roughness : 1) {}; // weird cap on roughness :|
+	mat_metallic(const color& albedo, double roughness) : albedo(albedo), roughness(roughness < 1? roughness : 1) {}; // weird cap on roughness :|
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
