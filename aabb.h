@@ -10,7 +10,10 @@ public:
 
 	aabb() {} // default: empty AABB
 
-	aabb(const interval& x, const interval& y, const interval& z) : x(x), y(y), z(z) {}
+	aabb(const interval& x, const interval& y, const interval& z) : x(x), y(y), z(z)
+	{
+		pad_to_minimum();
+	}
 
 	/// Generate AABB that encompass the two points
 	aabb (const point3& a, const point3& b)
@@ -18,6 +21,7 @@ public:
 		x = (a.x() <= b.x()) ? interval(a.x(), b.x()) : interval(b.x(), a.x());
 		y = (a.y() <= b.y()) ? interval(a.y(), b.y()) : interval(b.y(), a.y());
 		z = (a.z() <= b.z()) ? interval(a.z(), b.z()) : interval(b.z(), a.z());
+		pad_to_minimum();
 	}
 
 	/// Generate AABB that encompass both AABBs
@@ -85,6 +89,15 @@ public:
 	}
 
 	static const aabb empty, universe;
+
+private:
+	void pad_to_minimum()
+	{
+		double epsilon = 0.0001;
+		if (x.size() < epsilon) x = x.expand(epsilon);
+		if (y.size() < epsilon) y = y.expand(epsilon);
+		if (z.size() < epsilon) z = z.expand(epsilon);
+	}
 };
 
 const aabb aabb::empty = aabb(interval::empty, interval::empty, interval::empty);

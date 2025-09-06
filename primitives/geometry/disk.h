@@ -1,45 +1,36 @@
 ﻿#ifndef RAYTRACINGWEEKEND_PLANE_H
 #define RAYTRACINGWEEKEND_PLANE_H
 
+#include "quad.h"
 #include "../../hittable.h"
 #include "../../misc.h"
 
-class disk : public hittable
+#include <cmath>
+
+class disk : public quad
 {
 public:
-	disk(double height, double radius, shared_ptr<material> mat):
-		height(height), radius_sqr(radius * radius), mat(mat)
+	disk(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
+		: quad(Q, u, v, mat) {}
+
+	virtual void set_bounding_box() override
 	{
-		interval horiz(-radius, radius);
-		bbox = aabb(horiz, interval(height, height).expand(0.01), horiz);
+		auto bbox_diagonal1 = aabb(Q, Q + u + v);
+		auto bbox_diagonal2 = aabb(Q + u, Q + v);
+		bbox = aabb(bbox_diagonal1, bbox_diagonal2);
 	}
 
-	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
+	virtual bool is_interior(double a, double b, hit_record& rec) const override
 	{
-		if (r.direction().y() > 1e-16 ) return false;
+		if (std::pow(2*a - 1,2)+std::pow(2 * b - 1,2) > 1)
+			return false;
 
-		auto root = (height - r.origin().y()) / r.direction().y();
-
-		auto pos = r.at(root);
-		if (pos.x() * pos.x() + pos.z() * pos.z() > radius_sqr) return false;
-
-		rec.t = root;
-		rec.p = pos;
-		rec.set_face_normal(r, vec3(0,1,0));
-		rec.mat = mat;
+		// set uv coords
+		rec.u = a;
+		rec.v = b;
 		return true;
 	}
 
-	aabb bounding_box() const override
-	{
-		return bbox;
-	}
-
-private:
-	double height;
-	double radius_sqr;
-	shared_ptr<material> mat;
-	aabb bbox;
 };
 
 #endif //RAYTRACINGWEEKEND_PLANE_H
