@@ -17,7 +17,7 @@ add_executable(RaytracingWeekend main.cpp
         primitives/geometry/disk.h
         aabb.h
         bvh.h
-        primitives/materials/basic_materials.h
+        primitives/materials/debug.h
         texture.h
         primitives/textures/tex_color.h
         primitives/textures/tex_checker.h
@@ -28,5 +28,8 @@ add_executable(RaytracingWeekend main.cpp
         primitives/textures/tex_uv_debug.h
         primitives/generator/perlin.h
         primitives/textures/tex_perlin.h
-        primitives/geometry/quad.h)
+        primitives/geometry/quad.h
+        primitives/materials/diffuse.h
+        primitives/materials/metallic.h
+        primitives/materials/translucent.h)
 target_link_libraries(RaytracingWeekend)
