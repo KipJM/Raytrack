@@ -272,8 +272,17 @@ void scn_cornell_box()
 	world.add(make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white));
 	world.add(make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white));
 
-	world.add(cube(point3(130, 0, 65), point3(295, 165, 230), mat_white));
-	world.add(cube(point3(265, 0, 295), point3(430, 330, 460), mat_white));
+	shared_ptr<hittable> cube1 = geo_cube(point3(0, 0, 0), point3(165, 330, 165), mat_white);
+	shared_ptr<hittable> cube2 = geo_cube(point3(0, 0, 0), point3(165, 165, 165), mat_white);
+
+	cube1 = make_shared<rotate_y>(cube1, 15);
+	cube2 = make_shared<rotate_y>(cube2, -18);
+
+	cube1 = make_shared<translate>(cube1, vec3(265, 0, 295));
+	cube2 = make_shared<translate>(cube2, vec3(130, 0, 65));
+
+	world.add(cube1);
+	world.add(cube2);
 
 	camera cam;
 
@@ -293,6 +302,7 @@ void scn_cornell_box()
 
 	cam.output = std::ofstream("image.ppm");
 
+	// cam.render(world);
 	cam.render(bvh_node(world));
 
 }

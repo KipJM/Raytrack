@@ -5,7 +5,7 @@
 #include "../../hittable_list.h"
 #include "geo_quad.h"
 
-inline shared_ptr<hittable_list> cube(const point3& a, const point3& b, shared_ptr<material> mat)
+inline shared_ptr<hittable_list> geo_cube(const point3& a, const point3& b, shared_ptr<material> mat)
 {
 	auto sides = make_shared<hittable_list>();
 
