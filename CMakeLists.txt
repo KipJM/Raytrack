@@ -33,5 +33,6 @@ add_executable(RaytracingWeekend main.cpp
         primitives/materials/mat_metallic.h
         primitives/materials/mat_translucent.h
         primitives/materials/mat_emissive.h
-        primitives/geometry/geo_cube.h)
+        primitives/geometry/geo_cube.h
+        transformers.h)
 target_link_libraries(RaytracingWeekend)

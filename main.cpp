@@ -6,6 +6,7 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "bvh.h"
+#include "transformers.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/materials/mat_debug.h"
 #include "primitives/geometry/geo_sphere.h"
@@ -275,11 +276,14 @@ void scn_cornell_box()
 	shared_ptr<hittable> cube1 = geo_cube(point3(0, 0, 0), point3(165, 330, 165), mat_white);
 	shared_ptr<hittable> cube2 = geo_cube(point3(0, 0, 0), point3(165, 165, 165), mat_white);
 
-	cube1 = make_shared<rotate_y>(cube1, 15);
-	cube2 = make_shared<rotate_y>(cube2, -18);
+	cube1 = make_shared<trn_rotate_x>(cube1, 60);
+	cube1 = make_shared<trn_rotate_y>(cube1, 15);
+	cube1 = make_shared<trn_rotate_z>(cube1, 65);
 
-	cube1 = make_shared<translate>(cube1, vec3(265, 0, 295));
-	cube2 = make_shared<translate>(cube2, vec3(130, 0, 65));
+	cube2 = make_shared<trn_rotate_y>(cube2, -18);
+
+	cube1 = make_shared<trn_move>(cube1, vec3(265, 50, 295));
+	cube2 = make_shared<trn_move>(cube2, vec3(130, 0, 65));
 
 	world.add(cube1);
 	world.add(cube2);
@@ -291,7 +295,7 @@ void scn_cornell_box()
 
 	cam.background = color::zero;
 
-	cam.sample_count = 50;
+	cam.sample_count = 300;
 	cam.max_bounces = 20;
 
 	cam.vfov = 40;
