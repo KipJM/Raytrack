@@ -6,6 +6,7 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "bvh.h"
+#include "primitives/geometry/geo_cube.h"
 #include "primitives/materials/mat_debug.h"
 #include "primitives/geometry/geo_sphere.h"
 #include "primitives/geometry/geo_disk.h"
@@ -255,6 +256,47 @@ void scn_simple_light()
 	cam.render(bvh_node(world));
 }
 
+void scn_cornell_box()
+{
+	hittable_list world;
+
+	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));
+	auto mat_white = make_shared<mat_diffuse>(color::one * .73);
+	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));
+	auto mat_emission = make_shared<mat_emissive>(color::one * 15);
+
+	world.add(make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green));
+	world.add(make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red));
+	world.add(make_shared<geo_quad>(point3(343,554,332), vec3(-130,0,0),vec3(0,0,-105), mat_emission));
+	world.add(make_shared<geo_quad>(point3(0,0,0),vec3(555,0,0),vec3(0,0,555), mat_white));
+	world.add(make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white));
+	world.add(make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white));
+
+	world.add(cube(point3(130, 0, 65), point3(295, 165, 230), mat_white));
+	world.add(cube(point3(265, 0, 295), point3(430, 330, 460), mat_white));
+
+	camera cam;
+
+	cam.aspect_ratio = 1.0;
+	cam.image_width = 600;
+
+	cam.background = color::zero;
+
+	cam.sample_count = 50;
+	cam.max_bounces = 20;
+
+	cam.vfov = 40;
+	cam.position = point3(278,278,-800);
+	cam.lookat = point3(278,278,0);
+	cam.vup = vec3(0,1,0);
+	cam.defocus_angle = 0;
+
+	cam.output = std::ofstream("image.ppm");
+
+	cam.render(bvh_node(world));
+
+}
+
 int main(int argc, char** argv)
 {
 	// scn_lots_of_spheres();
@@ -262,5 +304,6 @@ int main(int argc, char** argv)
 	// scn_earth();
 	// scn_perlin();
 	// scn_quads();
-	scn_simple_light();
+	// scn_simple_light();
+	scn_cornell_box();
 }
