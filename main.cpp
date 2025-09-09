@@ -7,6 +7,7 @@
 #include "hittable_list.h"
 #include "bvh.h"
 #include "transformers.h"
+#include "volume_convex.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/materials/mat_debug.h"
 #include "primitives/geometry/geo_sphere.h"
@@ -264,7 +265,7 @@ void scn_cornell_box()
 	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));
 	auto mat_white = make_shared<mat_diffuse>(color::one * .73);
 	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));
-	auto mat_emission = make_shared<mat_emissive>(color::one * 15);
+	auto mat_emission = make_shared<mat_emissive>(color::one * 7);
 
 	world.add(make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green));
 	world.add(make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red));
@@ -276,6 +277,7 @@ void scn_cornell_box()
 	shared_ptr<hittable> cube1 = geo_cube(point3(0, 0, 0), point3(165, 330, 165), mat_white);
 	shared_ptr<hittable> cube2 = geo_cube(point3(0, 0, 0), point3(165, 165, 165), mat_white);
 
+
 	cube1 = make_shared<trn_rotate_x>(cube1, 60);
 	cube1 = make_shared<trn_rotate_y>(cube1, 15);
 	cube1 = make_shared<trn_rotate_z>(cube1, 65);
@@ -285,6 +287,7 @@ void scn_cornell_box()
 	cube1 = make_shared<trn_move>(cube1, vec3(265, 50, 295));
 	cube2 = make_shared<trn_move>(cube2, vec3(130, 0, 65));
 
+	cube2 = make_shared<volume_convex>(cube2, .008, make_shared<mat_volumetric>(color::zero));
 	world.add(cube1);
 	world.add(cube2);
 
@@ -295,8 +298,8 @@ void scn_cornell_box()
 
 	cam.background = color::zero;
 
-	cam.sample_count = 300;
-	cam.max_bounces = 20;
+	cam.sample_count = 200;
+	cam.max_bounces = 50;
 
 	cam.vfov = 40;
 	cam.position = point3(278,278,-800);

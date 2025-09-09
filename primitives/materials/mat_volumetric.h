@@ -1,0 +1,23 @@
+﻿#ifndef RAYTRACINGWEEKEND_MAT_VOLUMETRIC_H
+#define RAYTRACINGWEEKEND_MAT_VOLUMETRIC_H
+#include "../../material.h"
+#include "../../texture.h"
+#include "../textures/tex_color.h"
+
+class mat_volumetric : public material {
+public:
+	mat_volumetric(const color& albedo) : tex(make_shared<tex_color>(albedo)) {}
+	mat_volumetric(shared_ptr<texture> albedo) : tex(albedo) {}
+
+	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
+	{
+		scattered = ray(rec.p, rand_unit_vector(), r_in.time());
+		attenuation = tex->value(rec.u, rec.v, rec.p);
+		return true;
+	}
+
+private:
+	shared_ptr<texture> tex;
+};
+
+#endif //RAYTRACINGWEEKEND_MAT_VOLUMETRIC_H
