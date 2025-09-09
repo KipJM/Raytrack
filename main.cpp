@@ -1,6 +1,4 @@
-﻿#include <chrono>
-
-#include "misc.h"
+﻿#include "misc.h"
 
 #include "camera.h"
 #include "hittable.h"

@@ -44,3 +44,8 @@ image.ppm
 
 # debug information files
 *.dwo
+
+/glfw-3.4/docs/
+/imgui/docs/
+/imgui/examples/
+/imgui/.github/
