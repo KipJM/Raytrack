@@ -32,8 +32,8 @@ set(IMGUI_SRC
 
 include_directories(imgui imgui/backends)
 
-add_executable(RaytracingWeekend window_main.cpp
-#        main.cpp
+add_executable(RaytracingWeekend #[[window_main.cpp]]
+        main.cpp
         vec3.h color.h
         ray.h
         hittable.h
@@ -66,9 +66,10 @@ add_executable(RaytracingWeekend window_main.cpp
         transformers.h
         volume_convex.h
         primitives/materials/mat_volumetric.h
-        window_main.cpp
         glad.c
         ${IMGUI_SRC}
+        viewport.h
+        render_worker.h
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 

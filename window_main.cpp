@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// ImGui::ShowDemoWindow();
+		// glTexImage2D();
 
 		// Window loop
 		int width, height;
@@ -129,26 +129,6 @@ void RenderInterface()
 
 		ImGui::EndMainMenuBar();
 	}
-
-	ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Viewport", (bool*)v_enabled, 0))
-	{
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-	ImGui::Text("Go to Menu > Windows! 800x600");
-
-	ImGui::End();
-
-	ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Viewport 2", (bool*)v2_enabled, 0))
-	{
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-	ImGui::Text("2! Go to Menu > Windows! 800x600");
 
 	ImGui::End();
 }

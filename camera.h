@@ -7,8 +7,6 @@
 class camera
 {
 public:
-	std::ofstream	output;				   // Path to ppm image file
-
 	double			aspect_ratio	= 1.0; // Width over height
 	int				image_width		= 100; // Image width (px)
 
@@ -25,11 +23,16 @@ public:
 	double			defocus_angle	= 0; // Variation angle of rays through each pixel
 	double			focus_distance	= 10; // Distance to perfect focus
 
-	void render(const hittable& world)
+	void ready()
 	{
 		initialize();
+	}
 
-		output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
+	bool render(const hittable& world, std::vector<unsigned char>& output, bool& early_exit)
+	{
+
+		// ppm output disabled
+		// output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
 
 		for (int j = 0; j < image_height; j++)
 		{
@@ -41,7 +44,14 @@ public:
 
 				for (int sample = 0; sample < sample_count; sample++)
 				{
-					// Per sample operations
+					// Early exit
+					if (early_exit)
+					{
+						std::wclog << "EARLY EXIT!" << '\n';
+						return false; // Render cancelled
+					}
+
+					// Per sample operations here!
 
 					// technically HDR supported
 					ray r = get_ray(i, j);
@@ -53,7 +63,7 @@ public:
 			}
 		}
 		std::clog << "\rDone.                 \n";
-		output.close();
+		return true; // Finished successfully!
 	}
 
 private:

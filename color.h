@@ -23,19 +23,21 @@ inline int to_sdr(double intensity)
 	return int(256 * sdr_range.clamp(linear_to_gamma(intensity)));
 }
 
-void write_color(std::ostream& out, const color& pixel_color)
+void write_color(std::vector<unsigned char>& out, const color& pixel_color)
 {
 	auto r = pixel_color.x();
 	auto g = pixel_color.y();
 	auto b = pixel_color.z();
 
 	// PPM only support SDR. TODO: Use another format to achieve HDR
-	int rbyte = to_sdr(r);
-	int gbyte = to_sdr(g);
-	int bbyte = to_sdr(b);
+	unsigned char rbyte = to_sdr(r);
+	unsigned char gbyte = to_sdr(g);
+	unsigned char bbyte = to_sdr(b);
 
 	// Write out color
-	out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+	out.push_back(rbyte);
+	out.push_back(gbyte);
+	out.push_back(bbyte);
 }
 
 #endif

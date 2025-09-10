@@ -86,7 +86,7 @@ void scn_lots_of_spheres()
 
 	cam.aspect_ratio = 16.0 / 9.0;
 	cam.image_width = 400;
-	cam.output = std::ofstream("image.ppm");
+	//cam.output = std::ofstream("image.ppm");
 
 	cam.vfov = 20;
 	cam.position = point3(13,2,3);
@@ -99,7 +99,9 @@ void scn_lots_of_spheres()
 	cam.sample_count = 10;
 	cam.max_bounces = 24;
 
-	cam.render(world);
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(world, output);
 }
 
 void scn_checked_spheres()
@@ -118,7 +120,7 @@ void scn_checked_spheres()
 	cam.sample_count = 100;
 	cam.max_bounces = 50;
 
-	cam.output = std::ofstream("image.ppm");
+	//cam.output = std::ofstream("image.ppm");
 
 	cam.vfov = 20;
 	cam.position = point3(13, 2, 3);
@@ -128,7 +130,9 @@ void scn_checked_spheres()
 	cam.defocus_angle = 0;
 	cam.focus_distance = 10;
 
-	cam.render(world);
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(world, output);
 }
 
 void scn_earth()
@@ -152,9 +156,11 @@ void scn_earth()
 
 	cam.defocus_angle = 0;
 
-	cam.output = std::ofstream("image.ppm");
+	//cam.output = std::ofstream("image.ppm");
 
-	cam.render(hittable_list(globe));
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(hittable_list(globe), output);
 }
 
 void scn_perlin()
@@ -180,12 +186,14 @@ void scn_perlin()
 
 	cam.defocus_angle = 0;
 
-	cam.output = std::ofstream("image.ppm");
+	//cam.output = std::ofstream("image.ppm");
 
 
-	// cam.render(bvh_node(world));
 
-	cam.render(world);
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(bvh_node(world), output);
+	// cam.render(world);
 }
 
 void scn_quads()
@@ -220,9 +228,11 @@ void scn_quads()
 
 	cam.defocus_angle = 0;
 
-	cam.output = std::ofstream("image.ppm");
+	//cam.output = std::ofstream("image.ppm");
 
-	cam.render(hittable_list(make_shared<bvh_node>(world)));
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(hittable_list(make_shared<bvh_node>(world)), output);
 }
 
 void scn_simple_light()
@@ -251,9 +261,11 @@ void scn_simple_light()
 
 	cam.defocus_angle = 0;
 
-	cam.output = std::ofstream("image.ppm");
+	// //cam.output = std::ofstream("image.ppm");
 
-	cam.render(bvh_node(world));
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(bvh_node(world), output);
 }
 
 void scn_cornell_box()
@@ -296,7 +308,7 @@ void scn_cornell_box()
 
 	cam.background = color::zero;
 
-	cam.sample_count = 200;
+	cam.sample_count = 20;
 	cam.max_bounces = 50;
 
 	cam.vfov = 40;
@@ -305,11 +317,12 @@ void scn_cornell_box()
 	cam.vup = vec3(0,1,0);
 	cam.defocus_angle = 0;
 
-	cam.output = std::ofstream("image.ppm");
+	// //cam.output = std::ofstream("image.ppm");
 
 	// cam.render(world);
-	cam.render(bvh_node(world));
-
+	std::vector<unsigned char> output;
+	cam.ready();
+	cam.render(bvh_node(world), output);
 }
 
 int main(int argc, char** argv)
@@ -321,4 +334,5 @@ int main(int argc, char** argv)
 	// scn_quads();
 	// scn_simple_light();
 	scn_cornell_box();
+
 }

@@ -17,7 +17,7 @@ public:
 	hittable_list world;
 
 
-	void render()
+	void update()
 	{
 		if (dirty)
 		{
@@ -26,13 +26,23 @@ public:
 			dirty = false;
 		}
 
-		camera.render(bvh_cache);
-
 	}
 
-	void mark_dirty()
+	bool mark_dirty()
 	{
+		auto prev_dirty = dirty;
 		dirty = true;
+		return prev_dirty;
+	}
+
+	bool is_dirty()
+	{
+		return dirty;
+	}
+
+	hittable& get_render_scene()
+	{
+		return bvh_cache;
 	}
 
 private:
