@@ -1,60 +1,38 @@
 ﻿#ifndef RAYTRACINGWEEKEND_RENDERER_H
 #define RAYTRACINGWEEKEND_RENDERER_H
+#include <thread>
+
 #include "camera.h"
 #include "hittable_list.h"
-#include "viewport.h"
+
+class viewport;
 
 class render_worker
 {
 public:
+	bool get_heartbeat() const;
 
-	explicit render_worker(viewport& viewport) : viewport(viewport), early_exit(false), sigkill(false)
-	{
-		thread = std::thread(&render_worker::render_loop, this);
-	}
+	explicit render_worker(viewport& vp);
 
-	~render_worker()
-	{
-		early_exit = true;
-		sigkill = true;
-	}
+	~render_worker();
 
-	void reset()
-	{
-		early_exit = true;
-	}
+	void reset();
 
-	void render_loop()
-	{
-		while (!sigkill)
-		{
-			if (render(viewport.scene.camera, viewport.scene.get_render_scene()))
-			{
-				viewport.append_image(output);
-			}
-			else if (early_exit)
-			{
-				// reset early exit
-				early_exit = false;
-			}
-		}
-		std::clog << "thread died an honorable death" << '\n';
-	}
+	void render_loop();
 
-	bool render(camera& camera, const hittable& world)
-	{
-		// clear render buffer
-		output = std::vector<unsigned char>();
-		return camera.render(world, output, early_exit);
-	}
+	bool render(camera& camera, const hittable& world);
 
 private:
-	viewport& viewport;
+	viewport& viewport_;
 	bool early_exit = false;
 	bool sigkill = false;
 	std::vector<unsigned char> output;
 
 	std::thread thread;
+
+	bool heartbeat = false;
 };
+
+
 
 #endif //RAYTRACINGWEEKEND_RENDERER_H

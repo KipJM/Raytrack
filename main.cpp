@@ -4,7 +4,9 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "bvh.h"
+#include "scene.h"
 #include "transformers.h"
+#include "viewport.h"
 #include "volume_convex.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/materials/mat_debug.h"
@@ -303,12 +305,9 @@ void scn_cornell_box()
 
 	camera cam;
 
-	cam.aspect_ratio = 1.0;
-	cam.image_width = 600;
-
 	cam.background = color::zero;
 
-	cam.sample_count = 20;
+	cam.sample_count = 1;
 	cam.max_bounces = 50;
 
 	cam.vfov = 40;
@@ -320,9 +319,17 @@ void scn_cornell_box()
 	// //cam.output = std::ofstream("image.ppm");
 
 	// cam.render(world);
-	std::vector<unsigned char> output;
-	cam.ready();
-	cam.render(bvh_node(world), output);
+	scene scn;
+	scn.camera = cam;
+	scn.world = world;
+
+	viewport vp(scn, 300, 200, 5);
+
+	while (true)
+	{
+		vp.update();
+
+	}
 }
 
 int main(int argc, char** argv)

@@ -7,8 +7,9 @@
 class camera
 {
 public:
-	double			aspect_ratio	= 1.0; // Width over height
+	double			aspect_ratio	= -1; // Width over height
 	int				image_width		= 100; // Image width (px)
+	int				image_height	= -1;
 
 	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
 	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
@@ -28,6 +29,12 @@ public:
 		initialize();
 	}
 
+	bool render(const hittable& world, std::vector<unsigned char>& output)
+	{
+		bool _ = false;
+		return render(world, output, _);
+	}
+
 	bool render(const hittable& world, std::vector<unsigned char>& output, bool& early_exit)
 	{
 
@@ -36,7 +43,7 @@ public:
 
 		for (int j = 0; j < image_height; j++)
 		{
-			std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+			// std::clog << "\rScanlines remaining: " << (image_height - j) << '\n';
 			for (int i = 0; i < image_width; i++)
 			{
 				// Per pixel operations
@@ -62,12 +69,12 @@ public:
 
 			}
 		}
-		std::clog << "\rDone.                 \n";
+		// std::clog << "\rDone.                 \n";
 		return true; // Finished successfully!
 	}
 
 private:
-	int		image_height = 0;	// Image height (px)
+	// int		image_height = 0;	// Image height (px)
 	double	sample_contribution = 0; // the factor of each sample's influence on the pixel
 	point3	center;			// Camera Center (3D)
 	point3	pixel00_loc;	// Location of screen pixel (0,0) (3D)
@@ -80,7 +87,11 @@ private:
 
 	void initialize()
 	{
-		image_height = int(image_width / aspect_ratio);
+		if (image_height < 0 && aspect_ratio > 0)
+		{
+			// legacy: calculate image height based on ratio
+			image_height = int(image_width / aspect_ratio);
+		}
 		image_height = (image_height < 1) ? 1 : image_height;
 
 		sample_contribution = 1.0 / sample_count;

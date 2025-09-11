@@ -186,12 +186,12 @@ inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat)
 }
 
 
-vec3 const vec3::zero(0,0,0);
-vec3 const vec3::one(1,1,1);
-vec3 const vec3::up(0,1,0);
-vec3 const vec3::forward(0,0,-1);
-vec3 const vec3::right(1,0,0);
-vec3 const vec3::half(.5,.5,.5);
+inline vec3 const vec3::zero(0,0,0);
+inline vec3 const vec3::one(1,1,1);
+inline vec3 const vec3::up(0,1,0);
+inline vec3 const vec3::forward(0,0,-1);
+inline vec3 const vec3::right(1,0,0);
+inline vec3 const vec3::half(.5,.5,.5);
 
 
 #endif

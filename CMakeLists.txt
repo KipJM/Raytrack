@@ -70,6 +70,7 @@ add_executable(RaytracingWeekend #[[window_main.cpp]]
         ${IMGUI_SRC}
         viewport.h
         render_worker.h
+        render_worker.cpp
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 

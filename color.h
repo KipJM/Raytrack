@@ -23,7 +23,7 @@ inline int to_sdr(double intensity)
 	return int(256 * sdr_range.clamp(linear_to_gamma(intensity)));
 }
 
-void write_color(std::vector<unsigned char>& out, const color& pixel_color)
+inline void write_color(std::vector<unsigned char>& out, const color& pixel_color)
 {
 	auto r = pixel_color.x();
 	auto g = pixel_color.y();

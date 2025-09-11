@@ -16,7 +16,6 @@ public:
 	std::vector<shared_ptr<material>> materials;
 	hittable_list world;
 
-
 	void update()
 	{
 		if (dirty)
@@ -35,13 +34,16 @@ public:
 		return prev_dirty;
 	}
 
-	bool is_dirty()
+	[[nodiscard]] bool is_dirty() const
 	{
 		return dirty;
 	}
 
 	hittable& get_render_scene()
 	{
+		if (dirty)
+			update();
+
 		return bvh_cache;
 	}
 
