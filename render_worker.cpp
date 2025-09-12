@@ -32,7 +32,7 @@ void render_worker::render_loop()
 	{
 		// std::clog << "thread " << this << ": sigkill: " << sigkill << " early_exit: " << early_exit << '\n';
 		heartbeat = true;
-		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()))
+		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()) && !early_exit)
 		{
 			std::clog << "thread " << this << " render finished!\n";
 			viewport_.append_image(output);
@@ -50,6 +50,6 @@ void render_worker::render_loop()
 bool render_worker::render(camera& camera, const hittable& world)
 {
 	// clear render buffer
-	output = std::vector<unsigned char>();
+	output = std::vector<float>();
 	return camera.render(world, output, early_exit);
 }

@@ -29,13 +29,13 @@ public:
 		initialize();
 	}
 
-	bool render(const hittable& world, std::vector<unsigned char>& output)
+	bool render(const hittable& world, std::vector<float>& output)
 	{
 		bool _ = false;
 		return render(world, output, _);
 	}
 
-	bool render(const hittable& world, std::vector<unsigned char>& output, bool& early_exit)
+	bool render(const hittable& world, std::vector<float>& output, bool& early_exit)
 	{
 
 		// ppm output disabled

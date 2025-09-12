@@ -270,7 +270,7 @@ void scn_simple_light()
 	cam.render(bvh_node(world), output);
 }
 
-void scn_cornell_box()
+void scn_cornell_box(scene& scn)
 {
 	hittable_list world;
 
@@ -319,27 +319,18 @@ void scn_cornell_box()
 	// //cam.output = std::ofstream("image.ppm");
 
 	// cam.render(world);
-	scene scn;
 	scn.camera = cam;
 	scn.world = world;
-
-	viewport vp(scn, 300, 200, 5);
-
-	while (true)
-	{
-		vp.update();
-
-	}
 }
 
-int main(int argc, char** argv)
-{
-	// scn_lots_of_spheres();
-	// scn_checked_spheres();
-	// scn_earth();
-	// scn_perlin();
-	// scn_quads();
-	// scn_simple_light();
-	scn_cornell_box();
-
-}
+// int main(int argc, char** argv)
+// {
+// 	// scn_lots_of_spheres();
+// 	// scn_checked_spheres();
+// 	// scn_earth();
+// 	// scn_perlin();
+// 	// scn_quads();
+// 	// scn_simple_light();
+// 	scn_cornell_box();
+//
+// }

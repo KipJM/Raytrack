@@ -26,7 +26,7 @@ private:
 	viewport& viewport_;
 	bool early_exit = false;
 	bool sigkill = false;
-	std::vector<unsigned char> output;
+	std::vector<float> output;
 
 	std::thread thread;
 
