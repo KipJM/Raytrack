@@ -34,7 +34,7 @@ void render_worker::render_loop()
 		heartbeat = true;
 		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()) && !early_exit)
 		{
-			std::clog << "thread " << this << " render finished!\n";
+			// std::clog << "thread " << this << " render finished!\n";
 			viewport_.append_image(output);
 		}
 		else if (early_exit)
@@ -51,5 +51,5 @@ bool render_worker::render(camera& camera, const hittable& world)
 {
 	// clear render buffer
 	output = std::vector<float>();
-	return camera.render(world, output, early_exit);
+	return camera.render(world, output, early_exit, viewport_.density_map, viewport_.get_current_sample_count());
 }

@@ -7,39 +7,44 @@
 class camera
 {
 public:
-	double			aspect_ratio	= -1; // Width over height
-	int				image_width		= 100; // Image width (px)
-	int				image_height	= -1;
+	double			aspect_ratio	= -1;    // Width over height. If height is not set, it will be calculated from this.
+	int				image_width		= 100;   // Image width (px)
+	int				image_height	= -1;    // Image height (px)
 
-	int				sample_count	= 50;  // Number of rand samples for each pixel (supersampling)
-	int				max_bounces		= 10;  // Maximum amount of bounces for a ray
+	double			pixel_ratio		= 1;     // If < 1 and > 0, defines the random chance of this pixel being drawn (for multithreading)
+	double			filler_ratio	= 1;     // Random chance of neglected pixels being filled by this render cycle
+	int				sample_count	= 1;     // Number of random samples taken for each pixel for each worker
+	int				min_samples		= 5;	 // Pixels with sample count below this will be preferred in they're not rendered after a while
+	int				max_bounces		= 10;    // Maximum amount of bounces for a ray
 	double			bias			= 0.001; // Fix shadow acne
 	color			background		= color(0.70,0.80,1.00); // background color
 
-	double			vfov			= 90;  // Vertical FOV, in degrees
-	point3			position		= point3(0,0,0); // camera position
-	point3			lookat			= point3(0,0,-1); // look at this point
-	vec3			vup				= vec3(0,1,0);    // Camera-relative up direction
+	double			vfov			= 90;    // Vertical FOV, in degrees
+	point3			position		= point3(0,0,0);         // camera position
+	point3			lookat			= point3(0,0,-1);        // look at this point
+	vec3			vup				= vec3(0,1,0);           // Camera-relative up direction
 
-	double			defocus_angle	= 0; // Variation angle of rays through each pixel
-	double			focus_distance	= 10; // Distance to perfect focus
+	double			defocus_angle	= 0;     // Variation angle of rays through each pixel
+	double			focus_distance	= 10;    // Distance to perfect focus
 
 	void ready()
 	{
 		initialize();
 	}
 
-	bool render(const hittable& world, std::vector<float>& output)
-	{
-		bool _ = false;
-		return render(world, output, _);
-	}
+	// bool render(const hittable& world, std::vector<float>& output)
+	// {
+	// 	bool _ = false;
+	// 	return render(world, output, _);
+	// }
 
-	bool render(const hittable& world, std::vector<float>& output, bool& early_exit)
+	bool render(const hittable& world, std::vector<float>& output, bool& early_exit, std::vector<int>& density_map, int current_sample_count)
 	{
 
 		// ppm output disabled
 		// output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
+
+		int px = 0;
 
 		for (int j = 0; j < image_height; j++)
 		{
@@ -49,24 +54,53 @@ public:
 				// Per pixel operations
 				color pixel_color(0,0,0);
 
-				for (int sample = 0; sample < sample_count; sample++)
+
+				// for pixel ratio, prioritize drawing pixels with less data
+				// what a hellish algorithm :)
+				bool render_pixel = false;
+				if (pixel_ratio < 0 || pixel_ratio > 1)
+					render_pixel = true;
+				else if (current_sample_count > (min_samples / pixel_ratio))
 				{
-					// Early exit
-					if (early_exit)
+					if (px < density_map.size())
 					{
-						std::wclog << "EARLY EXIT!" << '\n';
-						return false; // Render cancelled
+						if (density_map[px] < min_samples)
+							if (rand_double() < filler_ratio)
+							render_pixel = true;
+					} else
+					{
+						// Resolution probably changed, doesn't really matter since early exit will be called
+						std::clog << "PX EXCEEDS DENSITY MAP\n";
 					}
+				}
+				if (rand_double() < pixel_ratio) // another chance / default
+					render_pixel = true;
 
-					// Per sample operations here!
 
-					// technically HDR supported
-					ray r = get_ray(i, j);
-					pixel_color += ray_color(r, max_bounces, world);
+				if (render_pixel)
+				{
+					for (int sample = 0; sample < sample_count; sample++)
+					{
+						// Early exit
+						if (early_exit)
+						{
+							std::wclog << "EARLY EXIT!" << '\n';
+							return false; // Render cancelled
+						}
+
+						// Per sample operations here!
+
+						// technically HDR supported
+						ray r = get_ray(i, j);
+						pixel_color += ray_color(r, max_bounces, world);
+					}
+				} else
+				{
+					pixel_color = color(-1,-1,-1); // -1 = SKIPPED
 				}
 
 				write_color(output, sample_contribution * pixel_color);
-
+				px+=3; // TODO: change if channel count changes
 			}
 		}
 		// std::clog << "\rDone.                 \n";

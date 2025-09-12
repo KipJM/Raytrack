@@ -111,7 +111,11 @@ void scn_cornell_box(scene& scn)
 
 	scn.camera.background = color::zero;
 
+	scn.camera.pixel_ratio = .1;
+	scn.camera.filler_ratio = .5;
+
 	scn.camera.sample_count = 1;
+	scn.camera.min_samples = 5;
 	scn.camera.max_bounces = 20;
 
 	scn.camera.vfov = 40;

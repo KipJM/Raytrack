@@ -10,6 +10,7 @@ class viewport
 {
 public:
 	scene& target_scene;
+	std::vector<int> density_map;  // amount of samples per pixel /// PLEASE DO NOT EDIT OH MY GOD WHY NO LAMBDAS
 
 	viewport() = delete;
 
@@ -24,8 +25,8 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 
 		set_resolution(resolution_width, resolution_height);
@@ -40,6 +41,7 @@ public:
 		// todo: create texture!
 		std::clog << "constructor exit\n";
 	}
+
 
 	unsigned int get_texture_id() const { return texture_id; }
 
@@ -88,6 +90,12 @@ public:
 		return target_scene.camera.image_height;
 	}
 
+	[[nodiscard]] int get_current_sample_count() const
+	{
+		return current_samples;
+	}
+
+
 	bool mark_dirty()
 	{
 		auto was_dirty = dirty;
@@ -99,11 +107,6 @@ public:
 	{
 		backlog.push(std::move(image));
 		current_samples += target_scene.camera.sample_count;
-	}
-
-	[[nodiscard]] int get_current_sample_count() const
-	{
-		return current_samples;
 	}
 
 	void update()
@@ -122,26 +125,34 @@ public:
 		if (!backlog.empty())
 		{
 			std::clog<<"backlog: " << backlog.size()<<"\n";
+
+
 			// merge textures
 			auto &tex = backlog.front();
-
-			// float intensity = 0;
-			auto f_index = static_cast<float>(index);
 			for (int i = 0; i < current_tex.size(); i++)
 			{
-				// Mix previous textures and new texture with same ratio
-				// prev: (n)/(n+1) | current: (1)/(n+1)
-				current_tex[i] = f_index / (f_index + 1.0f) * current_tex[i] + tex[i] * (1.0f / (f_index+1.0f));
-				// intensity += current_tex[i];
+				// Mix previous textures and new texture, normalization will be done later
+				// -1 means pixel is skipped, so no contribution
+				if (tex[i] >= 0)
+				{
+					current_tex[i] += tex[i];
+					density_map[i] += 1;
+				}
 			}
 
-			// std::clog << "intensity: " << intensity << '\n';
+			// normalization; convert to sdr
 
-			// convert to sdr
 			std::vector<float> out_gamma(current_tex.size());
+
 			for (int i = 0; i < current_tex.size(); i++)
 			{
-				out_gamma[i] = linear_to_gamma(current_tex[i]);
+				if (density_map[i] == 0 )
+					out_gamma[i] = 0.0f;
+				else
+				{
+					auto compensation = 1.0f / static_cast<float>(density_map[i]);
+					out_gamma[i] = linear_to_gamma(current_tex[i] * compensation);
+				}
 			}
 
 			backlog.pop();
@@ -175,23 +186,24 @@ public:
 		target_scene.camera.image_width = resolution_width;
 		target_scene.camera.image_height = resolution_height;
 
-		// update resolution
-		current_tex = std::vector<float>(get_width() * get_height() * channels_per_pixel);
+		reset();
 
 		// OpenGL: Change texture (resolution change)
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, resolution_width, resolution_height, 0,
 			GL_RGB, GL_FLOAT, current_tex.data());
 
-		reset();
 	}
 
 	void reset()
 	{
-		// do not clear current tex to prevent excessive memory juggling
 		// clear backlog
 		std::queue<std::vector<float>> empty;
 		std::swap( backlog, empty );
+
+		// update resolution, clear data
+		current_tex = std::vector<float>(get_width() * get_height() * channels_per_pixel);
+		density_map = std::vector<int>(get_width() * get_height() * channels_per_pixel);
 
 		target_scene.camera.ready();
 
@@ -212,7 +224,7 @@ private:
 	bool dirty = false; // Viewport resolution changed
 	int channels_per_pixel = 3;
 	std::queue<std::vector<float>> backlog;
-	std::vector<float> current_tex;
+	std::vector<float> current_tex; // color data
 
 	std::vector<std::unique_ptr<render_worker>> workers;
 

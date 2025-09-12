@@ -17,10 +17,10 @@ inline float linear_to_gamma(float linear_intensity)
 	return 0;
 }
 
-inline int to_sdr(double intensity)
+inline float to_sdr(float intensity)
 {
-	static const interval sdr_range(0.000, 0.999);
-	return int(256 * sdr_range.clamp(linear_to_gamma(intensity)));
+	static const interval sdr_range(0.000, 1.000);
+	return sdr_range.clamp(linear_to_gamma(intensity));
 }
 
 inline void write_color(std::vector<float>& out, const color& pixel_color)
