@@ -72,6 +72,7 @@ add_executable(RaytracingWeekend
         viewport.h
         render_worker.h
         render_worker.cpp
+        user_interface.h
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 
