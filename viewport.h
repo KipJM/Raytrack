@@ -58,9 +58,9 @@ public:
 		return static_cast<int>(workers.size());
 	}
 
-	bool set_worker_count(int count)
+	bool set_worker_count(int count, bool override = false)
 	{
-		if (count < 1)
+		if (count < 1 && !override)
 			return false;
 
 		if (count > workers.size())
@@ -122,10 +122,17 @@ public:
 
 	bool mark_dirty()
 	{
-
 		auto was_dirty = dirty;
 		dirty = true;
 		return was_dirty;
+	}
+
+	int temp_workers_count;
+	bool mark_scene_dirty()
+	{
+		temp_workers_count = get_workers_count();
+		set_worker_count(0, true);
+		return target_scene.mark_dirty();
 	}
 
 	void append_image(std::vector<float>& image)
@@ -153,6 +160,7 @@ public:
 			if (target_scene.is_dirty())
 			{
 				target_scene.update();
+				set_worker_count(temp_workers_count);
 			}
 			// Stop everything! Reset renderers
 			// Don't clear the texture, prevent flickering

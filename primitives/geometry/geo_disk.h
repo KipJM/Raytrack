@@ -32,7 +32,6 @@ public:
 		rec.v = b;
 		return true;
 	}
-
 };
 
 #endif //RAYTRACINGWEEKEND_PLANE_H

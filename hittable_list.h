@@ -54,6 +54,7 @@ public:
 	}
 
 private:
+	std::string name;
 	aabb bbox;
 };
 

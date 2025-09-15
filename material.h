@@ -7,6 +7,8 @@
 class material
 {
 	public:
+	std::string name;
+
 	virtual ~material() = default;
 
 	virtual bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const

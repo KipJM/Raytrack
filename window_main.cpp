@@ -37,10 +37,10 @@ void scn_cornell_box(scene& scn)
 {
 	scn.world = hittable_list();
 
-	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));
-	auto mat_white = make_shared<mat_diffuse>(color::one * .73);
-	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));
-	auto mat_emission = make_shared<mat_emissive>(color::one * 7);
+	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));	mat_red->name = "Red Diffuse";
+	auto mat_white = make_shared<mat_diffuse>(color::one * .73);		mat_white->name = "White Diffuse";
+	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));	mat_green->name = "Green Diffuse";
+	auto mat_emission = make_shared<mat_emissive>(color::one * 7);	mat_emission->name = "White Emissive";
 
 	scn.world.add(make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green));
 	scn.world.add(make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red));
@@ -63,6 +63,9 @@ void scn_cornell_box(scene& scn)
 	cube2 = make_shared<trn_move>(cube2, vec3(130, 0, 65));
 
 	cube2 = make_shared<volume_convex>(cube2, .008, make_shared<mat_volumetric>(color::zero));
+
+	cube1->name = "Changed Cube";
+	cube2->name = "Volumetric Cube";
 	scn.world.add(cube1);
 	scn.world.add(cube2);
 

@@ -7,16 +7,7 @@
 class user_interface
 {
 public:
-	bool show_help;
-	bool show_viewport;
-	bool show_render;
-	bool show_camera;
-	bool show_scene;
-	bool show_geometry;
-	bool show_material;
-	bool show_texture;
-
-	user_interface() : show_help(true), show_viewport(true), show_scene(true)
+	user_interface()
 	{
 		SetupImGuiStyle(ImGui::GetIO());
 	}
@@ -50,8 +41,18 @@ public:
 		if (show_viewport) w_viewport(&show_viewport, viewport);
 		if (show_render) w_renderSettings(&show_render, viewport);
 		if (show_camera) w_cameraSettings(&show_camera, viewport);
-		if (show_scene) w_scene(&show_scene, viewport.target_scene);
+		if (show_scene) w_scene(&show_scene, viewport, viewport.target_scene);
 	}
+
+private:
+	bool show_help		= true;
+	bool show_viewport	= true;
+	bool show_render	= true;
+	bool show_camera	= true;
+	bool show_scene		= true;
+	bool show_geometry	= true;
+	bool show_material	= true;
+	bool show_texture	= true;
 
 	void w_help(bool *p_open)
 	{
@@ -81,6 +82,7 @@ public:
 		ImGui::End();
 	}
 
+	ImVec2 prev_resolution;
 	void w_viewport(bool* p_open, viewport& viewport)
 	{
 		if (!ImGui::Begin("Viewport", p_open))
@@ -234,7 +236,10 @@ public:
 		ImGui::End();
 	}
 
-	void w_scene(bool *p_open, scene& scene)
+private:
+	int scene_selection = -1;
+
+	void w_scene(bool *p_open, viewport& viewport, scene& scene)
 	{
 		if (!ImGui::Begin("Scene Hierarchy", p_open))
 		{
@@ -243,8 +248,40 @@ public:
 		}
 
 		ImGui::Button("Add");
+
+		ImGui::BeginDisabled(!(scene_selection >= 0 && scene_selection < scene.world.objects.size()));
+
 		ImGui::SameLine();
-		ImGui::Button("Remove");
+		if (ImGui::Button("Remove"))
+			ImGui::OpenPopup("scn_remove_item");
+
+		ImGui::SameLine(ImGui::GetWindowWidth() - 70);
+		if (ImGui::Button("Deselect"))
+		{
+			scene_selection = -1;
+		}
+
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginPopup("scn_remove_item"))
+		{
+			ImGui::Text("Remove this object from render? It will stay in geometries.");
+			if (ImGui::Button("Confirm"))
+			{
+				// remove from scene
+				if (scene_selection < scene.world.objects.size())
+				{
+					viewport.mark_scene_dirty();
+					scene.world.objects.erase(scene.world.objects.begin() + scene_selection);
+				}
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
+
+		ImGui::Text("You can also drag and drop geometries here to add them to your render.");
 
 		static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
 		| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
@@ -264,7 +301,8 @@ public:
 				ImGui::TableNextColumn();
 
 				// Name
-				ImGui::Selectable(std::to_string(i).c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+				if (ImGui::Selectable(object->name.c_str(), scene_selection == i, ImGuiSelectableFlags_SpanAllColumns))
+					scene_selection = i;
 
 				std::string type;
 				switch (object->get_type())
@@ -299,7 +337,7 @@ public:
 				}
 
 				ImGui::TableNextColumn();
-				ImGui::Text(type.c_str());
+				ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), type.c_str());
 			}
 
 			ImGui::EndTable();
@@ -309,8 +347,6 @@ public:
 	}
 
 private:
-	ImVec2 prev_resolution;
-
 	void SetupImGuiStyle(const ImGuiIO& io)
 {
 	// Setup font
@@ -371,10 +407,10 @@ private:
 	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 0.4705882370471954f, 0.843137264251709f, 1.0f);
 	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.0f, 0.4705882370471954f, 0.843137264251709f, 1.0f);
 	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.0f, 0.3294117748737335f, 0.6000000238418579f, 1.0f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.168627455830574f, 0.168627455830574f, 0.168627455830574f, 1.0f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.268627455830574f, 0.268627455830574f, 0.268627455830574f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.2156862765550613f, 0.2156862765550613f, 0.2156862765550613f, 1.0f);
 	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.250980406999588f, 0.250980406999588f, 0.250980406999588f, 1.0f);
-	style.Colors[ImGuiCol_Header] = ImVec4(0.2156862765550613f, 0.2156862765550613f, 0.2156862765550613f, 1.0f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.143, 0.222, 0.403, 1.0f);
 	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.250980406999588f, 0.250980406999588f, 0.250980406999588f, 1.0f);
 	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.3019607961177826f, 0.3019607961177826f, 0.3019607961177826f, 1.0f);
 	style.Colors[ImGuiCol_Separator] = ImVec4(0.2156862765550613f, 0.2156862765550613f, 0.2156862765550613f, 1.0f);

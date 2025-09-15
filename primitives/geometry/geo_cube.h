@@ -42,6 +42,7 @@ public:
 private:
 	hittable_list list;
 	shared_ptr<material> material;
+
 };
 
 // inline shared_ptr<hittable_list> geo_cube(const point3& a, const point3& b, shared_ptr<material> mat)
