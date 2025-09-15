@@ -1,5 +1,6 @@
 ﻿#ifndef RAYTRACINGWEEKEND_USER_INTERFACE_H
 #define RAYTRACINGWEEKEND_USER_INTERFACE_H
+#include "imgui.h"
 #include "imgui_internal.h"
 #include "viewport.h"
 
@@ -15,7 +16,7 @@ public:
 	bool show_material;
 	bool show_texture;
 
-	user_interface() : show_help(true), show_viewport(true), show_scene(false)
+	user_interface() : show_help(true), show_viewport(true), show_scene(true)
 	{
 		SetupImGuiStyle(ImGui::GetIO());
 	}
@@ -48,6 +49,8 @@ public:
 		if (show_help) w_help(&show_help);
 		if (show_viewport) w_viewport(&show_viewport, viewport);
 		if (show_render) w_renderSettings(&show_render, viewport);
+		if (show_camera) w_cameraSettings(&show_camera, viewport);
+		if (show_scene) w_scene(&show_scene, viewport.target_scene);
 	}
 
 	void w_help(bool *p_open)
@@ -85,8 +88,31 @@ public:
 			ImGui::End();
 			return;
 		}
+
 		ImGui::Text("Resolution: %d x %d", viewport.get_width(), viewport.get_height());
+		if (viewport.get_camera().auto_resolution)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1,1,0,1), "(Auto resolution enabled)");
+		}
 		ImGui::Text("Samples: %d", viewport.get_current_sample_count());
+
+		if (viewport.is_waiting())
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1,0,0,1), "(OUTDATED IMAGE! Waiting for new render!)");
+		}
+
+		// Auto resolution
+		if (viewport.get_camera().auto_resolution)
+		{
+			auto current_res = ImGui::GetContentRegionAvail();
+			if (current_res.x != prev_resolution.x || current_res.y != prev_resolution.y)
+			{
+				prev_resolution = current_res;
+				viewport.set_resolution(current_res.x, current_res.y);
+			}
+		}
 
 		// Auto scaling image
 		auto available_space = ImGui::GetContentRegionAvail();
@@ -108,38 +134,183 @@ public:
 			ImGui::End();
 			return;
 		}
+		ImGui::SetItemTooltip("These settings persist across scenes, but gets reset after application closes.");
 
-		int a = 1;
-		double b = 0.001;
-		float c;
 		ImGui::SeparatorText("Rendering");
 
-		ImGui::DragInt("Max ray bounces", &a);
+		int mb = viewport.get_max_bounces();
+		if (ImGui::DragInt("Max ray bounces", &mb)) viewport.set_max_bounces(mb);
 		ImGui::SetItemTooltip("Maximum number of bounces a ray can have before getting terminated. Higher = better quality & slower rendering");
 
-		ImGui::InputDouble("bias", &b);
+		double bi = viewport.get_bias();
+		if (ImGui::InputDouble("bias", &bi)) viewport.set_bias(bi);
 		ImGui::SetItemTooltip("A small number. Fixes rendering issues. Do not touch this if you don't know what you're doing!");
+
 
 		ImGui::SeparatorText("Performance");
 
-		ImGui::InputInt("Render threads", &a);
+		int tc = viewport.get_workers_count();
+		if (ImGui::InputInt("Render threads", &tc, 1, 10)) viewport.set_worker_count(tc);
 		ImGui::SetItemTooltip("For multithreaded rendering. How many worker threads to render your image at the same time. A reasonable number will make rendering faster by utilizing your entire system, but setting this too high will reduce performance.");
 
-		ImGui::DragInt("Samples per worker", &a);
+		int sc = viewport.get_sample_count();
+		if (ImGui::DragInt("Samples per worker", &sc, 1)) viewport.set_sample_count(sc);
 		ImGui::SetItemTooltip("How many samples for each pixel should a worker take for each iteration. A low number (like 1) will make rendering more responsive, but a higher number will give you higher quality results faster.");
 
-		ImGui::DragInt("Target samples count", &a);
+		int ms = viewport.get_min_samples();
+		if (ImGui::DragInt("Target samples count", &ms, 1)) viewport.set_min_samples(ms);
 		ImGui::SetItemTooltip("After rendering a while, workers will prefer rendering pixels with less than this amount of samples based on the fill probability.");
 
-		ImGui::DragFloat("Render probability", &c);
+		float br = viewport.get_basic_ratio();
+		if (ImGui::DragFloat("Render probability", &br, 0.1, 0.01, 1)) viewport.set_basic_ratio(br);
+		ImGui::SetItemTooltip("Approximate ratio of pixels a worker will fill each iteration. A small ratio will make rendering more responsive, but slower.");
 
-		ImGui::DragFloat("Fill probability", &c);
+		float fr = viewport.get_fill_ratio();
+		if (ImGui::DragFloat("Fill probability", &fr, 0.1, 0.01, 1)) viewport.set_fill_ratio(fr);
+		ImGui::SetItemTooltip("A special ratio to use for pixels with less samples than target after a while. Setting this relatively high will make workers actively fill holes in your render.");
 
 
 		ImGui::End();
 	}
 
+	void w_cameraSettings(bool* p_open, viewport& viewport)
+	{
+		if (!ImGui::Begin("Camera Settings", p_open, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::End();
+			return;
+		}
+		ImGui::SetItemTooltip("Scene-specific camera settings. They change between each scene.");
+
+		camera& cam = viewport.get_camera();
+
+		ImGui::SeparatorText("Resolution");
+
+		ImGui::Checkbox("Scale to window", &cam.auto_resolution);
+
+		ImGui::BeginDisabled(cam.auto_resolution);
+
+		int iw = cam.image_width;
+		int ih = cam.image_height;
+		int res[] = {iw, ih};
+		if (ImGui::DragInt2("Resolution", res)) viewport.set_resolution(res[0], res[1]);
+		ImGui::SetItemTooltip("Disabled if auto resolution is enabled. Width x Height. Around 300x300 is recommended for fast renders.");
+		// ImGui::Text("Please don't make the resolution too small, some weird bugs with multithreaded rendering may cause a crash");
+		ImGui::EndDisabled();
+
+		bool dirty = false;
+
+		ImGui::SeparatorText("Transform");
+
+		dirty += ImGui::DragDouble3("Position", cam.position.e, 0.1);
+		ImGui::SetItemTooltip("The world position of the camera sensor.");
+
+		dirty += ImGui::DragDouble3("Focus position", cam.lookat.e, 0.1);
+		ImGui::SetItemTooltip("The camera will look at this point in space.");
+
+		dirty += ImGui::DragDouble3("Up direction", cam.vup.e, 0.1);
+		ImGui::SetItemTooltip("The Camera's up direction will align with this vector. Does not need to be normalized. (+Y is global up)");
+
+		ImGui::SeparatorText("Focus");
+
+		dirty += ImGui::DragDouble("Focus distance", &cam.focus_distance, 0.1);
+		ImGui::SetItemTooltip("The distance from the camera the lens is focusing on");
+
+		dirty += ImGui::DragDouble("Defocus angle", &cam.defocus_angle);
+		ImGui::SetItemTooltip("The max angle light rays will differ when coming out of the lens");
+
+		ImGui::SeparatorText("World");
+
+		float* bg = cam.background.get_float();
+		if (ImGui::ColorEdit3("Background color", bg))
+		{
+			cam.background.set_float(bg);
+			dirty = true;
+		}
+		ImGui::SetItemTooltip("The sky color. This will influence the light cast onto objects as well.");
+
+		if (dirty) viewport.mark_dirty();
+
+		ImGui::End();
+	}
+
+	void w_scene(bool *p_open, scene& scene)
+	{
+		if (!ImGui::Begin("Scene Hierarchy", p_open))
+		{
+			ImGui::End();
+			return;
+		}
+
+		ImGui::Button("Add");
+		ImGui::SameLine();
+		ImGui::Button("Remove");
+
+		static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
+		| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
+		| ImGuiTableFlags_ScrollY;
+
+		if (ImGui::BeginTable("world_list", 2, table_flags))
+		{
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableSetupColumn("Type");
+			ImGui::TableHeadersRow();
+
+			for (int i = 0; i < scene.world.objects.size(); i++)
+			{
+				std::shared_ptr<hittable>& object = scene.world.objects[i];
+
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+
+				// Name
+				ImGui::Selectable(std::to_string(i).c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+
+				std::string type;
+				switch (object->get_type())
+				{
+				case cube:
+					type = "Cube";
+					break;
+				case disk:
+					type = "Disk";
+					break;
+				case quad:
+					type = "Quad";
+					break;
+				case sphere:
+					type = "Sphere";
+					break;
+				case list:
+					type = "Compound";
+					break;
+				case volume:
+					type = "Volume";
+					break;
+				case mover:
+					type = "Translated Object";
+					break;
+				case rotator:
+					type = "Rotated Object";
+					break;
+				case bvh:
+					type = "BVH-Optimized Node";
+					break;
+				}
+
+				ImGui::TableNextColumn();
+				ImGui::Text(type.c_str());
+			}
+
+			ImGui::EndTable();
+		}
+
+		ImGui::End();
+	}
+
 private:
+	ImVec2 prev_resolution;
+
 	void SetupImGuiStyle(const ImGuiIO& io)
 {
 	// Setup font

@@ -6,6 +6,8 @@
 class geo_sphere : public hittable
 {
 public:
+	hittable_type get_type() const override { return hittable_type::sphere; }
+
 	/// Static
 	geo_sphere(const point3& center, double radius, shared_ptr<material> mat) :
 				center(center, vec3(0,0,0)), radius(std::fmax(0,radius)), mat(mat)

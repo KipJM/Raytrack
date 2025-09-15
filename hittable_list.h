@@ -13,6 +13,8 @@
 class hittable_list : public hittable
 {
 public:
+	hittable_type get_type() const override { return hittable_type::list; }
+
 	std::vector<shared_ptr<hittable>> objects; // meta: cpp garbage collector hell :)
 
 	hittable_list() {}

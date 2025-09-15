@@ -286,8 +286,8 @@ void scn_cornell_box(scene& scn)
 	world.add(make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white));
 	world.add(make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white));
 
-	shared_ptr<hittable> cube1 = geo_cube(point3(0, 0, 0), point3(165, 330, 165), mat_white);
-	shared_ptr<hittable> cube2 = geo_cube(point3(0, 0, 0), point3(165, 165, 165), mat_white);
+	shared_ptr<hittable> cube1 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 330, 165), mat_white);
+	shared_ptr<hittable> cube2 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 165, 165), mat_white);
 
 
 	cube1 = make_shared<trn_rotate_x>(cube1, 60);

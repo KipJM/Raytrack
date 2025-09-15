@@ -17,6 +17,18 @@ public:
 	double operator [](int i) const { return e[i]; };
 	double& operator [](int i ) { return e[i]; };
 
+	float* get_float() const
+	{
+		return new float[3]{static_cast<float>(x()), static_cast<float>(y()), static_cast<float>(z())};
+	}
+
+	void set_float(const float* arr)
+	{
+		e[0] = arr[0];
+		e[1] = arr[1];
+		e[2] = arr[2];
+	}
+
 	vec3& operator +=(const vec3& v)
 	{
 		e[0] += v.e[0];

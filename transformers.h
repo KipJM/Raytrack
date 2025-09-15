@@ -5,6 +5,8 @@
 class trn_move : public hittable
 {
 public:
+	hittable_type get_type() const override {return hittable_type::mover;}
+
 	trn_move(shared_ptr<hittable> object, const vec3& offset) : object(object), offset(offset)
 	{
 		bbox = object->bounding_box() + offset;
@@ -42,6 +44,8 @@ private:
 class trn_rotate_x : public hittable
 {
 public:
+	hittable_type get_type() const override {return hittable_type::rotator;}
+
 	/// in degrees
 	trn_rotate_x(shared_ptr<hittable> object, double angle) : object(object)
 	{
@@ -133,6 +137,8 @@ private:
 class trn_rotate_y : public hittable
 {
 public:
+	hittable_type get_type() const override {return hittable_type::rotator;}
+
 	/// in degrees
 	trn_rotate_y(shared_ptr<hittable> object, double angle) : object(object)
 	{
@@ -223,6 +229,8 @@ private:
 class trn_rotate_z : public hittable
 {
 public:
+	hittable_type get_type() const override {return hittable_type::rotator;}
+
 	/// in degrees
 	trn_rotate_z(shared_ptr<hittable> object, double angle) : object(object)
 	{

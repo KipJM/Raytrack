@@ -12,6 +12,7 @@
 class bvh_node : public hittable
 {
 public:
+	hittable_type get_type() const override { return hittable_type::bvh; }
 
 	// list is copied
 	bvh_node(hittable_list list) : bvh_node(list.objects, 0, list.objects.size()) { }

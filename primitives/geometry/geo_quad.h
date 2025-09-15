@@ -5,6 +5,8 @@
 class geo_quad : public hittable
 {
 public:
+	hittable_type get_type() const override {return hittable_type::quad;}
+
 	geo_quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
 		: Q(Q), u(u), v(v), mat(mat)
 	{

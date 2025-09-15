@@ -32,7 +32,7 @@ void render_worker::render_loop()
 	{
 		// std::clog << "thread " << this << ": sigkill: " << sigkill << " early_exit: " << early_exit << '\n';
 		heartbeat = true;
-		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()) && !early_exit)
+		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()) && !early_exit && !viewport_.is_dirty())
 		{
 			// std::clog << "thread " << this << " render finished!\n";
 			viewport_.append_image(output);

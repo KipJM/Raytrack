@@ -8,11 +8,12 @@ class camera
 {
 public:
 	double			aspect_ratio	= -1;    // Width over height. If height is not set, it will be calculated from this.
+	bool			auto_resolution	= false; // Stored here for better management. For use by UI
 	int				image_width		= 100;   // Image width (px)
 	int				image_height	= -1;    // Image height (px)
 
-	double			pixel_ratio		= 1;     // If < 1 and > 0, defines the random chance of this pixel being drawn (for multithreading)
-	double			filler_ratio	= 1;     // Random chance of neglected pixels being filled by this render cycle
+	double			basic_ratio		= 1;     // If < 1 and > 0, defines the random chance of this pixel being drawn (for multithreading)
+	double			fill_ratio		= 1;     // Random chance of neglected pixels being filled by this render cycle
 	int				sample_count	= 1;     // Number of random samples taken for each pixel for each worker
 	int				min_samples		= 5;	 // Pixels with sample count below this will be preferred in they're not rendered after a while
 	int				max_bounces		= 10;    // Maximum amount of bounces for a ray
@@ -46,11 +47,18 @@ public:
 
 		int px = 0;
 
-		for (int j = 0; j < image_height; j++)
+		int c_ih = image_height;
+		int c_iw = image_width;
+
+		for (int j = 0; j < c_ih; j++)
 		{
 			// std::clog << "\rScanlines remaining: " << (image_height - j) << '\n';
-			for (int i = 0; i < image_width; i++)
+			for (int i = 0; i < c_iw; i++)
 			{
+				// Resolution changed :3
+				if (c_ih != image_height || c_iw != image_width)
+					return false;
+
 				// Per pixel operations
 				color pixel_color(0,0,0);
 
@@ -58,14 +66,14 @@ public:
 				// for pixel ratio, prioritize drawing pixels with less data
 				// what a hellish algorithm :)
 				bool render_pixel = false;
-				if (pixel_ratio < 0 || pixel_ratio > 1)
+				if (basic_ratio < 0 || basic_ratio > 1)
 					render_pixel = true;
-				else if (current_sample_count > (min_samples / pixel_ratio))
+				else if (current_sample_count > (min_samples / basic_ratio))
 				{
 					if (px < density_map.size())
 					{
 						if (density_map[px] < min_samples)
-							if (rand_double() < filler_ratio)
+							if (rand_double() < fill_ratio)
 							render_pixel = true;
 					} else
 					{
@@ -73,7 +81,7 @@ public:
 						std::clog << "PX EXCEEDS DENSITY MAP\n";
 					}
 				}
-				if (rand_double() < pixel_ratio) // another chance / default
+				if (rand_double() < basic_ratio) // another chance / default
 					render_pixel = true;
 
 

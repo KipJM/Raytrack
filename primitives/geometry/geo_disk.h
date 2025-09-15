@@ -10,6 +10,8 @@
 class geo_disk : public geo_quad
 {
 public:
+	hittable_type get_type() const override { return hittable_type::disk; }
+
 	geo_disk(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
 		: geo_quad(Q, u, v, mat) {}
 

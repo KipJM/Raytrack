@@ -49,8 +49,8 @@ void scn_cornell_box(scene& scn)
 	scn.world.add(make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white));
 	scn.world.add(make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white));
 
-	shared_ptr<hittable> cube1 = geo_cube(point3(0, 0, 0), point3(165, 330, 165), mat_white);
-	shared_ptr<hittable> cube2 = geo_cube(point3(0, 0, 0), point3(165, 165, 165), mat_white);
+	shared_ptr<hittable> cube1 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 330, 165), mat_white);
+	shared_ptr<hittable> cube2 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 165, 165), mat_white);
 
 
 	cube1 = make_shared<trn_rotate_x>(cube1, 60);
@@ -70,8 +70,8 @@ void scn_cornell_box(scene& scn)
 
 	scn.camera.background = color::zero;
 
-	scn.camera.pixel_ratio = .1;
-	scn.camera.filler_ratio = .5;
+	scn.camera.basic_ratio = .1;
+	scn.camera.fill_ratio = .5;
 
 	scn.camera.sample_count = 1;
 	scn.camera.min_samples = 5;
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 
 		vp.update();
 		ui.render(vp);
-		ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 
 		// Display
 		glClear(GL_COLOR_BUFFER_BIT); // or not :3

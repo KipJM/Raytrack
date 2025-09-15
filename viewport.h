@@ -1,10 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_VIEWPORT_H
 #define RAYTRACINGWEEKEND_VIEWPORT_H
 #include <queue>
+#include "include/glad/glad.h" // because CLion is fucking stupid
 
 #include "render_worker.h"
 #include "scene.h"
-#include "glad/glad.h"
 
 class viewport
 {
@@ -16,6 +16,15 @@ public:
 
 	viewport(scene& scene_, int resolution_width, int resolution_height, int workers_count) : target_scene(scene_)
 	{
+		// Set basic configs
+		max_bounces = 20;
+		bias = 0.001;
+		sample_count = 1;
+		min_samples = 30;
+		basic_ratio = 0.1;
+		fill_ratio = 0.7;
+		init_new_camera();
+
 		// init gl texture
 		glGenTextures(1, &texture_id);
 		glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -41,7 +50,6 @@ public:
 		// todo: create texture!
 		std::clog << "constructor exit\n";
 	}
-
 
 	unsigned int get_texture_id() const { return texture_id; }
 
@@ -80,6 +88,11 @@ public:
 
 	}
 
+	camera& get_camera()
+	{
+		return target_scene.camera;
+	}
+
 	int get_width() const
 	{
 		return target_scene.camera.image_width;
@@ -95,9 +108,21 @@ public:
 		return current_samples;
 	}
 
+	[[nodiscard]] bool is_waiting() const
+	{
+		if (dirty) return true;
+		if (get_current_sample_count() == 0) return true;
+		return false;
+	}
+
+	bool is_dirty()
+	{
+		return dirty;
+	}
 
 	bool mark_dirty()
 	{
+
 		auto was_dirty = dirty;
 		dirty = true;
 		return was_dirty;
@@ -105,6 +130,18 @@ public:
 
 	void append_image(std::vector<float>& image)
 	{
+		if (dirty)
+			return;
+
+		if (backlog.size() > 500) // if resolution is too small, samples are submitted faster than update cycles and memory breaks
+			return;
+
+		if (image.size() != current_tex.size())
+		{
+			std::clog<<":O";
+			return;
+		}
+
 		backlog.push(std::move(image));
 		current_samples += target_scene.camera.sample_count;
 	}
@@ -120,6 +157,7 @@ public:
 			// Stop everything! Reset renderers
 			// Don't clear the texture, prevent flickering
 			reset();
+			return;
 		}
 
 		if (!backlog.empty())
@@ -129,43 +167,52 @@ public:
 
 			// merge textures
 			auto &tex = backlog.front();
-			for (int i = 0; i < current_tex.size(); i++)
+
+			if (tex.size() == current_tex.size())
 			{
-				// Mix previous textures and new texture, normalization will be done later
-				// -1 means pixel is skipped, so no contribution
-				if (tex[i] >= 0)
+				for (int i = 0; i < current_tex.size(); i++)
 				{
-					current_tex[i] += tex[i];
-					density_map[i] += 1;
+					// Mix previous textures and new texture, normalization will be done later
+					// -1 means pixel is skipped, so no contribution
+					if (tex[i] >= 0)
+					{
+						current_tex[i] += tex[i];
+						density_map[i] += 1;
+					}
 				}
-			}
 
-			// normalization; convert to sdr
+				// normalization; convert to sdr
 
-			std::vector<float> out_gamma(current_tex.size());
+				std::vector<float> out_gamma(current_tex.size());
 
-			for (int i = 0; i < current_tex.size(); i++)
+				for (int i = 0; i < current_tex.size(); i++)
+				{
+					if (density_map[i] == 0 )
+						out_gamma[i] = 0.0f;
+					else
+					{
+						auto compensation = 1.0f / static_cast<float>(density_map[i]);
+						out_gamma[i] = linear_to_gamma(current_tex[i] * compensation);
+					}
+				}
+
+				backlog.pop();
+				index++;
+
+
+				// update screen!
+
+				// OpenGL: sub texture
+				glBindTexture(GL_TEXTURE_2D, texture_id);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+					get_width(), get_height(),
+					GL_RGB, GL_FLOAT, out_gamma.data());
+			} else
 			{
-				if (density_map[i] == 0 )
-					out_gamma[i] = 0.0f;
-				else
-				{
-					auto compensation = 1.0f / static_cast<float>(density_map[i]);
-					out_gamma[i] = linear_to_gamma(current_tex[i] * compensation);
-				}
+				std::clog<<":(";
+				// backlog.pop();
+				backlog = std::queue<std::vector<float>>(); // clear backlog to fix weirdness
 			}
-
-			backlog.pop();
-			index++;
-
-
-			// update screen!
-
-			// OpenGL: sub texture
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-				get_width(), get_height(),
-				GL_RGB, GL_FLOAT, out_gamma.data());
 		}
 
 		for (int i = 0; i < workers.size(); i++)
@@ -182,6 +229,10 @@ public:
 
 	void set_resolution(int resolution_width, int resolution_height)
 	{
+		if (resolution_width <= 10 || resolution_height <= 10)
+			return;
+
+
 		mark_dirty();
 		target_scene.camera.image_width = resolution_width;
 		target_scene.camera.image_height = resolution_height;
@@ -210,12 +261,25 @@ public:
 		// reset workers
 		for (auto &worker : workers)
 		{
-			worker.reset();
+			worker->reset();
 		}
 
 		index = 0;
 		dirty = false;
 		current_samples = 0;
+	}
+
+	void init_new_camera()
+	{
+		camera& cam = get_camera();
+		cam.max_bounces = max_bounces;
+		cam.bias = bias;
+		cam.sample_count = sample_count;
+		cam.min_samples = min_samples;
+		cam.basic_ratio = basic_ratio;
+		cam.fill_ratio = fill_ratio;
+		// cam.ready();
+		mark_dirty();
 	}
 
 private:
@@ -230,6 +294,96 @@ private:
 
 	// opengl
 	GLuint texture_id;
+
+private:
+	// persistent settings
+	int max_bounces;
+	double bias;
+	int sample_count;
+	int min_samples;
+	double basic_ratio;
+	double fill_ratio;
+
+public:
+	[[nodiscard]] int get_max_bounces() const
+	{
+		return max_bounces;
+	}
+
+	void set_max_bounces(int max_bounces)
+	{
+		if (max_bounces < 0) max_bounces = 0;
+		this->max_bounces = max_bounces;
+		get_camera().max_bounces = max_bounces;
+		mark_dirty();
+	}
+
+	[[nodiscard]] double get_bias() const
+	{
+		return bias;
+	}
+
+	void set_bias(double bias)
+	{
+		if (bias < 0) bias = 0.001;
+		this->bias = bias;
+		get_camera().bias = bias;
+		mark_dirty();
+	}
+
+	[[nodiscard]] int get_sample_count() const
+	{
+		return sample_count;
+	}
+
+	void set_sample_count(int sample_count)
+	{
+		if (sample_count < 1) sample_count = 1;
+		this->sample_count = sample_count;
+		get_camera().sample_count = sample_count;
+		mark_dirty();
+	}
+
+	[[nodiscard]] int get_min_samples() const
+	{
+		return min_samples;
+	}
+
+	void set_min_samples(int min_samples)
+	{
+		if (min_samples < 0) min_samples = 0;
+		this->min_samples = min_samples;
+		get_camera().min_samples = min_samples;
+		mark_dirty();
+	}
+
+	[[nodiscard]] double get_basic_ratio() const
+	{
+		return basic_ratio;
+	}
+
+	void set_basic_ratio(double basic_ratio)
+	{
+		if (basic_ratio <= 0) basic_ratio = 0.001;
+		if (basic_ratio > 1) basic_ratio = 1;
+		this->basic_ratio = basic_ratio;
+		get_camera().basic_ratio = basic_ratio;
+		mark_dirty();
+	}
+
+	[[nodiscard]] double get_fill_ratio() const
+	{
+		return fill_ratio;
+	}
+
+	void set_fill_ratio(double fill_ratio)
+	{
+		if (fill_ratio <= 0) fill_ratio = 0.001;
+		if (fill_ratio > 1) fill_ratio = 1;
+		this->fill_ratio = fill_ratio;
+		get_camera().fill_ratio = fill_ratio;
+		mark_dirty();
+	}
 };
 
 #endif //RAYTRACINGWEEKEND_VIEWPORT_H

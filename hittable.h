@@ -4,6 +4,19 @@
 
 class material;
 
+enum hittable_type
+{
+	cube,
+	disk,
+	quad,
+	sphere,
+	list,
+	volume,
+	mover,
+	rotator,
+	bvh
+};
+
 class hit_record
 {
 public:
@@ -29,11 +42,15 @@ public:
 class hittable
 {
 public:
+	std::string name;
+
 	virtual ~hittable() = default;
 
 	virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 
 	virtual aabb bounding_box() const = 0;
+
+	virtual hittable_type get_type() const = 0;
 };
 
 
