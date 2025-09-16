@@ -1,5 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_USER_INTERFACE_H
 #define RAYTRACINGWEEKEND_USER_INTERFACE_H
+#include <format>
+
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "viewport.h"
@@ -387,6 +389,35 @@ private:
 			ImGui::EndTable();
 		}
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			// Hovering
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REF_GEO", ImGuiDragDropFlags_AcceptBeforeDelivery | ImGuiDragDropFlags_AcceptNoPreviewTooltip))
+			{
+				std::shared_ptr<hittable> ref = *static_cast<std::shared_ptr<hittable>*>(payload->Data);
+
+				if (std::ranges::any_of(scene.world.objects,
+					[&ref](const std::shared_ptr<hittable>& sp) {
+							return sp.get() == ref.get(); // Compare underlying raw pointers
+					}))
+				{
+					// Is duplicate
+					ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
+					ImGui::SetTooltip("This object already exist in your render.");
+				} else
+				{
+					ImGui::SetTooltip(std::format("Drop to add {0} to your render.", ref->name).c_str());
+					// Not Duplicate
+					if (payload->IsDelivery()) // Dropped
+					{
+						viewport.mark_scene_dirty();
+						scene.world.add(ref);
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		ImGui::End();
 	}
 
@@ -438,6 +469,17 @@ private:
 					// Name
 					if (ImGui::Selectable(object->name.c_str(), geo_selection == i, ImGuiSelectableFlags_SpanAllColumns))
 						geo_selection = i;
+
+					if (ImGui::BeginDragDropSource())
+					{
+						ImGui::Text(object->name.c_str());
+						ImGui::SameLine();
+						ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f),
+							(" (" + object->get_human_type() + ")").c_str());
+
+						ImGui::SetDragDropPayload("REF_GEO", &object, sizeof(std::shared_ptr<hittable>));
+						ImGui::EndDragDropSource();
+					}
 
 					ImGui::TableNextColumn();
 					ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
