@@ -130,6 +130,9 @@ public:
 	int temp_workers_count;
 	bool mark_scene_dirty()
 	{
+		if (target_scene.is_dirty())
+			return true;
+
 		temp_workers_count = get_workers_count();
 		set_worker_count(0, true);
 		return target_scene.mark_dirty();

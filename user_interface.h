@@ -42,6 +42,7 @@ public:
 		if (show_render) w_renderSettings(&show_render, viewport);
 		if (show_camera) w_cameraSettings(&show_camera, viewport);
 		if (show_scene) w_scene(&show_scene, viewport, viewport.target_scene);
+		if (show_geometry) w_geometries(&show_geometry, viewport, viewport.target_scene);
 	}
 
 private:
@@ -247,7 +248,8 @@ private:
 			return;
 		}
 
-		ImGui::Button("Add");
+		if (ImGui::Button("Add"))
+			ImGui::OpenPopup("Add object to scene");
 
 		ImGui::BeginDisabled(!(scene_selection >= 0 && scene_selection < scene.world.objects.size()));
 
@@ -263,6 +265,74 @@ private:
 
 		ImGui::EndDisabled();
 
+		if (ImGui::BeginPopupModal("Add object to scene", 0))
+		{
+			ImGui::Text("Select an object from your geometries.");
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+				ImGui::CloseCurrentPopup();
+
+
+			static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
+				| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
+				| ImGuiTableFlags_ScrollY;
+
+			if (ImGui::BeginTable("add_list", 2, table_flags))
+			{
+				ImGui::TableSetupColumn("Name");
+				ImGui::TableSetupColumn("Type");
+				ImGui::TableHeadersRow();
+
+				int count = 0;
+				for (std::shared_ptr<hittable>& object : scene.objects)
+				{
+					if (std::ranges::any_of(scene.world.objects,
+					[&object](const std::shared_ptr<hittable>& sp) {
+							return sp.get() == object.get(); // Compare underlying raw pointers
+					}))
+					{
+						// No duplicates
+						continue;
+					}
+					count++;
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					// Name
+					if (ImGui::Selectable(object->name.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
+					{
+						// Add object to scene
+						viewport.mark_scene_dirty();
+						scene.world.add(object);
+						ImGui::CloseCurrentPopup();
+					}
+
+
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+				}
+
+				if (scene.objects.empty())
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "No objects! Create some at Geometries!");
+				}
+				else if (count == 0)
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Only one instance of each object can be added to scene.");
+				}
+
+				ImGui::EndTable();
+			}
+
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::BeginPopup("scn_remove_item"))
 		{
 			ImGui::Text("Remove this object from render? It will stay in geometries.");
@@ -272,14 +342,13 @@ private:
 				if (scene_selection < scene.world.objects.size())
 				{
 					viewport.mark_scene_dirty();
-					scene.world.objects.erase(scene.world.objects.begin() + scene_selection);
+					scene.world.remove(scene_selection);
 				}
 				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
 		}
-
 
 		ImGui::Text("You can also drag and drop geometries here to add them to your render.");
 
@@ -304,40 +373,15 @@ private:
 				if (ImGui::Selectable(object->name.c_str(), scene_selection == i, ImGuiSelectableFlags_SpanAllColumns))
 					scene_selection = i;
 
-				std::string type;
-				switch (object->get_type())
-				{
-				case cube:
-					type = "Cube";
-					break;
-				case disk:
-					type = "Disk";
-					break;
-				case quad:
-					type = "Quad";
-					break;
-				case sphere:
-					type = "Sphere";
-					break;
-				case list:
-					type = "Compound";
-					break;
-				case volume:
-					type = "Volume";
-					break;
-				case mover:
-					type = "Translated Object";
-					break;
-				case rotator:
-					type = "Rotated Object";
-					break;
-				case bvh:
-					type = "BVH-Optimized Node";
-					break;
-				}
-
 				ImGui::TableNextColumn();
-				ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), type.c_str());
+				ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+			}
+
+			if (scene.world.objects.empty())
+			{
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Add or drag objects here to show them in your render.");
 			}
 
 			ImGui::EndTable();
@@ -345,6 +389,91 @@ private:
 
 		ImGui::End();
 	}
+
+private:
+	int geo_selection = -1;
+
+	void w_geometries(bool* p_open, viewport& viewport, scene& scene)
+	{
+		if (!ImGui::Begin("Geometries", p_open))
+		{
+			ImGui::End();
+			return;
+		}
+
+		if (ImGui::BeginChild("##geotree", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened))
+		{
+			ImGui::Button("Create");
+
+			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < scene.world.objects.size()));
+
+			ImGui::SameLine();
+
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x);
+			if (ImGui::Button("Deselect"))
+			{
+				geo_selection = -1;
+			}
+
+			ImGui::EndDisabled();
+
+
+			static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
+				| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
+				| ImGuiTableFlags_ScrollY;
+
+			if (ImGui::BeginTable("geo_list", 2, table_flags))
+			{
+				ImGui::TableSetupColumn("Name");
+				ImGui::TableSetupColumn("Type");
+				ImGui::TableHeadersRow();
+
+				for (int i = 0; i < scene.objects.size(); i++)
+				{
+					std::shared_ptr<hittable>& object = scene.objects[i];
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					// Name
+					if (ImGui::Selectable(object->name.c_str(), geo_selection == i, ImGuiSelectableFlags_SpanAllColumns))
+						geo_selection = i;
+
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+				}
+
+				if (scene.objects.empty())
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Press \"Create\" to start making objects!");
+				}
+
+				ImGui::EndTable();
+			}
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		// Properties
+		ImGui::BeginGroup();
+		if (geo_selection >= 0 && geo_selection < scene.objects.size())
+		{
+			shared_ptr<hittable>& object = scene.objects[geo_selection];
+			ImGui::Text(object->name.c_str());
+			ImGui::SetItemTooltip("Double click to edit the name.");
+			ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+			ImGui::Separator();
+		} else
+		{
+			ImGui::Text("Select an object to edit its properties.");
+		}
+
+		ImGui::EndGroup();
+		ImGui::End();
+	}
+
 
 private:
 	void SetupImGuiStyle(const ImGuiIO& io)

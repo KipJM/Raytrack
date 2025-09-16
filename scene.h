@@ -12,9 +12,9 @@ class scene
 public:
 	camera camera;
 
-	std::vector<hittable> objects;
-	std::vector<texture> textures;
-	std::vector<material> materials;
+	std::vector<shared_ptr<hittable>> objects;
+	std::vector<shared_ptr<material>> materials;
+	std::vector<shared_ptr<texture>> textures;
 	hittable_list world;
 
 	void update()

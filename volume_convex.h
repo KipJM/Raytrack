@@ -10,7 +10,10 @@ public:
 	hittable_type get_type() const override { return hittable_type::volume; }
 
 	volume_convex(shared_ptr<hittable> boundary, double density, const shared_ptr<material> material)
-		: boundary(boundary), neg_inv_density(-1/density), phase_function(material) {}
+		: boundary(boundary), neg_inv_density(-1/density), phase_function(material)
+	{
+		name = boundary->name + " (Volume)";
+	}
 
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{

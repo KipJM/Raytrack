@@ -41,7 +41,7 @@ public:
 
 	bool render(const hittable& world, std::vector<float>& output, bool& early_exit, std::vector<int>& density_map, int current_sample_count)
 	{
-
+		int rendered_pixels = 0;
 		// ppm output disabled
 		// output << "P3" << '\n' << image_width << ' ' << image_height << "\n255\n"; //P3: ASCII COLORS, W&H, max value is 255
 
@@ -87,6 +87,7 @@ public:
 
 				if (render_pixel)
 				{
+					rendered_pixels++;
 					for (int sample = 0; sample < sample_count; sample++)
 					{
 						// Early exit
@@ -111,6 +112,11 @@ public:
 				px+=3; // TODO: change if channel count changes
 			}
 		}
+
+		// prevent overloading queue, should not impact quality too much
+		if (rendered_pixels < 40)
+			return false;
+
 		// std::clog << "\rDone.                 \n";
 		return true; // Finished successfully!
 	}

@@ -51,7 +51,43 @@ public:
 	virtual aabb bounding_box() const = 0;
 
 	virtual hittable_type get_type() const = 0;
+
+	[[nodiscard]] std::string get_human_type() const
+	{
+		switch (get_type())
+		{
+		case cube:
+			return "Cube";
+
+		case disk:
+			return "Disk";
+
+		case quad:
+			return "Quad";
+
+		case sphere:
+			return "Sphere";
+
+		case list:
+			return "Compound";
+
+		case volume:
+			return "Volume";
+
+		case mover:
+			return "Translated Object";
+
+		case rotator:
+			return "Rotated Object";
+
+		case bvh:
+			return "BVH-Optimized Node";
+		}
+
+		return "Unknown";
+	}
 };
+
 
 
 

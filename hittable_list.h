@@ -27,6 +27,18 @@ public:
 		bbox = aabb(bbox, object->bounding_box());
 	}
 
+	void remove(int index)
+	{
+		objects.erase(objects.begin() + index);
+
+		// recalculate bounding box
+		bbox = aabb();
+
+		for (shared_ptr<hittable>& object : objects)
+		{
+			bbox = aabb(bbox, object->bounding_box());
+		}
+	}
 
 
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override

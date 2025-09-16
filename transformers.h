@@ -1,5 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_TRANSFORMERS_H
 #define RAYTRACINGWEEKEND_TRANSFORMERS_H
+#include <utility>
+
 #include "hittable.h"
 
 class trn_move : public hittable
@@ -9,6 +11,7 @@ public:
 
 	trn_move(shared_ptr<hittable> object, const vec3& offset) : object(object), offset(offset)
 	{
+		name = object->name + " (Translated)";
 		bbox = object->bounding_box() + offset;
 	}
 
@@ -47,8 +50,10 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_x(shared_ptr<hittable> object, double angle) : object(object)
+	trn_rotate_x(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
 	{
+		name = object->name + " (X Rotated)";
+
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
 		cos_theta = std::cos(radians);
@@ -88,6 +93,8 @@ public:
 	// maybe should've used matrix instead
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
+		if (angle == 0) return object->hit(r, ray_t, rec);
+
 		// ray: world space --> object space
 		auto origin = point3(
 			r.origin().x(),
@@ -127,6 +134,7 @@ public:
 
 private:
 	shared_ptr<hittable> object;
+	double angle;
 	double sin_theta;
 	double cos_theta;
 	aabb bbox;
@@ -140,8 +148,10 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_y(shared_ptr<hittable> object, double angle) : object(object)
+	trn_rotate_y(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
 	{
+		name = object->name + " (Y Rotated)";
+
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
 		cos_theta = std::cos(radians);
@@ -180,6 +190,8 @@ public:
 	// maybe should've used matrix instead
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
+		if (angle == 0) return object->hit(r, ray_t, rec);
+
 		// ray: world space --> object space
 		auto origin = point3(
 			(cos_theta * r.origin().x()) - (sin_theta * r.origin().z()),
@@ -219,6 +231,7 @@ public:
 
 private:
 	shared_ptr<hittable> object;
+	double angle;
 	double sin_theta;
 	double cos_theta;
 	aabb bbox;
@@ -232,8 +245,10 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_z(shared_ptr<hittable> object, double angle) : object(object)
+	trn_rotate_z(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
 	{
+		name = object->name + " (Z Rotated)";
+
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
 		cos_theta = std::cos(radians);
@@ -273,6 +288,8 @@ public:
 	// maybe should've used matrix instead
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
+		if (angle == 0) return object->hit(r, ray_t, rec);
+
 		// ray: world space --> object space
 		auto origin = point3(
 			(cos_theta * r.origin().x()) + (sin_theta * r.origin().y()),
@@ -312,9 +329,44 @@ public:
 
 private:
 	shared_ptr<hittable> object;
+	double angle;
 	double sin_theta;
 	double cos_theta;
 	aabb bbox;
 };
+
+
+// Full rotation
+/// Order: object -> X -> Y -> Z -> output
+class trn_rotate : public hittable {
+public:
+	hittable_type get_type() const override {return hittable_type::rotator;}
+
+	trn_rotate(shared_ptr<hittable> object, vec3 angle) : original(object)
+	{
+		name = object->name + " (Rotated)";
+
+		rot_x = make_shared<trn_rotate_x>(object, angle.x());
+		rot_y = make_shared<trn_rotate_y>(rot_x, angle.y());
+		rot_z = make_shared<trn_rotate_z>(rot_y, angle.z());
+	}
+
+	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
+	{
+		return rot_z->hit(r, ray_t, rec);
+	}
+
+	aabb bounding_box() const override
+	{
+		return rot_z->bounding_box();
+	}
+
+private:
+	shared_ptr<hittable> original;
+	shared_ptr<trn_rotate_x> rot_x;
+	shared_ptr<trn_rotate_y> rot_y;
+	shared_ptr<trn_rotate_z> rot_z;
+};
+
 
 #endif //RAYTRACINGWEEKEND_TRANSFORMERS_H
