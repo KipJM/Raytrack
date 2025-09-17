@@ -39,6 +39,13 @@ public:
 		return list.bounding_box();
 	}
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		ImGui::Text("This is a cube! :3");
+		// TODO
+		return false;
+	}
+
 private:
 	hittable_list list;
 	shared_ptr<material> material;

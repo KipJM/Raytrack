@@ -32,6 +32,12 @@ public:
 	}
 
 	aabb bounding_box() const override { return bbox; }
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
+	}
 private:
 	shared_ptr<hittable> object;
 	vec3 offset;
@@ -228,7 +234,6 @@ public:
 	}
 
 	aabb bounding_box() const override { return bbox; }
-
 private:
 	shared_ptr<hittable> object;
 	double angle;
@@ -326,7 +331,6 @@ public:
 	}
 
 	aabb bounding_box() const override { return bbox; }
-
 private:
 	shared_ptr<hittable> object;
 	double angle;
@@ -359,6 +363,12 @@ public:
 	aabb bounding_box() const override
 	{
 		return rot_z->bounding_box();
+	}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
 	}
 
 private:

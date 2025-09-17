@@ -32,6 +32,12 @@ public:
 		rec.v = b;
 		return true;
 	}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
+	}
 };
 
 #endif //RAYTRACINGWEEKEND_PLANE_H

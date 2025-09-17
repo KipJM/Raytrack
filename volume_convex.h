@@ -55,6 +55,12 @@ public:
 
 	aabb bounding_box() const override { return boundary->bounding_box(); }
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
+	}
+
 private:
 	shared_ptr<hittable> boundary;
 	double neg_inv_density;

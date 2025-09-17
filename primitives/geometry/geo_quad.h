@@ -67,6 +67,12 @@ public:
 		return true;
 	}
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
+	}
+
 protected:
 	point3 Q;
 	vec3 u, v, w;

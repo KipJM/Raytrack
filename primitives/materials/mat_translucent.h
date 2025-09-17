@@ -30,6 +30,8 @@ public:
 		scattered = ray(rec.p, direction, r_in.time());
 		return true;
 	}
+
+	material_type get_type() const override {return material_type::Translucent;}
 private:
 	double refraction_index;
 

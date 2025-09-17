@@ -2,6 +2,9 @@
 #define RAYTRACINGWEEKEND_HITTABLE_H
 #include "aabb.h"
 
+
+class scene;
+class viewport;
 class material;
 
 enum hittable_type
@@ -86,9 +89,9 @@ public:
 
 		return "Unknown";
 	}
+
+	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
 };
-
-
 
 
 

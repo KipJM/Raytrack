@@ -28,6 +28,8 @@ set(IMGUI_SRC
 
         imgui/backends/imgui_impl_opengl3.h
         imgui/backends/imgui_impl_opengl3.cpp
+        imgui/misc/cpp/imgui_stdlib.h
+        imgui/misc/cpp/imgui_stdlib.cpp
 )
 
 include_directories(imgui imgui/backends)
@@ -73,6 +75,7 @@ add_executable(RaytracingWeekend
         render_worker.h
         render_worker.cpp
         user_interface.h
+        ui_components.h
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 

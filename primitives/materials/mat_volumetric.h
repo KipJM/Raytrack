@@ -16,6 +16,8 @@ public:
 		return true;
 	}
 
+	material_type get_type() const override {return material_type::Volumetric;}
+
 private:
 	shared_ptr<texture> tex;
 };

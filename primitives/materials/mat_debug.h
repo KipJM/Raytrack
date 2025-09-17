@@ -17,6 +17,8 @@ public:
 		return true;
 	}
 
+	material_type get_type() const override {return material_type::Debug_Normal;}
+
 private:
 	mat_diffuse internal_lambert;
 };

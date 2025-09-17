@@ -19,6 +19,8 @@ public:
 		return (dot(scattered.direction(), rec.normal) > 0); // absorb if rough scatter makes ray go into object
 	}
 
+	material_type get_type() const override {return material_type::Metallic;}
+
 private:
 	color albedo;
 	double roughness;

@@ -22,7 +22,7 @@ public:
 		if (dirty)
 		{
 			// Regenerate BVH
-			bvh_cache = hittable_list(make_shared<bvh_node>(world));
+			bvh_cache = bvh_node(world);
 			dirty = false;
 		}
 
@@ -50,7 +50,7 @@ public:
 
 private:
 	bool dirty = true;
-	hittable_list bvh_cache;
+	bvh_node bvh_cache;
 };
 
 

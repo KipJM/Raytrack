@@ -26,6 +26,8 @@ public:
 		return true;
 	}
 
+	material_type get_type() const override {return material_type::Diffuse;}
+
 private:
 	shared_ptr<texture> albedo;
 };

@@ -65,6 +65,12 @@ public:
 		return bbox;
 	}
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// TODO
+		return false;
+	}
+
 private:
 	std::string name;
 	aabb bbox;

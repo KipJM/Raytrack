@@ -22,6 +22,7 @@ public:
 		}
 	}
 
+	material_type get_type() const override {return material_type::Emissive;}
 
 private:
 	shared_ptr<texture> tex;

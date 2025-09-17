@@ -2,6 +2,7 @@
 #define RAYTRACINGWEEKEND_USER_INTERFACE_H
 #include <format>
 
+#include <misc/cpp/imgui_stdlib.h>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "viewport.h"
@@ -9,6 +10,9 @@
 class user_interface
 {
 public:
+	ImVec4 color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
+
+
 	user_interface()
 	{
 		SetupImGuiStyle(ImGui::GetIO());
@@ -48,6 +52,7 @@ public:
 	}
 
 private:
+
 	bool show_help		= true;
 	bool show_viewport	= true;
 	bool show_render	= true;
@@ -307,13 +312,13 @@ private:
 					{
 						// Add object to scene
 						viewport.mark_scene_dirty();
-						scene.world.add(object);
+						scene.world.add(std::shared_ptr(object));
 						ImGui::CloseCurrentPopup();
 					}
 
 
 					ImGui::TableNextColumn();
-					ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+					ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				}
 
 				if (scene.objects.empty())
@@ -376,7 +381,7 @@ private:
 					scene_selection = i;
 
 				ImGui::TableNextColumn();
-				ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 			}
 
 			if (scene.world.objects.empty())
@@ -411,7 +416,7 @@ private:
 					if (payload->IsDelivery()) // Dropped
 					{
 						viewport.mark_scene_dirty();
-						scene.world.add(ref);
+						scene.world.add(std::shared_ptr(ref)); // copy
 					}
 				}
 			}
@@ -436,11 +441,9 @@ private:
 		{
 			ImGui::Button("Create");
 
-			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < scene.world.objects.size()));
+			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < scene.objects.size()));
 
-			ImGui::SameLine();
-
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
 			if (ImGui::Button("Deselect"))
 			{
 				geo_selection = -1;
@@ -474,7 +477,7 @@ private:
 					{
 						ImGui::Text(object->name.c_str());
 						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f),
+						ImGui::TextColored(color_mesh,
 							(" (" + object->get_human_type() + ")").c_str());
 
 						ImGui::SetDragDropPayload("REF_GEO", &object, sizeof(std::shared_ptr<hittable>));
@@ -482,7 +485,7 @@ private:
 					}
 
 					ImGui::TableNextColumn();
-					ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
+					ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				}
 
 				if (scene.objects.empty())
@@ -499,20 +502,38 @@ private:
 		ImGui::SameLine();
 
 		// Properties
-		ImGui::BeginGroup();
-		if (geo_selection >= 0 && geo_selection < scene.objects.size())
+		if (ImGui::BeginChild("##geoprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
 		{
-			shared_ptr<hittable>& object = scene.objects[geo_selection];
-			ImGui::Text(object->name.c_str());
-			ImGui::SetItemTooltip("Double click to edit the name.");
-			ImGui::TextColored(ImVec4(.96f,.22f,.67f, 1.0f), object->get_human_type().c_str());
-			ImGui::Separator();
-		} else
-		{
-			ImGui::Text("Select an object to edit its properties.");
-		}
+			if (geo_selection >= 0 && geo_selection < scene.objects.size())
+			{
+				shared_ptr<hittable>& object = scene.objects[geo_selection];
 
-		ImGui::EndGroup();
+				// ImGui::InputText("Name", (object->name));
+				std::string name_buf = object->name; // copy
+				if (ImGui::InputText("##name", &name_buf))
+				{
+					if (name_buf.size() == 0 ||
+						std::ranges::any_of(scene.objects,
+						[&object, &name_buf](const std::shared_ptr<hittable>& sp) {
+								return sp != object && sp->name == name_buf; // Compare underlying raw pointers
+						}))
+					{
+						// Duplicate
+						ImGui::SetTooltip("It must be a unique, non-empty name.");
+					} else
+						object->name = name_buf;
+				}
+				ImGui::SetItemTooltip("You can rename it here.");
+				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
+				ImGui::SetItemTooltip("Type of your object. Objects may be geometry, or modifiers.");
+				ImGui::Separator();
+				object->inspector_ui(viewport, scene);
+			} else
+			{
+				ImGui::Text("Select an object to edit its properties.");
+			}
+		}
+		ImGui::EndChild();
 		ImGui::End();
 	}
 

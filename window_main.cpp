@@ -7,10 +7,10 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include "misc.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
+
+#include "misc.h"
 #include "scene.h"
 #include "transformers.h"
 #include "user_interface.h"
@@ -19,6 +19,7 @@
 #include "external/stb_image.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/geometry/geo_quad.h"
+#include "primitives/geometry/geo_sphere.h"
 #include "primitives/materials/mat_diffuse.h"
 #include "primitives/materials/mat_emissive.h"
 
@@ -73,6 +74,11 @@ void scn_cornell_box(scene& scn)
 	shared_ptr<hittable> m_cube2 = make_shared<trn_move>(rot_cube2, vec3(130, 0, 65));
 
 	shared_ptr<hittable> v_cube2 = make_shared<volume_convex>(m_cube2, .008, make_shared<mat_volumetric>(color::zero));
+
+	shared_ptr<hittable> sphere = make_shared<geo_sphere>(point3(255,30,70), 160, mat_red);
+	sphere->name = "Sphere O";
+	scn.objects.push_back(sphere);
+	scn.world.add(sphere);
 
 	scn.world.add(m_cube1);
 	scn.world.add(v_cube2);

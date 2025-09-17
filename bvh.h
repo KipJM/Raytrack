@@ -14,8 +14,10 @@ class bvh_node : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::bvh; }
 
-	// list is copied
-	bvh_node(hittable_list list) : bvh_node(list.objects, 0, list.objects.size()) { }
+	bvh_node(){} // WARN! ONLY FOR PLACEHOLDER FOR SCENE
+
+	// list is referenced :)
+	bvh_node(hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) { }
 
 	// binary search
 	bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end)
@@ -69,6 +71,12 @@ public:
 
 	aabb bounding_box() const override { return bbox; }
 
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		// Not applicable. For compliance.
+		return false;
+	}
 
 private:
 	shared_ptr<hittable> left;
