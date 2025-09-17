@@ -221,8 +221,8 @@ public:
 			} else
 			{
 				std::clog<<":(";
-				// backlog.pop();
-				backlog = std::queue<std::vector<float>>(); // clear backlog to fix weirdness
+				backlog.pop(); // skip
+				// backlog = std::queue<std::vector<float>>(); // clear backlog to fix weirdness
 			}
 		}
 
