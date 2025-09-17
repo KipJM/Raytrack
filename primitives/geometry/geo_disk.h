@@ -35,8 +35,8 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		// TODO
-		return false;
+		ImGui::Text("Disks are a special type of quad, so tooltips are unchanged.");
+		return geo_quad::inspector_ui(viewport, scene);
 	}
 };
 

@@ -31,6 +31,11 @@ public:
 	{
 		objects.erase(objects.begin() + index);
 
+		rebuild_aabb();
+	}
+
+	void rebuild_aabb()
+	{
 		// recalculate bounding box
 		bbox = aabb();
 

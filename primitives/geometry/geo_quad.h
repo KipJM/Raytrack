@@ -98,6 +98,29 @@ public:
 		return modified;
 	}
 
+	/// Internal function to update the mesh data of each side of a cube
+	/// We assume that someone else will notify the viewport of an update
+	void cube_update_props(vec3 q, vec3 u, vec3 v)
+	{
+		this->Q = q;
+		this->u = u;
+		this->v = v;
+
+		auto n = cross(u, v);
+		normal = unit_vector(n);
+		D = dot(normal, Q);
+		w = n / dot(n,n);
+
+		set_bounding_box();
+	}
+
+	/// Internal function to update material data of each sie of a cube.
+	/// The pointer is therefore shared since it's managed by the cube.
+	void cube_set_mat(shared_ptr<material>& material)
+	{
+		this->mat = material;
+	}
+
 protected:
 	point3 Q;
 	vec3 u, v, w;

@@ -18,6 +18,7 @@
 #include "volume_convex.h"
 #include "external/stb_image.h"
 #include "primitives/geometry/geo_cube.h"
+#include "primitives/geometry/geo_disk.h"
 #include "primitives/geometry/geo_quad.h"
 #include "primitives/geometry/geo_sphere.h"
 #include "primitives/materials/mat_diffuse.h"
@@ -45,7 +46,7 @@ void scn_cornell_box(scene& scn)
 
 	auto wall_a = make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green);
 	auto wall_b = make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red);
-	auto wall_c = make_shared<geo_quad>(point3(343,554,332), vec3(-130,0,0),vec3(0,0,-105), mat_emission);
+	auto wall_c = make_shared<geo_disk>(point3(343,554,332), vec3(-130,0,0),vec3(0,0,-105), mat_emission);
 	auto wall_d = make_shared<geo_quad>(point3(0,0,0),vec3(555,0,0),vec3(0,0,555), mat_white);
 	auto wall_e = make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white);
 	auto wall_f = make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white);

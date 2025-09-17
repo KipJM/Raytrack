@@ -10,7 +10,7 @@ class geo_cube : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::cube; }
 
-	geo_cube(const point3& a, const point3& b, shared_ptr<material> mat) : material(mat)
+	geo_cube(const point3 a, const point3 b, shared_ptr<material> mat) : material(mat), a(a), b(b)
 	{
 		list = hittable_list();
 
@@ -41,12 +41,57 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		ImGui::Text("This is a cube! :3");
-		// TODO
-		return false;
+		ImGui::Text("Cubes are aligned with the world axis. If you want it rotated, use a rotator.");
+		bool modified = false;
+
+		modified += ImGui::DragDouble3("A Position", a.e);
+		ImGui::SetItemTooltip("The position of a vertex of the cube.");
+
+		modified += ImGui::DragDouble3("B Position", b.e);
+		ImGui::SetItemTooltip("The position of the opposite vertex of the cube.");
+
+		if ( material_slot("Material", material, scene) )
+		{
+			modified = true;
+			for (std::shared_ptr<hittable>& side : list.objects)
+			{
+				std::static_pointer_cast<geo_quad>(side)->cube_set_mat(material);
+			}
+		}
+
+		if (modified)
+		{
+			// perhaps, this is hell.
+			viewport.mark_scene_dirty();
+
+			auto min = point3(std::fmin(a.x(), b.x()), std::fmin(a.y(), b.y()), std::fmin(a.z(), b.z()));
+			auto max = point3(std::fmax(a.x(), b.x()), std::fmax(a.y(), b.y()), std::fmax(a.z(), b.z()));
+
+			auto dx = vec3(max.x() - min.x(), 0, 0);
+			auto dy = vec3(0, max.y() - min.y(), 0);
+			auto dz = vec3(0, 0, max.z() - min.z());
+
+			std::static_pointer_cast<geo_quad>(list.objects[0])
+				->cube_update_props(point3(min.x(), min.y(), max.z()), dx, dy); // front
+			std::static_pointer_cast<geo_quad>(list.objects[1])
+				->cube_update_props(point3(max.x(), min.y(), max.z()),-dz, dy); // right
+			std::static_pointer_cast<geo_quad>(list.objects[2])
+				->cube_update_props(point3(max.x(), min.y(), min.z()),-dx, dy); // back
+			std::static_pointer_cast<geo_quad>(list.objects[3])
+				->cube_update_props(point3(min.x(), min.y(), min.z()), dz, dy); // left
+			std::static_pointer_cast<geo_quad>(list.objects[4])
+				->cube_update_props(point3(min.x(), max.y(), max.z()), dx,-dz); // top
+			std::static_pointer_cast<geo_quad>(list.objects[5])
+				->cube_update_props(point3(min.x(), min.y(), min.z()), dx, dz); // bottom
+
+			list.rebuild_aabb();
+		}
+
+		return modified;
 	}
 
 private:
+	point3 a, b;
 	hittable_list list;
 	shared_ptr<material> material;
 
