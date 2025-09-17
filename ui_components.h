@@ -37,6 +37,7 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 	}
 	ImGui::SetItemTooltip("Please don\'t make any circular references! Otherwise the program will hang.");
 
+	//TODO: Drag and drop
 	return changed;
 }
 

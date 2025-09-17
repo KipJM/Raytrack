@@ -1,6 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_QUAD_H
 #define RAYTRACINGWEEKEND_QUAD_H
 #include "../../hittable.h"
+#include "../../ui_components.h"
 
 class geo_quad : public hittable
 {
@@ -69,8 +70,32 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		// TODO
-		return false;
+		bool modified = false;
+
+		modified += ImGui::DragDouble3("Position", Q.e);
+		ImGui::SetItemTooltip("The position of the bottom-left point of the quad.");
+
+		modified += ImGui::DragDouble3("U direction", u.e);
+		ImGui::SetItemTooltip("The local position of the bottom-right point of the quad. If you want a rectangle that is 1 unit wide, enter 1,0,0.");
+
+		modified += ImGui::DragDouble3("V direction", v.e);
+		ImGui::SetItemTooltip("The local position of the top-left point of the quad. If you want a rectangel that is 1 unit tall, enter 0,1,0.");
+
+		modified += material_slot("Material", mat, scene);
+
+		if (modified)
+		{
+			// Technically material doesn't need this to update, but it's so cheap to update it's not a big deal
+			auto n = cross(u, v);
+			normal = unit_vector(n);
+			D = dot(normal, Q);
+			w = n / dot(n,n);
+
+			set_bounding_box();
+
+			viewport.mark_scene_dirty();
+		}
+		return modified;
 	}
 
 protected:
