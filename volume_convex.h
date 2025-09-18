@@ -1,7 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_VOLUME_CONVEX_H
 #define RAYTRACINGWEEKEND_VOLUME_CONVEX_H
 #include "hittable.h"
-#include "texture.h"
+
 #include "primitives/materials/mat_volumetric.h"
 
 class volume_convex : public hittable
@@ -57,8 +57,25 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		// TODO
-		return false;
+		bool modified = false;
+		modified += hittable_slot("Shape", boundary, *this, scene);
+		ImGui::SetItemTooltip("The volume will be in this object\'s shape. Please do not make circular references.");
+
+		double density = -1.0 / neg_inv_density;
+		if (ImGui::DragDouble("Density", &density, 0.1, 0.0001, 200) && density > 0.0001)
+		{
+			modified = true;
+			neg_inv_density = -1/density;
+		}
+		ImGui::SetItemTooltip("The density of the object is set here, not in materials. Density must be over 0.");
+
+		modified += material_slot("Material", phase_function, scene);
+		ImGui::SetItemTooltip("Using a non-volumetric material will lead to unexpected results.");
+
+		if (modified)
+			viewport.mark_scene_dirty();
+
+		return modified;
 	}
 
 private:

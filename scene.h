@@ -7,6 +7,7 @@
 #include "hittable_list.h"
 #include "texture.h"
 
+
 class scene
 {
 public:

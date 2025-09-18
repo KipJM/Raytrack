@@ -1,13 +1,6 @@
-﻿//
-// Created by mayua on 2025/08/24.
-//
-
-#ifndef RAYTRACINGWEEKEND_HITTABLE_LIST_H
+﻿#ifndef RAYTRACINGWEEKEND_HITTABLE_LIST_H
 #define RAYTRACINGWEEKEND_HITTABLE_LIST_H
-
 #include "hittable.h"
-
-#include <vector>
 
 
 class hittable_list : public hittable
@@ -70,15 +63,12 @@ public:
 		return bbox;
 	}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
-	{
-		// TODO
-		return false;
-	}
+	bool inspector_ui(viewport& viewport, scene& scene) override;
 
 private:
-	std::string name;
 	aabb bbox;
+
+	int selection; // for UI
 };
 
 #endif //RAYTRACINGWEEKEND_HITTABLE_LIST_H

@@ -1,6 +1,4 @@
-﻿//
-
-#ifndef RAYTRACINGWEEKEND_TEXTURE_H
+﻿#ifndef RAYTRACINGWEEKEND_TEXTURE_H
 #define RAYTRACINGWEEKEND_TEXTURE_H
 #include "color.h"
 #include "vec3.h"

@@ -3,6 +3,8 @@
 #include <utility>
 
 #include "hittable.h"
+#include "ui_components.h"
+#include "viewport.h"
 
 class trn_move : public hittable
 {
@@ -35,8 +37,23 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		// TODO
-		return false;
+		bool modified = false;
+		if (hittable_slot("Target Object", object, *this, scene))
+			modified = true;
+
+		ImGui::SetItemTooltip("The object to translate. Please do not make circular references.");
+
+		if (ImGui::DragDouble3("Offset", offset.e))
+			modified = true;
+		ImGui::SetItemTooltip("Move the object by this amount. It\'s highly recommended to rotate first, then move.");
+
+		if (modified)
+		{
+			viewport.mark_scene_dirty();
+			bbox = object->bounding_box() + offset;
+		}
+
+		return modified;
 	}
 private:
 	shared_ptr<hittable> object;
@@ -56,10 +73,15 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_x(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
+	trn_rotate_x(shared_ptr<hittable> object, double angle) : object(object)
 	{
 		name = object->name + " (X Rotated)";
+		set_angle(angle);
+	}
 
+	void set_angle(double _angle)
+	{
+		angle = _angle;
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
 		cos_theta = std::cos(radians);
@@ -138,6 +160,11 @@ public:
 
 	aabb bounding_box() const override { return bbox; }
 
+	void internal_set_object(shared_ptr<hittable>& target)
+	{
+		object = target;
+	}
+
 private:
 	shared_ptr<hittable> object;
 	double angle;
@@ -154,10 +181,14 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_y(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
+	trn_rotate_y(shared_ptr<hittable> object, double angle) : object(object)
 	{
 		name = object->name + " (Y Rotated)";
+		set_angle(angle);
+	}
 
+	void set_angle(double _angle) {
+		angle = _angle;
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
 		cos_theta = std::cos(radians);
@@ -250,9 +281,13 @@ public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
 	/// in degrees
-	trn_rotate_z(shared_ptr<hittable> object, double angle) : object(object), angle(angle)
+	trn_rotate_z(shared_ptr<hittable> object, double angle) : object(object)
 	{
 		name = object->name + " (Z Rotated)";
+		set_angle(angle);
+	}
+	void set_angle(double _angle) {
+		angle = _angle;
 
 		auto radians = deg_to_rad(angle);
 		sin_theta = std::sin(radians);
@@ -346,7 +381,7 @@ class trn_rotate : public hittable {
 public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
 
-	trn_rotate(shared_ptr<hittable> object, vec3 angle) : original(object)
+	trn_rotate(shared_ptr<hittable> object, vec3 angle) : original(object), angle(angle)
 	{
 		name = object->name + " (Rotated)";
 
@@ -367,11 +402,33 @@ public:
 
 	bool inspector_ui(viewport& viewport, scene& scene) override
 	{
-		// TODO
-		return false;
+		bool modified = false;
+		ImGui::Text("Rotation will be offset if you rotate a translated object. It's recommended to rotate first, then translate.");
+
+		if (hittable_slot("Target object", original, *this, scene))
+		{
+			modified = true;
+			rot_x->internal_set_object(original);
+		}
+		ImGui::SetItemTooltip("The object to rotate. Please do not make circular references.");
+
+		if (ImGui::DragDouble3("Angle", angle.e))
+		{
+			modified = true;
+
+			// change angles!
+			rot_x->set_angle(angle.x());
+			rot_y->set_angle(angle.y());
+			rot_z->set_angle(angle.z());
+		}
+		ImGui::SetItemTooltip("The rotate order is X, Y, then Z. Angles follow the right hand rule.");
+
+		if (modified) viewport.mark_scene_dirty();
+		return modified;
 	}
 
 private:
+	vec3 angle;
 	shared_ptr<hittable> original;
 	shared_ptr<trn_rotate_x> rot_x;
 	shared_ptr<trn_rotate_y> rot_y;

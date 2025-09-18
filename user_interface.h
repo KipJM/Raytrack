@@ -1,6 +1,6 @@
 ﻿#ifndef RAYTRACINGWEEKEND_USER_INTERFACE_H
 #define RAYTRACINGWEEKEND_USER_INTERFACE_H
-#include <format>
+
 
 #include <misc/cpp/imgui_stdlib.h>
 #include "imgui.h"
@@ -10,8 +10,7 @@
 class user_interface
 {
 public:
-	ImVec4 color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
-
+	static ImVec4 const color_mesh;
 
 	user_interface()
 	{
@@ -633,5 +632,7 @@ private:
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.3499999940395355f);
 }
 };
+
+inline ImVec4 const user_interface::color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
 
 #endif //RAYTRACINGWEEKEND_USER_INTERFACE_H

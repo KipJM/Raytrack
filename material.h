@@ -1,12 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_MATERIAL_H
 #define RAYTRACINGWEEKEND_MATERIAL_H
 
-
-#include "imgui/imgui.h"
-#include "hittable.h"
 #include "misc.h"
-// #include "scene.h"
 
+
+class hit_record;
 
 enum material_type
 {

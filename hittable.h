@@ -1,11 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_HITTABLE_H
 #define RAYTRACINGWEEKEND_HITTABLE_H
 #include "aabb.h"
-
+#include "material.h"
 
 class scene;
 class viewport;
-class material;
 
 enum hittable_type
 {

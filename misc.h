@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <format>
+#include <algorithm>
 
 // C++ std usings
 using std::make_shared;
@@ -25,7 +27,7 @@ inline double deg_to_rad(double deg)
 /// Returns random double from [0, 1).
 inline double rand_double()
 {
-	// c++ 11
+	// c++ 11+
 	static std::uniform_real_distribution<double> distribution(0.0, 1.0); // [0, 1)
 	static std::mt19937 generator;
 
@@ -50,5 +52,6 @@ inline int rand_int(int min, int max)
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
+
 
 #endif //RAYTRACINGWEEKEND_RTWEEKEND_H

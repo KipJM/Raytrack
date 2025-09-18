@@ -11,6 +11,7 @@
 #define STBI_FAILURE_USERMSG
 
 #include "misc.h"
+
 #include "scene.h"
 #include "transformers.h"
 #include "user_interface.h"
@@ -43,6 +44,7 @@ void scn_cornell_box(scene& scn)
 	auto mat_white = make_shared<mat_diffuse>(color::one * .73);		mat_white->name = "White Diffuse";
 	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));	mat_green->name = "Green Diffuse";
 	auto mat_emission = make_shared<mat_emissive>(color::one * 7);	mat_emission->name = "White Emissive";
+	auto mat_volume = make_shared<mat_volumetric>(color::zero); mat_volume->name = "Black Volume";
 
 	auto wall_a = make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green);
 	auto wall_b = make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red);
@@ -74,9 +76,11 @@ void scn_cornell_box(scene& scn)
 	shared_ptr<hittable> m_cube1 = make_shared<trn_move>(rot_cube1, vec3(265, 50, 295));
 	shared_ptr<hittable> m_cube2 = make_shared<trn_move>(rot_cube2, vec3(130, 0, 65));
 
-	shared_ptr<hittable> v_cube2 = make_shared<volume_convex>(m_cube2, .008, make_shared<mat_volumetric>(color::zero));
+	shared_ptr<hittable> v_cube2 = make_shared<volume_convex>(m_cube2, .008, mat_volume);
 
 	shared_ptr<hittable> sphere = make_shared<geo_sphere>(point3(255,30,70), 160, mat_red);
+
+	shared_ptr<hittable_list> list = make_shared<hittable_list>(); list->name = "list test";
 	sphere->name = "Sphere O";
 	scn.objects.push_back(sphere);
 	scn.world.add(sphere);
@@ -91,6 +95,7 @@ void scn_cornell_box(scene& scn)
 	scn.world.add(wall_e);
 	scn.world.add(wall_f);
 
+	scn.objects.push_back(list);
 	scn.objects.push_back(cube1);
 	scn.objects.push_back(cube2);
 	scn.objects.push_back(wall_a);
@@ -113,6 +118,7 @@ void scn_cornell_box(scene& scn)
 	scn.materials.push_back(mat_emission);
 	scn.materials.push_back(mat_red);
 	scn.materials.push_back(mat_white);
+	scn.materials.push_back(mat_volume);
 
 	scn.camera = camera();
 
@@ -171,6 +177,8 @@ int main(int argc, char* argv[])
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigDpiScaleFonts = true;          // [Experimental] Automatically overwrite style.FontScaleDpi in Begin() when Monitor DPI changes. This will scale fonts but _NOT_ scale sizes/padding for now.
+	io.ConfigDpiScaleViewports = true;      // [Experimental] Scale Dear ImGui and Platform Windows when Monitor DPI changes.
 
 	// imgui: setup backend
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
