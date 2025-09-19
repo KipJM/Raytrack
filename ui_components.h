@@ -7,6 +7,7 @@
 #include "misc.h"
 #include "scene.h"
 #include "hittable.h"
+#include "primitives/textures/tex_color.h"
 
 
 // Name slots
@@ -121,6 +122,8 @@ inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable
 	return changed;
 }
 
+// material
+
 inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, std::shared_ptr<material>& self_exclude, scene& scene)
 {
 	bool changed = false;
@@ -190,6 +193,19 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 	shared_ptr<material> null_mat = nullptr;
 	return material_slot(label, material_ref, null_mat, scene);
 }
+
+// texture
+
+bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std::shared_ptr<texture>& self_exclude, scene& scene);
+
+inline bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, scene& scene)
+{
+	shared_ptr<texture> null_tex = nullptr;
+	return texture_slot(label, texture_ref, null_tex, scene);
+}
+
+
+// CREATION
 
 class hittable_type_combo
 {

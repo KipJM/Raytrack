@@ -14,6 +14,8 @@ class tex_color : public texture
 		return albedo;
 	}
 
+	texture_type get_type() const override {return Color;}
+
 private:
 	color albedo;
 };

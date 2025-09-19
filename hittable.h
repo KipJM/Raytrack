@@ -41,61 +41,6 @@ public:
 	}
 };
 
-class hittable
-{
-public:
-	std::string name;
-
-	virtual ~hittable() = default;
-
-	virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
-
-	virtual aabb bounding_box() const = 0;
-
-	virtual hittable_type get_type() const = 0;
-
-	[[nodiscard]] std::string get_human_type() const
-	{
-		switch (get_type())
-		{
-		case cube:
-			return "Cube";
-
-		case disk:
-			return "Disk";
-
-		case quad:
-			return "Quad";
-
-		case sphere:
-			return "Sphere";
-
-		case list:
-			return "Compound";
-
-		case volume:
-			return "Volume";
-
-		case mover:
-			return "Translated Object";
-
-		case rotator:
-			return "Rotated Object";
-
-		case bvh:
-			return "BVH-Optimized Node";
-		}
-
-		return "Unknown";
-	}
-
-	/// UI: Displays obj-specific inspector UI
-	///
-	/// Returns: True if obj is modified
-	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
-
-};
-
 [[nodiscard]] inline std::string hittable_get_human_type(hittable_type type)
 {
 	switch (type)
@@ -130,5 +75,32 @@ public:
 
 	return "Unknown";
 }
+
+class hittable
+{
+public:
+	std::string name;
+
+	virtual ~hittable() = default;
+
+	virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+
+	virtual aabb bounding_box() const = 0;
+
+	virtual hittable_type get_type() const = 0;
+
+	[[nodiscard]] std::string get_human_type() const
+	{
+		return hittable_get_human_type(get_type());
+	}
+
+	/// UI: Displays obj-specific inspector UI
+	///
+	/// Returns: True if obj is modified
+	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
+
+};
+
+
 
 #endif //RAYTRACINGWEEKEND_HITTABLE_H

@@ -13,6 +13,9 @@ public:
 	static ImVec4 const color_mesh;
 	static ImVec4 const color_mat;
 
+	static float popup_color_storage[3];
+	static std::string popup_string_storage;
+
 	user_interface()
 	{
 		SetupImGuiStyle(ImGui::GetIO());
@@ -627,7 +630,7 @@ private:
 					}
 
 					ImGui::TableNextColumn();
-					ImGui::TextColored(color_mesh, mat->get_human_type().c_str());
+					ImGui::TextColored(color_mat, mat->get_human_type().c_str());
 				}
 
 				if (scene.materials.empty())
@@ -799,4 +802,6 @@ private:
 inline ImVec4 const user_interface::color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
 inline ImVec4 const user_interface::color_mat = ImVec4(.69f, .88f, .11f,1.0f);
 
+inline float user_interface::popup_color_storage[3] = { 0.0f, 0.0f, 0.0f };
+inline std::string user_interface::popup_string_storage = "";
 #endif //RAYTRACINGWEEKEND_USER_INTERFACE_H

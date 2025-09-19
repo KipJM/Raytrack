@@ -23,7 +23,7 @@ public:
 		return color(color_scale*pixel[0], color_scale*pixel[1], color_scale*pixel[2]); // convert byte back to float
 	}
 
-
+	texture_type get_type() const override {return Image;}
 private:
 	rtw_image image;
 };

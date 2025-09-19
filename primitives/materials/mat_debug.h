@@ -3,6 +3,7 @@
 
 #include "mat_diffuse.h"
 #include "../../texture.h"
+#include "../../imgui/imgui.h"
 
 
 class mat_debug_normal : public material
@@ -18,6 +19,16 @@ public:
 	}
 
 	material_type get_type() const override {return material_type::Debug_Normal;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		ImGui::Text("This material visualizes the normals of an object.");
+		ImGui::Text("There are no parameters for this material.");
+		ImGui::BeginDisabled(true);
+		ImGui::Text("This material is based on the diffuse material type.");
+		ImGui::EndDisabled();
+		return false;
+	}
 
 private:
 	mat_diffuse internal_lambert;

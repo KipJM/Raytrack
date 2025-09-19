@@ -13,6 +13,8 @@ public:
 	{
 		return color(u,v,0);
 	}
+
+	texture_type get_type() const override {return UV;}
 };
 
 #endif //RAYTRACINGWEEKEND_TEX_UV_DEBUG_H

@@ -4,6 +4,7 @@
 #include "../../texture.h"
 #include "../textures/tex_color.h"
 #include "../../material.h"
+#include "../../ui_components.h"
 
 class mat_diffuse : public material
 {
@@ -27,6 +28,19 @@ public:
 	}
 
 	material_type get_type() const override {return material_type::Diffuse;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		bool modified = false;
+
+		if (texture_slot("Albedo", albedo, scene))
+			modified = true;
+
+		if (modified)
+			viewport.mark_scene_dirty();
+
+		return modified;
+	}
 
 private:
 	shared_ptr<texture> albedo;

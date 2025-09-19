@@ -22,8 +22,10 @@
 #include "primitives/geometry/geo_disk.h"
 #include "primitives/geometry/geo_quad.h"
 #include "primitives/geometry/geo_sphere.h"
+#include "primitives/materials/mat_debug.h"
 #include "primitives/materials/mat_diffuse.h"
 #include "primitives/materials/mat_emissive.h"
+#include "primitives/materials/mat_metallic.h"
 
 void error_callback(int error, const char* description)
 {
@@ -42,9 +44,10 @@ void scn_cornell_box(scene& scn)
 
 	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));	mat_red->name = "Red Diffuse";
 	auto mat_white = make_shared<mat_diffuse>(color::one * .73);		mat_white->name = "White Diffuse";
-	auto mat_green = make_shared<mat_diffuse>(color(.12,.45,.15));	mat_green->name = "Green Diffuse";
+	auto mat_green = make_shared<mat_metallic>(color(.12,.45,.15), 0.5);	mat_green->name = "Green Diffuse";
 	auto mat_emission = make_shared<mat_emissive>(color::one * 7);	mat_emission->name = "White Emissive";
 	auto mat_volume = make_shared<mat_volumetric>(color::zero); mat_volume->name = "Black Volume";
+	auto mat_debug = make_shared<mat_debug_normal>(); mat_debug->name = "debug mat";
 
 	auto wall_a = make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green);
 	auto wall_b = make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red);
@@ -119,6 +122,7 @@ void scn_cornell_box(scene& scn)
 	scn.materials.push_back(mat_red);
 	scn.materials.push_back(mat_white);
 	scn.materials.push_back(mat_volume);
+	scn.materials.push_back(mat_debug);
 
 	scn.camera = camera();
 

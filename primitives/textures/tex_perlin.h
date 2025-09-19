@@ -13,6 +13,7 @@ public:
 		return color::half * (1 + std::sin(scale * p.z() + 10 * noise.turbulence(p, turbulence)));
 	}
 
+	texture_type get_type() const override {return Perlin;}
 private:
 	perlin noise;
 	double scale;

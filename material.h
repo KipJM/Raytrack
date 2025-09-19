@@ -18,6 +18,26 @@ enum material_type
 	Volumetric
 };
 
+[[nodiscard]] inline std::string material_get_human_type(material_type type)
+{
+	switch (type)
+	{
+	case Debug_Normal:
+		return "Normals (DEBUG)";
+	case Diffuse:
+		return "Diffuse";
+	case Emissive:
+		return "Emissive";
+	case Metallic:
+		return "Metallic";
+	case Translucent:
+		return "Translucent";
+	case Volumetric:
+		return "Volumetric";
+	}
+	return "Unknown";
+}
+
 class material
 {
 public:
@@ -44,22 +64,7 @@ public:
 
 	[[nodiscard]] std::string get_human_type() const
 	{
-		switch (get_type())
-		{
-		case Debug_Normal:
-			return "Normals Debug";
-		case Diffuse:
-			return "Diffuse";
-		case Emissive:
-			return "Emissive";
-		case Metallic:
-			return "Metallic";
-		case Translucent:
-			return "Translucent";
-		case Volumetric:
-			return "Volumetric";
-		}
-		return "Unknown";
+		return material_get_human_type(get_type());
 	}
 
 };

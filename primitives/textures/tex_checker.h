@@ -25,6 +25,7 @@ public:
 		return is_even ? even->value(u, v, p) : odd->value(u, v, p);
 	}
 
+	texture_type get_type() const override {return Checker;}
 private:
 	double inv_scale;
 	shared_ptr<texture> even, odd;
