@@ -10,6 +10,12 @@ class geo_cube : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::cube; }
 
+	/// UI Construct
+	geo_cube(std::string name, shared_ptr<material> mat) : geo_cube(point3(0,0,0), point3(1,1,1), mat)
+	{
+		this->name = name;
+	}
+
 	geo_cube(const point3 a, const point3 b, shared_ptr<material> mat) : material(mat), a(a), b(b)
 	{
 		list = hittable_list();

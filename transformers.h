@@ -11,6 +11,12 @@ class trn_move : public hittable
 public:
 	hittable_type get_type() const override {return hittable_type::mover;}
 
+	/// UI Constructor
+	trn_move(std::string name, shared_ptr<hittable> obj) : trn_move(obj, vec3(0,0,0))
+	{
+		this->name = name;
+	}
+
 	trn_move(shared_ptr<hittable> object, const vec3& offset) : object(object), offset(offset)
 	{
 		name = object->name + " (Translated)";
@@ -380,6 +386,12 @@ private:
 class trn_rotate : public hittable {
 public:
 	hittable_type get_type() const override {return hittable_type::rotator;}
+
+	/// UI Constructor
+	trn_rotate(std::string name, shared_ptr<hittable> object) : trn_rotate(object, vec3(0,0,0))
+	{
+		this->name = name;
+	}
 
 	trn_rotate(shared_ptr<hittable> object, vec3 angle) : original(object), angle(angle)
 	{

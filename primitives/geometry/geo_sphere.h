@@ -10,6 +10,12 @@ class geo_sphere : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::sphere; }
 
+	/// UI Constructor
+	geo_sphere(std::string name, shared_ptr<material> mat) : geo_sphere(point3(0,0,0), 1, mat)
+	{
+		this->name = name;
+	}
+
 	/// Static
 	geo_sphere(const point3 center, double radius, shared_ptr<material> mat) :
 		center(center), radius(std::fmax(0,radius)), mat(mat)

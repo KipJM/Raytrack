@@ -12,6 +12,12 @@ class geo_disk : public geo_quad
 public:
 	hittable_type get_type() const override { return hittable_type::disk; }
 
+	/// UI Constructor
+	geo_disk(std::string name, shared_ptr<material> mat) : geo_disk(point3(0,0,0), vec3(1,0,0), vec3(0,1,0), mat)
+	{
+		this->name = name;
+	}
+
 	geo_disk(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
 		: geo_quad(Q, u, v, mat) {}
 

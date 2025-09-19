@@ -8,6 +8,12 @@ class geo_quad : public hittable
 public:
 	hittable_type get_type() const override {return hittable_type::quad;}
 
+	/// UI Constructor
+	geo_quad(std::string name, shared_ptr<material> mat) : geo_quad(point3(0,0,0), vec3(1,0,0), vec3(0,1,0), mat)
+	{
+		this->name = name;
+	}
+
 	geo_quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
 		: Q(Q), u(u), v(v), mat(mat)
 	{

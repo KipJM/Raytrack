@@ -1,10 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_USER_INTERFACE_H
 #define RAYTRACINGWEEKEND_USER_INTERFACE_H
 
-
 #include <misc/cpp/imgui_stdlib.h>
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "ui_components.h"
 #include "viewport.h"
 
 class user_interface
@@ -271,13 +271,14 @@ private:
 
 		ImGui::EndDisabled();
 
-		if (ImGui::BeginPopupModal("Add object to scene", 0))
+		bool a_open = true;
+		if (ImGui::BeginPopupModal("Add object to scene", &a_open))
 		{
 			ImGui::Text("Select an object from your geometries.");
 
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel"))
-				ImGui::CloseCurrentPopup();
+			// ImGui::SameLine();
+			// if (ImGui::Button("Cancel"))
+			// 	ImGui::CloseCurrentPopup();
 
 
 			static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
@@ -427,7 +428,7 @@ private:
 
 private:
 	int geo_selection = -1;
-
+	hittable_type_combo hittable_combo;
 	void w_geometries(bool* p_open, viewport& viewport, scene& scene)
 	{
 		if (!ImGui::Begin("Geometries", p_open))
@@ -438,7 +439,11 @@ private:
 
 		if (ImGui::BeginChild("##geotree", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened))
 		{
-			ImGui::Button("Create");
+			if (ImGui::Button("Create"))
+			{
+				hittable_combo.selection = cube; // uhh for some reason can't reinitialize
+				ImGui::OpenPopup("Create object");
+			}
 
 			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < scene.objects.size()));
 
@@ -496,6 +501,39 @@ private:
 
 				ImGui::EndTable();
 			}
+
+			// Object creation modal
+			bool open_a = true;
+			if (ImGui::BeginPopupModal("Create object", &open_a))
+			{
+				ImGui::SeparatorText("Choose which type of object to create.");
+
+				hittable_combo.combo();
+				ImGui::Text("Description: ");
+				ImGui::SameLine();
+				ImGui::Text(hittable_combo.get_description());
+
+				if (ImGui::Button("Create"))
+				{
+					hittable_combo.reset_props();
+					ImGui::OpenPopup("Define object");
+				}
+
+				bool open_b = true;
+				if (ImGui::BeginPopupModal("Define object", &open_b))
+				{
+					if (hittable_combo.create_prompt(scene))
+					{
+						// No need to refresh viewport since objects are not added to render by default
+						ImGui::ClosePopupToLevel(0, true);
+					}
+					ImGui::EndPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+
+
 		}
 		ImGui::EndChild();
 		ImGui::SameLine();
@@ -507,22 +545,9 @@ private:
 			{
 				shared_ptr<hittable>& object = scene.objects[geo_selection];
 
-				// ImGui::InputText("Name", (object->name));
-				std::string name_buf = object->name; // copy
-				if (ImGui::InputText("##name", &name_buf))
-				{
-					if (name_buf.size() == 0 ||
-						std::ranges::any_of(scene.objects,
-						[&object, &name_buf](const std::shared_ptr<hittable>& sp) {
-								return sp != object && sp->name == name_buf; // Compare underlying raw pointers
-						}))
-					{
-						// Duplicate
-						ImGui::SetTooltip("It must be a unique, non-empty name.");
-					} else
-						object->name = name_buf;
-				}
+				hittable_nameSlot(*object, scene);
 				ImGui::SetItemTooltip("You can rename it here.");
+
 				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				ImGui::SetItemTooltip("Type of your object. Objects may be geometry, or modifiers.");
 				ImGui::Separator();
@@ -539,7 +564,7 @@ private:
 
 private:
 	void SetupImGuiStyle(const ImGuiIO& io)
-{
+	{
 	// Setup font
 	io.Fonts->AddFontFromFileTTF("font_inter.ttf", 16);
 	// io.Fonts->GetTexDataAsRGBA32();
@@ -581,7 +606,7 @@ private:
 	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.6000000238418579f, 0.6000000238418579f, 0.6000000238418579f, 1.0f);
 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.125490203499794f, 0.125490203499794f, 0.125490203499794f, 1.0f);
 	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.125490203499794f, 0.125490203499794f, 0.125490203499794f, 1.0f);
-	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.168627455830574f, 0.168627455830574f, 0.168627455830574f, 1.0f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	style.Colors[ImGuiCol_Border] = ImVec4(0.250980406999588f, 0.250980406999588f, 0.250980406999588f, 1.0f);
 	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.168627455830574f, 0.168627455830574f, 0.168627455830574f, 1.0f);

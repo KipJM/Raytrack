@@ -90,8 +90,42 @@ public:
 	}
 
 	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
+
 };
 
+[[nodiscard]] inline std::string hittable_get_human_type(hittable_type type)
+{
+	switch (type)
+	{
+	case cube:
+		return "Cube";
 
+	case disk:
+		return "Disk";
+
+	case quad:
+		return "Quad";
+
+	case sphere:
+		return "Sphere";
+
+	case list:
+		return "Compound";
+
+	case volume:
+		return "Volume";
+
+	case mover:
+		return "Translated Object";
+
+	case rotator:
+		return "Rotated Object";
+
+	case bvh:
+		return "BVH-Optimized Node";
+	}
+
+	return "Unknown";
+}
 
 #endif //RAYTRACINGWEEKEND_HITTABLE_H

@@ -11,6 +11,7 @@ public:
 	std::vector<shared_ptr<hittable>> objects; // meta: cpp garbage collector hell :)
 
 	hittable_list() {}
+	hittable_list(std::string name) {this->name = name;}
 	hittable_list(shared_ptr<hittable> object) { add(object); }
 
 	void clear() { objects.clear(); }

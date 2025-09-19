@@ -9,6 +9,13 @@ class volume_convex : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::volume; }
 
+
+	/// UI Constructor
+	volume_convex(std::string name, shared_ptr<hittable> obj, shared_ptr<material> mat) : volume_convex(obj, 1.0, mat)
+	{
+		this->name = name;
+	}
+
 	volume_convex(shared_ptr<hittable> boundary, double density, const shared_ptr<material> material)
 		: boundary(boundary), neg_inv_density(-1/density), phase_function(material)
 	{
