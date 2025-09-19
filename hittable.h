@@ -89,6 +89,9 @@ public:
 		return "Unknown";
 	}
 
+	/// UI: Displays obj-specific inspector UI
+	///
+	/// Returns: True if obj is modified
 	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
 
 };

@@ -46,7 +46,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 
 	if (selection == mover || selection == rotator || selection == volume)
 	{
-		hittable_slot("Target Object", object_ref, scene.world, scene);
+		hittable_slot("Target Object", object_ref, scene.world, scene); // scene.world as self-exclude, since it will never be used
 		if (object_ref == nullptr)
 		{
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "The target Object (Shape) must be designated.");

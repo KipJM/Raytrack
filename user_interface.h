@@ -11,6 +11,7 @@ class user_interface
 {
 public:
 	static ImVec4 const color_mesh;
+	static ImVec4 const color_mat;
 
 	user_interface()
 	{
@@ -48,6 +49,7 @@ public:
 		if (show_camera) w_cameraSettings(&show_camera, viewport);
 		if (show_scene) w_scene(&show_scene, viewport, viewport.target_scene);
 		if (show_geometry) w_geometries(&show_geometry, viewport, viewport.target_scene);
+		if (show_material) w_materials(&show_material, viewport, viewport.target_scene);
 	}
 
 private:
@@ -545,7 +547,7 @@ private:
 			{
 				shared_ptr<hittable>& object = scene.objects[geo_selection];
 
-				hittable_nameSlot(*object, scene);
+				name_slot(*object, scene);
 				ImGui::SetItemTooltip("You can rename it here.");
 
 				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
@@ -561,6 +563,142 @@ private:
 		ImGui::End();
 	}
 
+private:
+	// Materials
+	int mat_selection = -1;
+	void w_materials(bool* p_open, viewport& viewport, scene& scene)
+	{
+		if (!ImGui::Begin("Materials", p_open))
+		{
+			ImGui::End();
+			return;
+		}
+
+		if (ImGui::BeginChild("##mattree", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened))
+		{
+			if (ImGui::Button("Create"))
+			{
+				// TODO
+				// hittable_combo.selection = cube; // uhh for some reason can't reinitialize
+				ImGui::OpenPopup("Create material");
+			}
+
+			ImGui::BeginDisabled(!(mat_selection >= 0 && mat_selection < scene.materials.size()));
+
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
+			if (ImGui::Button("Deselect"))
+			{
+				mat_selection = -1;
+			}
+
+			ImGui::EndDisabled();
+
+
+			static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
+				| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
+				| ImGuiTableFlags_ScrollY;
+
+			if (ImGui::BeginTable("mat_list", 2, table_flags))
+			{
+				ImGui::TableSetupColumn("Name");
+				ImGui::TableSetupColumn("Type");
+				ImGui::TableHeadersRow();
+
+				for (int i = 0; i < scene.materials.size(); i++)
+				{
+					std::shared_ptr<material>& mat = scene.materials[i];
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					// Name
+					if (ImGui::Selectable(mat->name.c_str(), mat_selection == i, ImGuiSelectableFlags_SpanAllColumns))
+						mat_selection = i;
+
+					if (ImGui::BeginDragDropSource())
+					{
+						ImGui::Text(mat->name.c_str());
+						ImGui::SameLine();
+						ImGui::TextColored(color_mat,
+							(" (" + mat->get_human_type() + ")").c_str());
+
+						ImGui::SetDragDropPayload("REF_MAT", &mat, sizeof(std::shared_ptr<material>));
+						ImGui::EndDragDropSource();
+					}
+
+					ImGui::TableNextColumn();
+					ImGui::TextColored(color_mesh, mat->get_human_type().c_str());
+				}
+
+				if (scene.materials.empty())
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Press \"Create\" to start making materials!");
+				}
+
+				ImGui::EndTable();
+			}
+
+			// Object creation modal
+			bool open_a = true;
+			if (ImGui::BeginPopupModal("Create material", &open_a))
+			{
+				ImGui::SeparatorText("Choose which type of material to create.");
+
+				// TODO!
+				// hittable_combo.combo();
+				// ImGui::Text("Description: ");
+				// ImGui::SameLine();
+				// ImGui::Text(hittable_combo.get_description());
+				//
+				// if (ImGui::Button("Create"))
+				// {
+				// 	hittable_combo.reset_props();
+				// 	ImGui::OpenPopup("Define material");
+				// }
+				//
+				// bool open_b = true;
+				// if (ImGui::BeginPopupModal("Define material", &open_b))
+				// {
+				// 	if (hittable_combo.create_prompt(scene))
+				// 	{
+				// 		// No need to refresh viewport since objects are not added to render by default
+				// 		ImGui::ClosePopupToLevel(0, true);
+				// 	}
+				// 	ImGui::EndPopup();
+				// }
+
+				ImGui::EndPopup();
+			}
+
+
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		// Properties
+		if (ImGui::BeginChild("##matprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
+		{
+			if (mat_selection >= 0 && mat_selection < scene.materials.size())
+			{
+				shared_ptr<material>& mat = scene.materials[mat_selection];
+
+				name_slot(*mat, scene);
+				ImGui::SetItemTooltip("You can rename it here.");
+
+				ImGui::TextColored(color_mat, mat->get_human_type().c_str());
+				ImGui::SetItemTooltip("Type of your material.");
+				ImGui::Separator();
+				mat->inspector_ui(viewport, scene);
+			} else
+			{
+				ImGui::Text("Select a material to edit its properties.");
+			}
+		}
+		ImGui::EndChild();
+		ImGui::End();
+	}
 
 private:
 	void SetupImGuiStyle(const ImGuiIO& io)
@@ -659,5 +797,6 @@ private:
 };
 
 inline ImVec4 const user_interface::color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
+inline ImVec4 const user_interface::color_mat = ImVec4(.69f, .88f, .11f,1.0f);
 
 #endif //RAYTRACINGWEEKEND_USER_INTERFACE_H

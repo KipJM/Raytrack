@@ -4,6 +4,8 @@
 #include "misc.h"
 
 
+class viewport;
+class scene;
 class hit_record;
 
 enum material_type
@@ -32,6 +34,11 @@ public:
 	{
 		return color::zero;
 	}
+
+	/// UI: Displays mat-specific inspector UI
+	///
+	/// Returns: True if mat is modified
+	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
 
 	virtual material_type get_type() const = 0;
 

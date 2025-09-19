@@ -9,8 +9,8 @@
 #include "hittable.h"
 
 
-// Generic
-inline bool hittable_nameSlot(hittable& object, scene& scene)
+// Name slots
+inline bool name_slot(hittable& object, scene& scene)
 {
 	std::string name_buf = object.name; // copy
 	if (ImGui::InputText("##name", &name_buf))
@@ -26,6 +26,28 @@ inline bool hittable_nameSlot(hittable& object, scene& scene)
 		} else
 		{
 			object.name = name_buf;
+			return true;
+		}
+	}
+	return false;
+}
+
+inline bool name_slot(material& mat, scene& scene)
+{
+	std::string name_buf = mat.name; // copy
+	if (ImGui::InputText("##name", &name_buf))
+	{
+		if (name_buf.size() == 0 ||
+			std::ranges::any_of(scene.materials,
+			[&mat, &name_buf](const std::shared_ptr<material>& sp) {
+					return sp.get() != &mat && sp->name == name_buf; // Compare underlying raw pointers
+			}))
+		{
+			// Duplicate
+			ImGui::SetTooltip("It must be a unique, non-empty name.");
+		} else
+		{
+			mat.name = name_buf;
 			return true;
 		}
 	}
@@ -99,7 +121,7 @@ inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable
 	return changed;
 }
 
-inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, scene& scene)
+inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, std::shared_ptr<material>& self_exclude, scene& scene)
 {
 	bool changed = false;
 	bool isnull = material_ref == nullptr;
@@ -116,6 +138,10 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 		for (int i = 0; i < scene.materials.size(); i++)
 		{
 			std::shared_ptr<material>& i_mat = scene.materials[i];
+
+			if (self_exclude != nullptr && i_mat.get() == self_exclude.get()) // self exclude is ignored when in hittable mode(self_exclude = null)
+				continue;
+
 			const bool is_selected = !isnull && (material_ref.get() == i_mat.get());
 			if (filter.PassFilter(i_mat->name.c_str()))
 			{
@@ -130,8 +156,39 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 	}
 	ImGui::SetItemTooltip("Please don\'t make any circular references! Otherwise the program will hang.");
 
-	//TODO: Drag and drop
+	// Drag and drop
+	if (ImGui::BeginDragDropTarget())
+	{
+		// Hover
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REF_MAT", ImGuiDragDropFlags_AcceptBeforeDelivery | ImGuiDragDropFlags_AcceptNoPreviewTooltip))
+		{
+			std::shared_ptr<material> ref = *static_cast<std::shared_ptr<material>*>(payload->Data);
+
+			if (self_exclude != nullptr && ref.get() == self_exclude.get())
+			{
+				// Is duplicate
+				ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
+				ImGui::SetTooltip("No circular references.");
+			} else
+			{
+				ImGui::SetTooltip(std::format("Drop to set as {0}", ref->name).c_str());
+				// Not Duplicate
+				if (payload->IsDelivery()) // Dropped
+				{
+					changed = true;
+					material_ref = std::shared_ptr(ref);
+				}
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
 	return changed;
+}
+
+inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, scene& scene)
+{
+	shared_ptr<material> null_mat = nullptr;
+	return material_slot(label, material_ref, null_mat, scene);
 }
 
 class hittable_type_combo
