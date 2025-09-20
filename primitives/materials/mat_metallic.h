@@ -10,6 +10,12 @@ class mat_metallic : public material
 public:
 	mat_metallic(const color& albedo, double roughness) : albedo(make_shared<tex_color>(albedo)), roughness(roughness < 1? roughness : 1) {}; // weird cap on roughness :|
 
+	/// UI
+	mat_metallic(std::string name, shared_ptr<texture> tex) : albedo(tex), roughness(0.5)
+	{
+		this->name = name;
+	}
+
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
 		vec3 reflected = reflect(r_in.direction(), rec.normal);

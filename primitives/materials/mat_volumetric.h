@@ -9,6 +9,12 @@ public:
 	mat_volumetric(const color& albedo) : tex(make_shared<tex_color>(albedo)) {}
 	mat_volumetric(shared_ptr<texture> albedo) : tex(albedo) {}
 
+	/// UI constructor
+	mat_volumetric(std::string name, shared_ptr<texture> albedo) : mat_volumetric(albedo)
+	{
+		this->name = name;
+	}
+
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
 		scattered = ray(rec.p, rand_unit_vector(), r_in.time());

@@ -11,6 +11,12 @@ public:
 	mat_emissive(const color& emission) : tint(emission) {}
 	mat_emissive(shared_ptr<texture> emission, const color& tint) : tex(emission), tint(tint) {}
 
+	/// UI
+	mat_emissive(std::string name, shared_ptr<texture> tex) : mat_emissive(tex, color::one)
+	{
+		this->name = name;
+	}
+
 	color emitted(double u, double v, const point3& p) const override
 	{
 		if (tex == nullptr)

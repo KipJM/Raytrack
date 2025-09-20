@@ -6,9 +6,13 @@
 #include "primitives/geometry/geo_disk.h"
 #include "primitives/geometry/geo_sphere.h"
 #include "user_interface.h"
+#include "primitives/materials/mat_debug.h"
+#include "primitives/materials/mat_emissive.h"
+#include "primitives/materials/mat_metallic.h"
+#include "primitives/materials/mat_translucent.h"
 
 bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std::shared_ptr<texture>& self_exclude,
-	scene& scene)
+                  scene& scene)
 {
 	bool changed = false;
 	bool isnull = texture_ref == nullptr;
@@ -136,7 +140,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std:
 
 bool hittable_type_combo::create_prompt(scene& scene)
 {
-	ImGui::Text(hittable_get_human_type(selection).c_str());
+	ImGui::TextColored(user_interface::color_mesh, hittable_get_human_type(selection).c_str());
 
 	bool satisified = true;
 	// name field
@@ -178,6 +182,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 		if (object_ref == nullptr)
 		{
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "The target Object (Shape) must be designated.");
+			satisified = false;
 		}
 	}
 
@@ -217,6 +222,83 @@ bool hittable_type_combo::create_prompt(scene& scene)
 		default:
 			// NOT SUPPOSED TO HAPPEN!
 			ImGui::SetTooltip("ERROR! Creation of a illegal object type! Please make a bug report!");
+			return false;
+		}
+		ImGui::EndDisabled();
+		return true;
+	}
+
+	ImGui::EndDisabled();
+	return false;
+}
+
+bool material_type_combo::create_prompt(scene& scene)
+{
+	ImGui::TextColored(user_interface::color_mat, material_get_human_type(selection).c_str());
+
+	bool satisfied = true;
+	// name field
+	std::string name_buf = name;
+	if (ImGui::InputText("Name", &name_buf))
+	{
+		if (name_buf.size() == 0 ||
+			std::ranges::any_of(scene.materials,
+			                    [&name_buf](const std::shared_ptr<material>& sp) {
+				                    return sp->name == name_buf; // Compare underlying raw pointers
+			                    }))
+		{
+			// Duplicate
+			ImGui::SetTooltip("It must be a unique, non-empty name.");
+		} else
+		{
+			name = name_buf;
+		}
+	}
+	if (name.empty())
+	{
+		ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Name must not be empty.");
+		satisfied = false;
+	}
+
+	// only debug normal requires no texture ref
+	if (selection != Debug_Normal)
+	{
+		texture_slot("Texture", tex_ref, scene);
+		if (tex_ref == nullptr)
+			satisfied = false;
+	}
+
+	ImGui::Spacing();
+	ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "More parameters can be configured in the properties panel.");
+
+	ImGui::BeginDisabled(!satisfied);
+
+	if (ImGui::Button("Create"))
+	{
+		switch (selection)
+		{
+		case Debug_Normal:
+			scene.materials.push_back(make_shared<mat_debug_normal>(name));
+			break;
+		case Diffuse:
+			scene.materials.push_back(make_shared<mat_diffuse>(name, tex_ref));
+			break;
+		case Emissive:
+			scene.materials.push_back(make_shared<mat_emissive>(name, tex_ref));
+			break;
+		case Metallic:
+			scene.materials.push_back(make_shared<mat_metallic>(name, tex_ref));
+			break;
+		case Translucent:
+			scene.materials.push_back(make_shared<mat_translucent>(name, tex_ref));
+			break;
+		case Volumetric:
+			scene.materials.push_back(make_shared<mat_volumetric>(name, tex_ref));
+			break;
+
+		default:
+			// NOT SUPPOSED TO HAPPEN!
+			ImGui::SetTooltip("ERROR! Creation of a illegal material type! Please make a bug report!");
 			return false;
 		}
 		ImGui::EndDisabled();

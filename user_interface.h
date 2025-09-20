@@ -568,6 +568,7 @@ private:
 
 private:
 	// Materials
+	material_type_combo material_combo;
 	int mat_selection = -1;
 	void w_materials(bool* p_open, viewport& viewport, scene& scene)
 	{
@@ -581,8 +582,7 @@ private:
 		{
 			if (ImGui::Button("Create"))
 			{
-				// TODO
-				// hittable_combo.selection = cube; // uhh for some reason can't reinitialize
+				material_combo.selection = Diffuse; // uhh for some reason can't reinitialize
 				ImGui::OpenPopup("Create material");
 			}
 
@@ -649,28 +649,27 @@ private:
 			{
 				ImGui::SeparatorText("Choose which type of material to create.");
 
-				// TODO!
-				// hittable_combo.combo();
-				// ImGui::Text("Description: ");
-				// ImGui::SameLine();
-				// ImGui::Text(hittable_combo.get_description());
-				//
-				// if (ImGui::Button("Create"))
-				// {
-				// 	hittable_combo.reset_props();
-				// 	ImGui::OpenPopup("Define material");
-				// }
-				//
-				// bool open_b = true;
-				// if (ImGui::BeginPopupModal("Define material", &open_b))
-				// {
-				// 	if (hittable_combo.create_prompt(scene))
-				// 	{
-				// 		// No need to refresh viewport since objects are not added to render by default
-				// 		ImGui::ClosePopupToLevel(0, true);
-				// 	}
-				// 	ImGui::EndPopup();
-				// }
+				material_combo.combo();
+				ImGui::Text("Description: ");
+				ImGui::SameLine();
+				ImGui::Text(material_combo.get_description());
+
+				if (ImGui::Button("Create"))
+				{
+					material_combo.reset_props();
+					ImGui::OpenPopup("Define material");
+				}
+
+				bool open_b = true;
+				if (ImGui::BeginPopupModal("Define material", &open_b))
+				{
+					if (material_combo.create_prompt(scene))
+					{
+						// No need to refresh viewport since objects are not added to render by default
+						ImGui::ClosePopupToLevel(0, true);
+					}
+					ImGui::EndPopup();
+				}
 
 				ImGui::EndPopup();
 			}

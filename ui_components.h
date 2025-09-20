@@ -270,5 +270,63 @@ private:
 	};
 };
 
+class material_type_combo
+{
+public:
+	material_type_combo() : selection(Diffuse) {} // cube as default
+
+	material_type selection;
+
+	void combo()
+	{
+		if (ImGui::BeginCombo("Material type", material_get_human_type(selection).c_str()))
+		{
+			for (auto& type : types)
+			{
+				const bool is_selected = type.first == selection;
+				if (ImGui::Selectable(material_get_human_type(type.first).c_str(), is_selected))
+				{
+					selection = type.first;
+				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus(); // init focus to this~!
+			}
+			ImGui::EndCombo();
+		}
+
+	}
+
+	const char* get_description()
+	{
+		for (auto& type : types)
+		{
+			if (type.first == selection)
+				return type.second;
+		}
+		return "Unknown material. Proceed with caution.";
+	}
+
+	std::string name;
+	std::shared_ptr<texture> tex_ref;
+
+	void reset_props()
+	{
+		name = "";
+		tex_ref = nullptr;
+	}
+
+	bool create_prompt(scene& scene);
+
+private:
+	const std::pair<material_type, const char*> types[6] = {
+		std::pair(Diffuse, "A perfectly matte material."), // name, tex
+		std::pair(Metallic, "A tintable metallic material with variable roughness."), // name, tex
+		std::pair(Translucent, "A perfectly refractive material."), // name, tex
+		std::pair(Emissive, "A glowing material that emits light."), // name, tex
+		std::pair(Volumetric, "Simulates volumetrics like fog. To be used with the volumetric modifier."), // name, tex
+		std::pair(Debug_Normal, "Displays the normal of an object via color. For debugging.") // NAME ONLY
+	};
+};
 
 #endif //RAYTRACINGWEEKEND_UI_COMPONENTS_H

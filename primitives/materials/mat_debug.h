@@ -10,6 +10,10 @@ class mat_debug_normal : public material
 {
 public:
 	mat_debug_normal() : internal_lambert(mat_diffuse(color(1,1,1))){}
+	mat_debug_normal(std::string name) : mat_debug_normal()
+	{
+		this->name = name;
+	}
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{

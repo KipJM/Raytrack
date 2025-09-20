@@ -6,6 +6,12 @@ class mat_translucent : public material
 public:
 	mat_translucent(shared_ptr<texture> albedo, double refraction_index) : albedo(albedo), refraction_index(refraction_index) {}
 
+	/// UI
+	mat_translucent(std::string name, shared_ptr<texture> tex) : mat_translucent(tex, 1.1)
+	{
+		this->name = name;
+	}
+
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
 		attenuation = color(1, 1, 1); //TODO

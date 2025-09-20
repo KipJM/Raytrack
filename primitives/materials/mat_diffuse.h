@@ -12,6 +12,12 @@ public:
 	mat_diffuse(const color& albedo) : albedo(make_shared<tex_color>(albedo)) {};
 	mat_diffuse(shared_ptr<texture> albedo) : albedo(albedo) {};
 
+	/// UI
+	mat_diffuse(std::string name, shared_ptr<texture> tex) : mat_diffuse(tex)
+	{
+		this->name = name;
+	}
+
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
 		auto scatter_direction = rec.normal + rand_unit_vector();
