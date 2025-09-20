@@ -26,6 +26,7 @@
 #include "primitives/materials/mat_diffuse.h"
 #include "primitives/materials/mat_emissive.h"
 #include "primitives/materials/mat_metallic.h"
+#include "primitives/materials/mat_translucent.h"
 
 void error_callback(int error, const char* description)
 {
@@ -42,9 +43,9 @@ void scn_cornell_box(scene& scn)
 {
 	scn.world = hittable_list();
 
-	auto mat_red   = make_shared<mat_diffuse>(color(.65,.05,.05));	mat_red->name = "Red Diffuse";
+	auto mat_red   = make_shared<mat_translucent>(make_shared<tex_color>(1,0,0), 1.5);	mat_red->name = "Red Glass";
 	auto mat_white = make_shared<mat_diffuse>(color::one * .73);		mat_white->name = "White Diffuse";
-	auto mat_green = make_shared<mat_metallic>(color(.12,.45,.15), 0.5);	mat_green->name = "Green Diffuse";
+	auto mat_green = make_shared<mat_metallic>(color(.12,.45,.15), 0.5);	mat_green->name = "Green Metal";
 	auto mat_emission = make_shared<mat_emissive>(color::one * 7);	mat_emission->name = "White Emissive";
 	auto mat_volume = make_shared<mat_volumetric>(color::zero); mat_volume->name = "Black Volume";
 	auto mat_debug = make_shared<mat_debug_normal>(); mat_debug->name = "debug mat";

@@ -21,6 +21,24 @@ public:
 
 	material_type get_type() const override {return material_type::Metallic;}
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		bool modified = false;
+
+		if (texture_slot("Albedo", albedo, scene))
+			modified = true;
+
+		if (ImGui::DragDouble("Roughness", &roughness, 0.1, 0, 1))
+			modified = true;
+		ImGui::SetItemTooltip("How rough is the material. 0 means perfectly smooth (mirror-like).");
+
+		if (modified)
+		{
+			viewport.mark_scene_dirty();
+		}
+		return modified;
+	}
+
 private:
 	shared_ptr<texture> albedo;
 	double roughness;

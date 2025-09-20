@@ -66,7 +66,7 @@ public:
 				// for pixel ratio, prioritize drawing pixels with less data
 				// what a hellish algorithm :)
 				bool render_pixel = false;
-				if (basic_ratio < 0 || basic_ratio > 1)
+				if (basic_ratio < 0 || basic_ratio >= 1)
 					render_pixel = true;
 				else if (current_sample_count > (min_samples / basic_ratio))
 				{

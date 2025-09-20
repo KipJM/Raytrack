@@ -18,6 +18,18 @@ public:
 
 	material_type get_type() const override {return material_type::Volumetric;}
 
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		ImGui::Text("Unexpected results may happen if you use this material on non-volumes.");
+
+		if (texture_slot("Color", tex, scene))
+		{
+			viewport.mark_scene_dirty();
+			return true;
+		}
+		return false;
+	}
+
 private:
 	shared_ptr<texture> tex;
 };

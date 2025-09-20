@@ -4,7 +4,7 @@
 class mat_translucent : public material
 {
 public:
-	mat_translucent(double refraction_index) : refraction_index(refraction_index) {}
+	mat_translucent(shared_ptr<texture> albedo, double refraction_index) : albedo(albedo), refraction_index(refraction_index) {}
 
 	bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override
 	{
@@ -28,11 +28,31 @@ public:
 		}
 
 		scattered = ray(rec.p, direction, r_in.time());
+		attenuation = albedo->value(rec.u, rec.v, rec.p);
 		return true;
 	}
 
 	material_type get_type() const override {return material_type::Translucent;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		bool modified = false;
+
+		if (texture_slot("Albedo", albedo, scene))
+			modified = true;
+
+		if (ImGui::DragDouble("Refraction index", &refraction_index, 0.5, 1.0001, 10))
+			modified = true;
+		ImGui::SetItemTooltip("the ratio of the apparent speed of light outside to the speed in the medium. Search Wikipedia for refractive indexes of common materials.");
+
+		if (modified)
+			viewport.mark_scene_dirty();
+
+		return modified;
+	}
+
 private:
+	shared_ptr<texture> albedo;
 	double refraction_index;
 
 	static double reflectance(double cosine, double refraction_index)

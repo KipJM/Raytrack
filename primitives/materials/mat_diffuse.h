@@ -35,6 +35,7 @@ public:
 
 		if (texture_slot("Albedo", albedo, scene))
 			modified = true;
+		ImGui::SetItemTooltip("The color reflected off of this perfectly rough material.");
 
 		if (modified)
 			viewport.mark_scene_dirty();
