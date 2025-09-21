@@ -39,6 +39,11 @@ public:
 
 	virtual color value(double u, double v, const point3& p) const = 0;
 
+	/// UI: Displays texture-specific inspector UI
+	///
+	/// Returns: True if mat is modified
+	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
+
 	virtual texture_type get_type() const = 0;
 
 	std::string get_human_type()

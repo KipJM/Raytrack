@@ -9,6 +9,7 @@ class mat_metallic : public material
 {
 public:
 	mat_metallic(const color& albedo, double roughness) : albedo(make_shared<tex_color>(albedo)), roughness(roughness < 1? roughness : 1) {}; // weird cap on roughness :|
+	mat_metallic(shared_ptr<texture> albedo, double roughness) : albedo(albedo), roughness(roughness < 1 ? roughness : 1) {}
 
 	/// UI
 	mat_metallic(std::string name, shared_ptr<texture> tex) : albedo(tex), roughness(0.5)

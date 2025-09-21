@@ -12,6 +12,7 @@ class user_interface
 public:
 	static ImVec4 const color_mesh;
 	static ImVec4 const color_mat;
+	static ImVec4 const color_tex;
 
 	static float popup_color_storage[3];
 	static std::string popup_string_storage;
@@ -31,11 +32,11 @@ public:
 				ImGui::MenuItem("Help", "", &show_help);
 				ImGui::Separator();
 				ImGui::MenuItem("Viewport", "", &show_viewport);
+				ImGui::Separator();
 				ImGui::MenuItem("Render Settings", "", &show_render);
-				ImGui::Separator();
 				ImGui::MenuItem("Camera Settings", "", &show_camera);
-				ImGui::MenuItem("Scene", "", &show_scene);
 				ImGui::Separator();
+				ImGui::MenuItem("Scene", "", &show_scene);
 				ImGui::MenuItem("Geometries", "", &show_geometry);
 				ImGui::MenuItem("Materials", "", &show_material);
 				ImGui::MenuItem("Textures", "", &show_texture);
@@ -53,6 +54,7 @@ public:
 		if (show_scene) w_scene(&show_scene, viewport, viewport.target_scene);
 		if (show_geometry) w_geometries(&show_geometry, viewport, viewport.target_scene);
 		if (show_material) w_materials(&show_material, viewport, viewport.target_scene);
+		if (show_texture) w_textures(&show_texture, viewport, viewport.target_scene);
 	}
 
 private:
@@ -703,6 +705,144 @@ private:
 	}
 
 private:
+	// Textures
+	int tex_selection = -1;
+
+	void w_textures(bool* p_open, viewport& viewport, scene& scene)
+	{
+		if (!ImGui::Begin("Textures", p_open))
+		{
+			ImGui::End();
+			return;
+		}
+
+		if (ImGui::BeginChild("##textree", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened))
+		{
+			if (ImGui::Button("Create"))
+			{
+				// TODO
+				// material_combo.selection = Diffuse; // uhh for some reason can't reinitialize
+				ImGui::OpenPopup("Create texture");
+			}
+
+			ImGui::BeginDisabled(!(tex_selection >= 0 && tex_selection < scene.textures.size()));
+
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
+			if (ImGui::Button("Deselect"))
+			{
+				tex_selection = -1;
+			}
+
+			ImGui::EndDisabled();
+
+
+			static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH
+				| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody
+				| ImGuiTableFlags_ScrollY;
+
+			if (ImGui::BeginTable("tex_list", 2, table_flags))
+			{
+				ImGui::TableSetupColumn("Name");
+				ImGui::TableSetupColumn("Type");
+				ImGui::TableHeadersRow();
+
+				for (int i = 0; i < scene.textures.size(); i++)
+				{
+					std::shared_ptr<texture>& tex = scene.textures[i];
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					// Name
+					if (ImGui::Selectable(tex->name.c_str(), tex_selection == i, ImGuiSelectableFlags_SpanAllColumns))
+						tex_selection = i;
+
+					if (ImGui::BeginDragDropSource())
+					{
+						ImGui::Text(tex->name.c_str());
+						ImGui::SameLine();
+						ImGui::TextColored(color_tex,
+							(" (" + tex->get_human_type() + ")").c_str());
+
+						ImGui::SetDragDropPayload("REF_TEX", &tex, sizeof(std::shared_ptr<texture>));
+						ImGui::EndDragDropSource();
+					}
+
+					ImGui::TableNextColumn();
+					ImGui::TextColored(color_tex, tex->get_human_type().c_str());
+				}
+
+				if (scene.textures.empty())
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Press \"Create\" to start making textures!");
+				}
+
+				ImGui::EndTable();
+			}
+
+			// Object creation modal
+			bool open_a = true;
+			if (ImGui::BeginPopupModal("Create texture", &open_a))
+			{
+				ImGui::SeparatorText("Choose which type of texture to create.");
+
+				// TODO
+				// texture_combo.combo();
+				// ImGui::Text("Description: ");
+				// ImGui::SameLine();
+				// ImGui::Text(material_combo.get_description());
+				//
+				// if (ImGui::Button("Create"))
+				// {
+				// 	material_combo.reset_props();
+				// 	ImGui::OpenPopup("Define material");
+				// }
+				//
+				// bool open_b = true;
+				// if (ImGui::BeginPopupModal("Define material", &open_b))
+				// {
+				// 	if (material_combo.create_prompt(scene))
+				// 	{
+				// 		// No need to refresh viewport since objects are not added to render by default
+				// 		ImGui::ClosePopupToLevel(0, true);
+				// 	}
+				// 	ImGui::EndPopup();
+				// }
+
+				ImGui::EndPopup();
+			}
+
+
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		// Properties
+		if (ImGui::BeginChild("##texprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
+		{
+			if (tex_selection >= 0 && tex_selection < scene.textures.size())
+			{
+				shared_ptr<texture>& tex = scene.textures[tex_selection];
+
+				name_slot(*tex, scene);
+				ImGui::SetItemTooltip("You can rename it here.");
+
+				ImGui::TextColored(color_tex, tex->get_human_type().c_str());
+				ImGui::SetItemTooltip("Type of your material.");
+				ImGui::Separator();
+				tex->inspector_ui(viewport, scene);
+			} else
+			{
+				ImGui::Text("Select a texture to edit its properties.");
+			}
+		}
+		ImGui::EndChild();
+		ImGui::End();
+	}
+
+private:
 	void SetupImGuiStyle(const ImGuiIO& io)
 	{
 	// Setup font
@@ -800,6 +940,7 @@ private:
 
 inline ImVec4 const user_interface::color_mesh = ImVec4(.96f,.22f,.67f, 1.0f);
 inline ImVec4 const user_interface::color_mat = ImVec4(.69f, .88f, .11f,1.0f);
+inline ImVec4 const user_interface::color_tex = ImVec4(.19f, .71f, .95f,1.0f);
 
 inline float user_interface::popup_color_storage[3] = { 0.0f, 0.0f, 0.0f };
 inline std::string user_interface::popup_string_storage = "";

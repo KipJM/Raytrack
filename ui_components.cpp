@@ -47,6 +47,34 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std:
 	}
 	ImGui::SetItemTooltip("Please don\'t make any circular references! Otherwise the program will hang.");
 
+	// Drag and drop
+	if (ImGui::BeginDragDropTarget())
+	{
+		// Hover
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REF_TEX", ImGuiDragDropFlags_AcceptBeforeDelivery | ImGuiDragDropFlags_AcceptNoPreviewTooltip))
+		{
+			std::shared_ptr<texture> ref = *static_cast<std::shared_ptr<texture>*>(payload->Data);
+
+			if (self_exclude != nullptr && ref.get() == self_exclude.get())
+			{
+				// Is duplicate
+				ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
+				ImGui::SetTooltip("No circular references.");
+			} else
+			{
+				ImGui::SetTooltip(std::format("Drop to set as {0}", ref->name).c_str());
+				// Not Duplicate
+				if (payload->IsDelivery()) // Dropped
+				{
+					changed = true;
+					texture_ref = std::shared_ptr(ref);
+				}
+			}
+		}
+
+		ImGui::EndDragDropTarget();
+	}
+
 	// Convenience: Create color
 	ImGui::SameLine();
 
@@ -107,33 +135,6 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std:
 		ImGui::EndPopup();
 	}
 
-
-	// Drag and drop
-	if (ImGui::BeginDragDropTarget())
-	{
-		// Hover
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REF_TEX", ImGuiDragDropFlags_AcceptBeforeDelivery | ImGuiDragDropFlags_AcceptNoPreviewTooltip))
-		{
-			std::shared_ptr<texture> ref = *static_cast<std::shared_ptr<texture>*>(payload->Data);
-
-			if (self_exclude != nullptr && ref.get() == self_exclude.get())
-			{
-				// Is duplicate
-				ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);
-				ImGui::SetTooltip("No circular references.");
-			} else
-			{
-				ImGui::SetTooltip(std::format("Drop to set as {0}", ref->name).c_str());
-				// Not Duplicate
-				if (payload->IsDelivery()) // Dropped
-				{
-					changed = true;
-					texture_ref = std::shared_ptr(ref);
-				}
-			}
-		}
-		ImGui::EndDragDropTarget();
-	}
 	return changed;
 }
 

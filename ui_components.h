@@ -16,7 +16,7 @@ inline bool name_slot(hittable& object, scene& scene)
 	std::string name_buf = object.name; // copy
 	if (ImGui::InputText("##name", &name_buf))
 	{
-		if (name_buf.size() == 0 ||
+		if (name_buf.empty() ||
 			std::ranges::any_of(scene.objects,
 			[&object, &name_buf](const std::shared_ptr<hittable>& sp) {
 					return sp.get() != &object && sp->name == name_buf; // Compare underlying raw pointers
@@ -38,7 +38,7 @@ inline bool name_slot(material& mat, scene& scene)
 	std::string name_buf = mat.name; // copy
 	if (ImGui::InputText("##name", &name_buf))
 	{
-		if (name_buf.size() == 0 ||
+		if (name_buf.empty() ||
 			std::ranges::any_of(scene.materials,
 			[&mat, &name_buf](const std::shared_ptr<material>& sp) {
 					return sp.get() != &mat && sp->name == name_buf; // Compare underlying raw pointers
@@ -55,6 +55,27 @@ inline bool name_slot(material& mat, scene& scene)
 	return false;
 }
 
+inline bool name_slot(texture& tex, scene& scene)
+{
+	std::string name_buf = tex.name;
+	if (ImGui::InputText("##name", &name_buf))
+	{
+		if (name_buf.empty() ||
+			std::ranges::any_of(scene.textures,
+				[&tex, &name_buf](const std::shared_ptr<texture>& sp) {
+					return sp.get() != &tex && sp->name == name_buf;
+				}))
+		{
+			// Duplicate
+			ImGui::SetTooltip("It must be a unique, non-empty name.");
+		} else
+		{
+			tex.name = name_buf;
+			return true;
+		}
+	}
+	return false;
+}
 
 // Reference slots
 

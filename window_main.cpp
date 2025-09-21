@@ -43,12 +43,17 @@ void scn_cornell_box(scene& scn)
 {
 	scn.world = hittable_list();
 
-	auto mat_red   = make_shared<mat_translucent>(make_shared<tex_color>(1,0,0), 1.5);	mat_red->name = "Red Glass";
-	auto mat_white = make_shared<mat_diffuse>(color::one * .73);		mat_white->name = "White Diffuse";
-	auto mat_green = make_shared<mat_metallic>(color(.12,.45,.15), 0.5);	mat_green->name = "Green Metal";
-	auto mat_emission = make_shared<mat_emissive>(color::one * 7);	mat_emission->name = "White Emissive";
-	auto mat_volume = make_shared<mat_volumetric>(color::zero); mat_volume->name = "Black Volume";
-	auto mat_debug = make_shared<mat_debug_normal>(); mat_debug->name = "debug mat";
+	auto tex_red = make_shared<tex_color>(1,0,0);					tex_red->name =		 "Red";
+	auto tex_white = make_shared<tex_color>(.8,.8,.75);				tex_white->name =	 "Off white";
+	auto tex_green = make_shared<tex_color>(.12,.45,.15);			tex_green->name =	 "Green";
+	auto tex_black = make_shared<tex_color>(0,0,0);					tex_black->name =	 "black";
+
+	auto mat_red   = make_shared<mat_translucent>(tex_red, 1.5);		mat_red->name =		 "Red Glass";
+	auto mat_white = make_shared<mat_diffuse>(tex_white);							mat_white->name =	 "White Diffuse";
+	auto mat_green = make_shared<mat_metallic>(tex_green, 0.5);			mat_green->name =	 "Green Metal";
+	auto mat_emission = make_shared<mat_emissive>(tex_white, color::one * 7);	mat_emission->name = "White Emissive";
+	auto mat_volume = make_shared<mat_volumetric>(tex_black);						mat_volume->name =	 "Black Volume";
+	auto mat_debug = make_shared<mat_debug_normal>();								mat_debug->name =	 "debug mat";
 
 	auto wall_a = make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green);
 	auto wall_b = make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red);
@@ -124,6 +129,12 @@ void scn_cornell_box(scene& scn)
 	scn.materials.push_back(mat_white);
 	scn.materials.push_back(mat_volume);
 	scn.materials.push_back(mat_debug);
+
+	scn.textures.push_back(tex_red);
+	scn.textures.push_back(tex_white);
+	scn.textures.push_back(tex_green);
+	scn.textures.push_back(tex_black);
+
 
 	scn.camera = camera();
 
