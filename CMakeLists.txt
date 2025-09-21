@@ -54,7 +54,7 @@ add_executable(RaytracingWeekend
         primitives/textures/tex_color.h
         primitives/textures/tex_checker.h
         scene.h
-        external/stb_image.h
+        include/stb_image.h
         rtw_image.h
         primitives/textures/tex_image.h
         primitives/textures/tex_uv_debug.h
