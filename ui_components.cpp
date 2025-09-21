@@ -11,7 +11,7 @@
 #include "primitives/materials/mat_metallic.h"
 #include "primitives/materials/mat_translucent.h"
 
-bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std::shared_ptr<texture>& self_exclude,
+bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude,
                   scene& scene)
 {
 	bool changed = false;
@@ -30,7 +30,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std:
 		{
 			std::shared_ptr<texture>& i_tex = scene.textures[i];
 
-			if (self_exclude != nullptr && i_tex.get() == self_exclude.get()) // self exclude is ignored when in hittable mode(self_exclude = null)
+			if (self_exclude != nullptr && i_tex.get() == self_exclude) // self exclude is ignored when in hittable mode(self_exclude = null)
 				continue;
 
 			const bool is_selected = !isnull && (texture_ref.get() == i_tex.get());
@@ -55,7 +55,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std:
 		{
 			std::shared_ptr<texture> ref = *static_cast<std::shared_ptr<texture>*>(payload->Data);
 
-			if (self_exclude != nullptr && ref.get() == self_exclude.get())
+			if (self_exclude != nullptr && ref.get() == self_exclude)
 			{
 				// Is duplicate
 				ImGui::SetMouseCursor(ImGuiMouseCursor_NotAllowed);

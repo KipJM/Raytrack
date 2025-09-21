@@ -217,12 +217,11 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 
 // texture
 
-bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, std::shared_ptr<texture>& self_exclude, scene& scene);
+bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude, scene& scene);
 
 inline bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, scene& scene)
 {
-	shared_ptr<texture> null_tex = nullptr;
-	return texture_slot(label, texture_ref, null_tex, scene);
+	return texture_slot(label, texture_ref, nullptr, scene);
 }
 
 

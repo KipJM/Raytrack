@@ -26,6 +26,31 @@ public:
 	}
 
 	texture_type get_type() const override {return Checker;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		bool modified = false;
+
+		if (texture_slot("Texture A", even, this, scene))
+			modified = true;
+		ImGui::SetItemTooltip("The texture on even squares.");
+
+		if (texture_slot("Texture B", odd, this, scene))
+			modified = true;
+		ImGui::SetItemTooltip("The texture on odd squares.");
+
+		double scale_buf = 1.0/inv_scale;
+		if (ImGui::DragDouble("Scale", &scale_buf, 1, 0.0001, 9999999))
+		{
+			inv_scale = 1.0/scale_buf;
+			modified = true;
+		}
+
+		if (modified)
+			viewport.mark_scene_dirty();
+
+		return modified;
+	}
 private:
 	double inv_scale;
 	shared_ptr<texture> even, odd;

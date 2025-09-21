@@ -20,7 +20,7 @@ public:
 
 	double turbulence(const point3& p, int depth) const
 	{
-		auto accum =0.0;
+		auto accum = 0.0;
 		auto temp_p = p;
 		auto weight = 1.0;
 

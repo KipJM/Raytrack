@@ -830,7 +830,7 @@ private:
 				ImGui::SetItemTooltip("You can rename it here.");
 
 				ImGui::TextColored(color_tex, tex->get_human_type().c_str());
-				ImGui::SetItemTooltip("Type of your material.");
+				ImGui::SetItemTooltip("Type of your texture.");
 				ImGui::Separator();
 				tex->inspector_ui(viewport, scene);
 			} else

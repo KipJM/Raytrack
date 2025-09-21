@@ -6,15 +6,34 @@
 class tex_perlin : public texture
 {
 public:
-	tex_perlin(double scale, double turbulence = 1) : scale(scale), turbulence(turbulence) {}
+	tex_perlin(double scale, double turbulence = 1) : color(make_shared<tex_color>(1,1,1)), scale(scale), turbulence(turbulence) {}
 
 	color value(double u, double v, const point3& p) const override
 	{
-		return color::half * (1 + std::sin(scale * p.z() + 10 * noise.turbulence(p, turbulence)));
+		return color::half * (1 + std::sin(scale * p.z() + 10 * noise.turbulence(p, turbulence))) * color->value(u, v, p);
 	}
 
 	texture_type get_type() const override {return Perlin;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		bool modified = false;
+		if (texture_slot("Color", color, this, scene))
+			modified = true;
+
+		if (ImGui::DragDouble("Noise scale", &scale, 0.5)) modified = true;
+
+		if (ImGui::DragDouble("Noise Turbulence", &turbulence, 0.5)) modified = true;
+		ImGui::SetItemTooltip("Along the Z axis only.");
+
+		if (modified)
+			viewport.mark_scene_dirty();
+
+		return modified;
+	}
 private:
+	shared_ptr<texture> color;
+
 	perlin noise;
 	double scale;
 	double turbulence;

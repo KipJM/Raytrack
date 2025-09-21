@@ -6,7 +6,7 @@
 class tex_image : public texture
 {
 public:
-	tex_image(const char* filename) : image(filename) {}
+	tex_image(const char* filename) : filename(filename), image(filename) {}
 
 	color value(double u, double v, const point3& p) const override
 	{
@@ -24,7 +24,27 @@ public:
 	}
 
 	texture_type get_type() const override {return Image;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		ImGui::Text("An image textures cannot be modified after it\'s created.");
+		ImGui::Text("To use a different image, create another image texture.");
+		ImGui::Spacing();
+		ImGui::TextDisabled("The properties below are read-only.");
+		ImGui::BeginDisabled();
+
+		ImGui::Text("File name: ");
+		ImGui::SameLine();
+		ImGui::Text(filename.c_str());
+
+		int res[] = {image.width(), image.height()};
+		ImGui::DragInt2("Resolution", res);
+
+		ImGui::EndDisabled();
+		return false;
+	}
 private:
+	std::string filename;
 	rtw_image image;
 };
 

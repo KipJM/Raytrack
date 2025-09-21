@@ -15,6 +15,13 @@ public:
 	}
 
 	texture_type get_type() const override {return UV;}
+
+	bool inspector_ui(viewport& viewport, scene& scene) override
+	{
+		ImGui::Text("This procedural texture visualizes the UV coordinates via U=R, V=G.");
+		ImGui::TextDisabled("This texture has no properties to be modified!");
+		return false;
+	}
 };
 
 #endif //RAYTRACINGWEEKEND_TEX_UV_DEBUG_H
