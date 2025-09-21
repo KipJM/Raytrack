@@ -78,17 +78,17 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 	// Convenience: Create color
 	ImGui::SameLine();
 
-	if (ImGui::Button("Make color"))
+	if (ImGui::Button(("Make color##"+std::string(label)).c_str()))
 	{
 		user_interface::popup_color_storage[0] = 0.0f;
 		user_interface::popup_color_storage[1] = 0.0f;
 		user_interface::popup_color_storage[2] = 0.0f;
 		user_interface::popup_string_storage = "";
-		ImGui::OpenPopup("Make color texture");
+		ImGui::OpenPopup(("Make color texture##"+std::string(label)).c_str());
 	}
 
 	bool open_b = true;
-	if (ImGui::BeginPopupModal("Make color texture", &open_b))
+	if (ImGui::BeginPopupModal(("Make color texture##"+std::string(label)).c_str(), &open_b))
 	{
 		// Make color!
 		ImGui::Text("Use this to quickly create a solid color texture and apply it.");
@@ -300,6 +300,134 @@ bool material_type_combo::create_prompt(scene& scene)
 		default:
 			// NOT SUPPOSED TO HAPPEN!
 			ImGui::SetTooltip("ERROR! Creation of a illegal material type! Please make a bug report!");
+			return false;
+		}
+		ImGui::EndDisabled();
+		return true;
+	}
+
+	ImGui::EndDisabled();
+	return false;
+}
+
+bool texture_type_combo::create_prompt(scene& scene)
+{
+	ImGui::TextColored(user_interface::color_tex, texture_get_human_type(selection).c_str());
+
+	bool satisfied = true;
+	// name field
+	std::string name_buf = name;
+	if (ImGui::InputText("Name", &name_buf))
+	{
+		if (name_buf.size() == 0 ||
+			std::ranges::any_of(scene.textures,
+								[&name_buf](const std::shared_ptr<texture>& sp) {
+									return sp->name == name_buf; // Compare underlying raw pointers
+								}))
+		{
+			// Duplicate
+			ImGui::SetTooltip("It must be a unique, non-empty name.");
+		} else
+		{
+			name = name_buf;
+		}
+	}
+	if (name.empty())
+	{
+		ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Name must not be empty.");
+		satisfied = false;
+	}
+
+	// Properties
+
+	switch (selection)
+	{
+	case Color:
+		{
+			float* col_buf = color_ref.get_float();
+			if (ImGui::ColorEdit3("Color", col_buf))
+				color_ref.set_float(col_buf);
+			break;
+		}
+	case Image:
+		{
+			ImGui::BeginDisabled();
+			ImGui::InputText("File", &path);
+			ImGui::EndDisabled();
+
+			ImGui::SameLine();
+			ImGui::Button("Pick");
+			ImGui::SetItemTooltip("Press to choose an image from your filesystem.");
+
+			if (path.empty())
+			{
+				ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "An image file must be picked.");
+				satisfied = false;
+			}
+
+			ImGui::Text("TODO!");
+			break;
+		}
+	case Perlin:
+		{
+			texture_slot("Color", tex_ref_a, scene);
+			if (tex_ref_a == nullptr)
+			{
+				ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "Color texture must be assigned!");
+				satisfied = false;
+			}
+			break;
+		}
+	case UV:
+		{
+			ImGui::TextDisabled("No properties are needed to create this texture.");
+			break;
+		}
+	case Checker:
+		{
+			texture_slot("Texture A", tex_ref_a, scene);
+			ImGui::SetItemTooltip("Texture of the even squares");
+			if (tex_ref_a == nullptr)
+			{
+				ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "Texture A must be assigned!");
+				satisfied = false;
+			}
+
+			texture_slot("Texture B", tex_ref_b, scene);
+			ImGui::SetItemTooltip("Texture of the odd squares");
+			if (tex_ref_b == nullptr)
+			{
+				ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "Texture B must be assigned!");
+				satisfied = false;
+			}
+
+			break;
+		}
+	}
+
+	ImGui::Spacing();
+	ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "More parameters can be configured in the properties panel.");
+
+	ImGui::BeginDisabled(!satisfied);
+
+	if (ImGui::Button("Create"))
+	{
+		switch (selection)
+		{
+		case Color:
+			break;
+		case Image:
+			break;
+		case Perlin:
+			break;
+		case UV:
+			break;
+		case Checker:
+			break;
+
+		default:
+			// NOT SUPPOSED TO HAPPEN!
+			ImGui::SetTooltip("ERROR! Creation of a illegal texture type! Please make a bug report!");
 			return false;
 		}
 		ImGui::EndDisabled();

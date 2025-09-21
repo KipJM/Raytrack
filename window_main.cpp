@@ -14,7 +14,7 @@
 #include "user_interface.h"
 #include "viewport.h"
 #include "volume_convex.h"
-#include "external/stb_image.h"
+#include "include/stb_image.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/geometry/geo_disk.h"
 #include "primitives/geometry/geo_quad.h"

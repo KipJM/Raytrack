@@ -349,4 +349,68 @@ private:
 	};
 };
 
+class texture_type_combo
+{
+public:
+	texture_type_combo() : selection(Color) {} // cube as default
+
+	texture_type selection;
+
+	void combo()
+	{
+		if (ImGui::BeginCombo("Texture type", texture_get_human_type(selection).c_str()))
+		{
+			for (auto& type : types)
+			{
+				const bool is_selected = type.first == selection;
+				if (ImGui::Selectable(texture_get_human_type(type.first).c_str(), is_selected))
+				{
+					selection = type.first;
+				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus(); // init focus to this~!
+			}
+			ImGui::EndCombo();
+		}
+
+	}
+
+	const char* get_description()
+	{
+		for (auto& type : types)
+		{
+			if (type.first == selection)
+				return type.second;
+		}
+		return "Unknown texture. Proceed with caution.";
+	}
+
+	std::string name;
+	color color_ref;
+	std::shared_ptr<texture> tex_ref_a;
+	std::shared_ptr<texture> tex_ref_b;
+	std::string path;
+
+	void reset_props()
+	{
+		name = "";
+		color_ref = color::zero;
+		tex_ref_a = nullptr;
+		tex_ref_b = nullptr;
+		path = "";
+	}
+
+	bool create_prompt(scene& scene);
+
+private:
+	const std::pair<texture_type, const char*> types[5] = {
+		std::pair(Color, "Texture of a solid color."),
+		std::pair(Image, "Texture from an external image file."),
+		std::pair(Checker, "A Procedural checkerboard pattern."),
+		std::pair(Perlin, "Procedural perlin noise."),
+		std::pair(UV, "Visualizes the UVs of an object. For debugging.")
+	};
+};
+
 #endif //RAYTRACINGWEEKEND_UI_COMPONENTS_H

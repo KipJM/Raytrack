@@ -707,6 +707,7 @@ private:
 private:
 	// Textures
 	int tex_selection = -1;
+	texture_type_combo texture_combo;
 
 	void w_textures(bool* p_open, viewport& viewport, scene& scene)
 	{
@@ -720,8 +721,7 @@ private:
 		{
 			if (ImGui::Button("Create"))
 			{
-				// TODO
-				// material_combo.selection = Diffuse; // uhh for some reason can't reinitialize
+				texture_combo.selection = Color; // uhh for some reason can't reinitialize
 				ImGui::OpenPopup("Create texture");
 			}
 
@@ -788,28 +788,27 @@ private:
 			{
 				ImGui::SeparatorText("Choose which type of texture to create.");
 
-				// TODO
-				// texture_combo.combo();
-				// ImGui::Text("Description: ");
-				// ImGui::SameLine();
-				// ImGui::Text(material_combo.get_description());
-				//
-				// if (ImGui::Button("Create"))
-				// {
-				// 	material_combo.reset_props();
-				// 	ImGui::OpenPopup("Define material");
-				// }
-				//
-				// bool open_b = true;
-				// if (ImGui::BeginPopupModal("Define material", &open_b))
-				// {
-				// 	if (material_combo.create_prompt(scene))
-				// 	{
-				// 		// No need to refresh viewport since objects are not added to render by default
-				// 		ImGui::ClosePopupToLevel(0, true);
-				// 	}
-				// 	ImGui::EndPopup();
-				// }
+				texture_combo.combo();
+				ImGui::Text("Description: ");
+				ImGui::SameLine();
+				ImGui::Text(texture_combo.get_description());
+
+				if (ImGui::Button("Create"))
+				{
+					texture_combo.reset_props();
+					ImGui::OpenPopup("Define texture");
+				}
+
+				bool open_b = true;
+				if (ImGui::BeginPopupModal("Define texture", &open_b))
+				{
+					if (texture_combo.create_prompt(scene))
+					{
+						// No need to refresh viewport since objects are not added to render by default
+						ImGui::ClosePopupToLevel(0, true);
+					}
+					ImGui::EndPopup();
+				}
 
 				ImGui::EndPopup();
 			}
