@@ -14,6 +14,12 @@ public:
 	tex_checker(double scale, const color& c1, const color& c2) :
 		tex_checker(scale, make_shared<tex_color>(c1), make_shared<tex_color>(c2)) {}
 
+	/// UI
+	tex_checker(std::string name, shared_ptr<texture> even, shared_ptr<texture> odd) : tex_checker(.5, std::move(even), std::move(odd))
+	{
+		this->name = std::move(name);
+	}
+
 	color value(double u, double v, const point3& p) const override
 	{
 		auto x_int = int(std::floor(inv_scale*u));

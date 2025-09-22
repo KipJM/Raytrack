@@ -34,7 +34,13 @@ set(IMGUI_SRC
 
 include_directories(include/imgui include/imgui/backends)
 
+set(IMFILE_SRC
+    include/im-file-dialog/ImFileDialog.cpp
+    include/im-file-dialog/ImFileDialog.h)
+
 add_executable(RaytracingWeekend
+        ${IMGUI_SRC}
+        ${IMFILE_SRC}
         window_main.cpp
 #        main.cpp
         vec3.h color.h
@@ -70,7 +76,6 @@ add_executable(RaytracingWeekend
         volume_convex.h
         primitives/materials/mat_volumetric.h
         glad.c
-        ${IMGUI_SRC}
         viewport.h
         render_worker.h
         render_worker.cpp
@@ -79,6 +84,7 @@ add_executable(RaytracingWeekend
         viewport.cpp
         hittable_list.cpp
         ui_components.cpp
+        stb_img_include.h
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 

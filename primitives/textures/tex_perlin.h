@@ -7,6 +7,12 @@ class tex_perlin : public texture
 {
 public:
 	tex_perlin(double scale, double turbulence = 1) : color(make_shared<tex_color>(1,1,1)), scale(scale), turbulence(turbulence) {}
+	tex_perlin(std::shared_ptr<texture> tex, double scale, double turbulence = 1) : color(tex), scale(scale), turbulence(turbulence) {}
+
+	tex_perlin(std::string name, std::shared_ptr<texture> tex) : tex_perlin(tex, 1, 1)
+	{
+		this->name = std::move(name);
+	}
 
 	color value(double u, double v, const point3& p) const override
 	{

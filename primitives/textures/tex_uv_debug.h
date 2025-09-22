@@ -9,6 +9,11 @@ class tex_uv_debug : public texture
 public:
 	tex_uv_debug() : texture() {}
 
+	explicit tex_uv_debug(std::string name)
+	{
+		this->name = std::move(name);
+	}
+
 	color value(double u, double v, const point3& p) const override
 	{
 		return color(u,v,0);

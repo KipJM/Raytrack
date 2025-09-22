@@ -1,13 +1,10 @@
 ﻿#ifndef RAYTRACINGWEEKEND_RTW_STB_IMAGE_H
 #define RAYTRACINGWEEKEND_RTW_STB_IMAGE_H
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_FAILURE_USERMSG
-#include "include/stb_image.h"
-
 #include <cstdlib>
 #include <iostream>
 
+#include "stb_img_include.h"
 
 class rtw_image
 {

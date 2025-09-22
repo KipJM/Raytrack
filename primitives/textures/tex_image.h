@@ -1,5 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_TEX_IMAGE_H
 #define RAYTRACINGWEEKEND_TEX_IMAGE_H
+#include <utility>
+
 #include "../../texture.h"
 #include "../../rtw_image.h"
 
@@ -7,6 +9,11 @@ class tex_image : public texture
 {
 public:
 	tex_image(const char* filename) : filename(filename), image(filename) {}
+
+    tex_image(std::string name, const char* filename) : tex_image(filename)
+	{
+		this->name = std::move(name);
+	}
 
 	color value(double u, double v, const point3& p) const override
 	{

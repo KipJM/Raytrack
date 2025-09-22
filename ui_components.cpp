@@ -1,15 +1,20 @@
 ﻿#include "ui_components.h"
 
+#include "user_interface.h"
 #include "transformers.h"
 #include "volume_convex.h"
+#include "im-file-dialog/ImFileDialog.h"
 #include "primitives/geometry/geo_cube.h"
 #include "primitives/geometry/geo_disk.h"
 #include "primitives/geometry/geo_sphere.h"
-#include "user_interface.h"
 #include "primitives/materials/mat_debug.h"
 #include "primitives/materials/mat_emissive.h"
 #include "primitives/materials/mat_metallic.h"
 #include "primitives/materials/mat_translucent.h"
+#include "primitives/textures/tex_checker.h"
+#include "primitives/textures/tex_image.h"
+#include "primitives/textures/tex_perlin.h"
+#include "primitives/textures/tex_uv_debug.h"
 
 bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude,
                   scene& scene)
@@ -26,11 +31,9 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 			filter.Clear();
 		}
 
-		for (int i = 0; i < scene.textures.size(); i++)
+		for (auto & i_tex : scene.textures)
 		{
-			std::shared_ptr<texture>& i_tex = scene.textures[i];
-
-			if (self_exclude != nullptr && i_tex.get() == self_exclude) // self exclude is ignored when in hittable mode(self_exclude = null)
+				if (self_exclude != nullptr && i_tex.get() == self_exclude) // self exclude is ignored when in hittable mode(self_exclude = null)
 				continue;
 
 			const bool is_selected = !isnull && (texture_ref.get() == i_tex.get());
@@ -98,7 +101,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 		std::string name_buf = user_interface::popup_string_storage;
 		if (ImGui::InputText("Name", &name_buf))
 		{
-			if (name_buf.size() == 0 ||
+			if (name_buf.empty() ||
 				std::ranges::any_of(scene.textures,
 									[&name_buf](const std::shared_ptr<texture>& sp) {
 										return sp->name == name_buf; // Compare underlying raw pointers
@@ -148,7 +151,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 	std::string name_buf = name;
 	if (ImGui::InputText("Name", &name_buf))
 	{
-		if (name_buf.size() == 0 ||
+		if (name_buf.empty() ||
 			std::ranges::any_of(scene.objects,
 			                    [&name_buf](const std::shared_ptr<hittable>& sp) {
 				                    return sp->name == name_buf; // Compare underlying raw pointers
@@ -242,7 +245,7 @@ bool material_type_combo::create_prompt(scene& scene)
 	std::string name_buf = name;
 	if (ImGui::InputText("Name", &name_buf))
 	{
-		if (name_buf.size() == 0 ||
+		if (name_buf.empty() ||
 			std::ranges::any_of(scene.materials,
 			                    [&name_buf](const std::shared_ptr<material>& sp) {
 				                    return sp->name == name_buf; // Compare underlying raw pointers
@@ -319,7 +322,7 @@ bool texture_type_combo::create_prompt(scene& scene)
 	std::string name_buf = name;
 	if (ImGui::InputText("Name", &name_buf))
 	{
-		if (name_buf.size() == 0 ||
+		if (name_buf.empty() ||
 			std::ranges::any_of(scene.textures,
 								[&name_buf](const std::shared_ptr<texture>& sp) {
 									return sp->name == name_buf; // Compare underlying raw pointers
@@ -356,7 +359,10 @@ bool texture_type_combo::create_prompt(scene& scene)
 			ImGui::EndDisabled();
 
 			ImGui::SameLine();
-			ImGui::Button("Pick");
+			if (ImGui::Button("Pick"))
+				ifd::FileDialog::Instance().Open("ImageOpenDialog", "Select an image",
+					"Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga},.*");
+
 			ImGui::SetItemTooltip("Press to choose an image from your filesystem.");
 
 			if (path.empty())
@@ -365,7 +371,12 @@ bool texture_type_combo::create_prompt(scene& scene)
 				satisfied = false;
 			}
 
-			ImGui::Text("TODO!");
+			if (ifd::FileDialog::Instance().IsDone("ImageOpenDialog")) {
+				if (ifd::FileDialog::Instance().HasResult()) {
+					path = ifd::FileDialog::Instance().GetResult().string();
+				}
+				ifd::FileDialog::Instance().Close();
+			}
 			break;
 		}
 	case Perlin:
@@ -415,14 +426,19 @@ bool texture_type_combo::create_prompt(scene& scene)
 		switch (selection)
 		{
 		case Color:
+			scene.textures.push_back(make_shared<tex_color>(name, color_ref));
 			break;
 		case Image:
+			scene.textures.push_back(make_shared<tex_image>(name, path.c_str()));
 			break;
 		case Perlin:
+			scene.textures.push_back(make_shared<tex_perlin>(name, tex_ref_a));
 			break;
 		case UV:
+			scene.textures.push_back(make_shared<tex_uv_debug>(name));
 			break;
 		case Checker:
+			scene.textures.push_back(make_shared<tex_checker>(name, tex_ref_a, tex_ref_b));
 			break;
 
 		default:

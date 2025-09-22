@@ -1,5 +1,7 @@
 ﻿#ifndef RAYTRACINGWEEKEND_SOLID_COLOR_H
 #define RAYTRACINGWEEKEND_SOLID_COLOR_H
+#include <utility>
+
 #include "../../texture.h"
 #include "../../viewport.h"
 
@@ -9,6 +11,13 @@ class tex_color : public texture
 	tex_color(const color& albedo) : albedo(albedo) {}
 
 	tex_color(double red, double green, double blue) : tex_color(color(red, green, blue)) {}
+
+	/// UI
+	tex_color(std::string name, color albedo) : tex_color(albedo)
+	{
+		this->name = std::move(name);
+	}
+
 
 	color value(double u, double v, const point3& p) const override
 	{

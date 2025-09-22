@@ -93,11 +93,9 @@ inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable
 			filter.Clear();
 		}
 
-		for (int i = 0; i < scene.objects.size(); i++)
+		for (auto & i_obj : scene.objects)
 		{
-			std::shared_ptr<hittable>& i_obj = scene.objects[i];
-
-			if (i_obj.get() == &self_exclude)
+				if (i_obj.get() == &self_exclude)
 				continue; // prevent self-referencing. Other circular references may still happen though
 
 			const bool is_selected = !isnull && (hittable_ref.get() == i_obj.get());
@@ -159,11 +157,9 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 			filter.Clear();
 		}
 
-		for (int i = 0; i < scene.materials.size(); i++)
+		for (auto & i_mat : scene.materials)
 		{
-			std::shared_ptr<material>& i_mat = scene.materials[i];
-
-			if (self_exclude != nullptr && i_mat.get() == self_exclude.get()) // self exclude is ignored when in hittable mode(self_exclude = null)
+				if (self_exclude != nullptr && i_mat.get() == self_exclude.get()) // self exclude is ignored when in hittable mode(self_exclude = null)
 				continue;
 
 			const bool is_selected = !isnull && (material_ref.get() == i_mat.get());
