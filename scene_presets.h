@@ -13,6 +13,8 @@
 #include "primitives/materials/mat_metallic.h"
 #include "primitives/materials/mat_translucent.h"
 #include "primitives/materials/mat_volumetric.h"
+#include "primitives/textures/tex_checker.h"
+#include "primitives/textures/tex_perlin.h"
 
 enum scene_preset
 {
@@ -28,6 +30,7 @@ class preset_scene_creator
 {
 public:
 	static scene_preset selection;
+
 	static scene& update_scene(viewport& viewport, scene_preset preset)
 	{
 		viewport.mark_scene_dirty(); // Stop all workers
@@ -52,15 +55,19 @@ public:
 			scn_empty(new_scene);
 			break;
 		case Sky:
+			scn_sky(new_scene);
 			break;
 		case Cornell:
 			scn_cornell(new_scene);
 			break;
 		case Chrome:
+			scn_chrome(new_scene);
 			break;
 		case Spheres:
+			scn_spheres(new_scene);
 			break;
 		case Dark:
+			scn_dark(new_scene);
 			break;
 		}
 
@@ -76,11 +83,39 @@ private:
 		scn.camera.image_height = 400;
 
 		scn.camera.vfov = 75;
-		scn.camera.position = point3(0,0,5);
+		scn.camera.position = point3(0, 0, 5);
 		scn.camera.lookat = point3(0, 0, 0);
 		scn.camera.vup = vec3(0, 1, 0);
 		scn.camera.defocus_angle = 0;
 		scn.camera.focus_distance = 20;
+	}
+
+	static void scn_sky(scene& scn)
+	{
+		scn.camera.background = color(.53, .81, .92);
+
+		scn.camera.image_width = 600;
+		scn.camera.image_height = 400;
+
+		scn.camera.vfov = 75;
+		scn.camera.position = point3(0, 2, 5);
+		scn.camera.lookat = point3(0, 2, 0);
+		scn.camera.vup = vec3(0, 1, 0);
+		scn.camera.defocus_angle = 0;
+		scn.camera.focus_distance = 20;
+
+		auto tex_green = make_shared<tex_color>(color(.62, .78, .27));
+		tex_green->name = "Green";
+		auto mat_grass = make_shared<mat_diffuse>(tex_green);
+		mat_grass->name = "Grass material";
+
+		auto geo_ground = make_shared<geo_disk>(point3(-10, 0, 10), vec3(20, 0, 0), vec3(0, 0, -20), mat_grass);
+		geo_ground->name = "Ground";
+
+		scn.textures.push_back(tex_green);
+		scn.materials.push_back(mat_grass);
+		scn.objects.push_back(geo_ground);
+		scn.world.add(geo_ground);
 	}
 
 	static void scn_cornell(scene& scn)
@@ -191,6 +226,207 @@ private:
 		scn.camera.position = point3(278, 278, -800);
 		scn.camera.lookat = point3(278, 278, 0);
 		scn.camera.vup = vec3(0, 1, 0);
+		scn.camera.defocus_angle = 0;
+	}
+
+	static void scn_chrome(scene& scn)
+	{
+		auto tex_red = make_shared<tex_color>("red", color(1, 0.127, 0.127));
+		auto tex_blue = make_shared<tex_color>("blue", color(.405, 0, 1));
+		auto tex_white = make_shared<tex_color>("white", color::one * 0.6);
+
+		auto tex_check = make_shared<tex_checker>(.05, tex_red, tex_blue);
+		tex_check->name = "checker";
+
+		auto mat_ground = make_shared<mat_diffuse>("Ground", tex_check);
+		auto mat_sphere = make_shared<mat_metallic>(tex_white, 0.05);
+		mat_sphere->name = "Metal";
+
+		auto geo_ground = make_shared<geo_quad>(point3(-10, 0, 10), vec3(20, 0, 0), vec3(0, 0, -20), mat_ground);
+		geo_ground->name = "Ground";
+
+		auto geo_sph = make_shared<geo_sphere>(point3(0, 1, 0), 1, mat_sphere);
+		geo_sph->name = "Ball";
+
+		scn.textures.push_back(tex_red);
+		scn.textures.push_back(tex_white);
+		scn.textures.push_back(tex_check);
+		scn.textures.push_back(tex_blue);
+
+		scn.materials.push_back(mat_ground);
+		scn.materials.push_back(mat_sphere);
+
+		scn.objects.push_back(geo_ground);
+		scn.objects.push_back(geo_sph);
+
+		scn.world.add(geo_ground);
+		scn.world.add(geo_sph);
+
+		scn.camera.background = color(.592, .624, .658);
+
+		scn.camera.image_width = 600;
+		scn.camera.image_height = 400;
+
+		scn.camera.vfov = 75;
+		scn.camera.position = point3(0, 1, 3);
+		scn.camera.lookat = point3(0, 0, 0);
+		scn.camera.vup = vec3(0, 1, 0);
+		scn.camera.defocus_angle = 0;
+		scn.camera.focus_distance = 20;
+	}
+
+	static void scn_spheres(scene& scn)
+	{
+		// Material
+		auto tex_white = make_shared<tex_color>("white", color::one);
+		auto tex_black = make_shared<tex_color>("black", color::zero);
+		scn.textures.push_back(tex_white);
+		scn.textures.push_back(tex_black);
+
+		auto tex_check = make_shared<tex_checker>(0.1, tex_white, tex_black); tex_check->name = "checker";
+		auto mat_ground = make_shared<mat_diffuse>("Ground mat", tex_check);
+		scn.textures.push_back(tex_check);
+		scn.materials.push_back(mat_ground);
+
+		auto gr = make_shared<geo_disk>(point3(-25, 0, 25), vec3(50, 0, 0), vec3(0, 0, -50), mat_ground);
+		gr->name = "Ground";
+		scn.objects.push_back(gr);
+		scn.world.add(gr);
+
+		auto list = make_shared<hittable_list>("Spheres");
+		scn.objects.push_back(list);
+
+		auto mat_glass = make_shared<mat_translucent>(tex_white, 1.5);
+		mat_glass->name = "Glass";
+		scn.materials.push_back(mat_glass);
+
+		int i = 1;
+		for (int a = -11; a < 11; a++)
+		{
+			for (int b = -11; b < 11; b++)
+			{
+				i++;
+				auto choose_mat = rand_double();
+				point3 center(a + 0.9 * rand_double(), 0.2, b + 0.9 * rand_double());
+
+				if ((center - point3(4, 0.2, 0)).length() > 0.9)
+				{
+					if (choose_mat < 0.8)
+					{
+						// diffuse
+						auto albedo = color::random() * color::random();
+
+						auto tex_sphere = make_shared<tex_color>("proc. tex" + std::to_string(i), albedo);
+						auto mat_sphere = make_shared<mat_diffuse>("proc. mat " + std::to_string(i), tex_sphere);
+						scn.textures.push_back(tex_sphere);
+						scn.materials.push_back(mat_sphere);
+
+						auto sph = make_shared<geo_sphere>(center, 0.2, mat_sphere);
+						sph->name = "proc. sphere" + std::to_string(i);
+						scn.objects.push_back(sph);
+						list->add(sph);
+					}
+					else if (choose_mat < 0.95)
+					{
+						// metallic
+						auto albedo = color::random(.5, 1);
+						auto roughness = rand_double(0, .5);
+						auto tex_sphere = make_shared<tex_color>("proc. tex" + std::to_string(i), albedo);
+						auto mat_sphere = make_shared<mat_metallic>(tex_sphere, roughness);
+						mat_sphere->name = "proc. mat " + std::to_string(i);
+						scn.textures.push_back(tex_sphere);
+						scn.materials.push_back(mat_sphere);
+
+						auto sph = make_shared<geo_sphere>(center, 0.2, mat_sphere);
+						sph->name = "proc. sphere" + std::to_string(i);
+						scn.objects.push_back(sph);
+						list->add(sph);
+					}
+					else
+					{
+						// transmission
+						auto sph = make_shared<geo_sphere>(center, 0.2, mat_glass);
+						sph->name = "proc. sphere" + std::to_string(i);
+						scn.objects.push_back(sph);
+						list->add(sph);
+					}
+				}
+			}
+		}
+		scn.world.add(list);
+
+		auto tex_b = make_shared<tex_color>("tex b", color(.4, .2, .1));
+		auto tex_c = make_shared<tex_color>("tex c", color(.7, .6, .5));
+		auto mat_b = make_shared<mat_diffuse>("mat b", tex_b);
+		auto mat_c = make_shared<mat_metallic>(tex_c, 0); mat_c->name = "mat c";
+		scn.textures.push_back(tex_b);
+		scn.textures.push_back(tex_c);
+		scn.materials.push_back(mat_b);
+		scn.materials.push_back(mat_c);
+
+		auto sphere1 = make_shared<geo_sphere>(point3(0, 1, 0), 1, mat_glass); sphere1->name = "Sphere A";
+		auto sphere2 = make_shared<geo_sphere>(point3(-4, 1, 0), 1, mat_b); sphere2->name = "Sphere B";
+		auto sphere3 = make_shared<geo_sphere>(point3(4, 1, 0), 1, mat_c); sphere3->name = "Sphere C";
+
+		scn.objects.push_back(sphere1);
+		scn.objects.push_back(sphere2);
+		scn.objects.push_back(sphere3);
+
+		scn.world.add(sphere1);
+		scn.world.add(sphere2);
+		scn.world.add(sphere3);
+
+		scn.camera.image_width = 400;
+		scn.camera.image_height = 225;
+
+		scn.camera.vfov = 20;
+		scn.camera.position = point3(13, 2, 3);
+		scn.camera.lookat = point3(0, 0, 0);
+		scn.camera.vup = vec3(0, 1, 0);
+
+		scn.camera.defocus_angle = .6;
+		scn.camera.focus_distance = 10.0;
+
+	}
+
+	static void scn_dark(scene& scn)
+	{
+		auto tex_white = make_shared<tex_color>("white", color::one);
+		auto tex_marble = make_shared<tex_perlin>(tex_white, 4, 10);
+		tex_marble->name = "Marble texture";
+		auto mat_marble = make_shared<mat_diffuse>("marble rough", tex_marble);
+		auto mat_glow = make_shared<mat_emissive>(tex_marble, color::one * 4);
+		mat_glow->name = "Glow material";
+
+		auto geo_sph = make_shared<geo_sphere>(point3(0, 2, 0), 2, mat_marble);
+		geo_sph->name = "Sphere";
+		auto geo_dis = make_shared<geo_disk>(point3(-100, 0, 100), vec3(200, 0, 0), vec3(0, 0, -200), mat_marble);
+		geo_dis->name = "Ground";
+
+		auto geo_light = make_shared<geo_quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), mat_glow);
+		geo_light->name = "Light source";
+
+		scn.textures.push_back(tex_white);
+		scn.textures.push_back(tex_marble);
+		scn.materials.push_back(mat_marble);
+		scn.materials.push_back(mat_glow);
+		scn.objects.push_back(geo_sph);
+		scn.objects.push_back(geo_dis);
+		scn.objects.push_back(geo_light);
+
+		scn.world.add(geo_sph);
+		scn.world.add(geo_dis);
+		scn.world.add(geo_light);
+
+		scn.camera.image_width = 400;
+		scn.camera.image_height = 225;
+		scn.camera.background = color::zero;
+
+		scn.camera.vfov = 20;
+		scn.camera.position = point3(26, 3, 6);
+		scn.camera.lookat = point3(0, 2, 0);
+		scn.camera.vup = vec3(0, 1, 0);
+
 		scn.camera.defocus_angle = 0;
 	}
 };
