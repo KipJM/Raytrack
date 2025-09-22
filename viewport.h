@@ -12,12 +12,12 @@
 class viewport
 {
 public:
-	scene& target_scene;
+	scene target_scene;
 	std::vector<int> density_map;  // amount of samples per pixel /// PLEASE DO NOT EDIT OH MY GOD WHY NO LAMBDAS
 
 	viewport() = delete;
 
-	viewport(scene& scene_, int resolution_width, int resolution_height, int workers_count);
+	viewport(scene scene_, int resolution_width, int resolution_height, int workers_count);
 
 	unsigned int get_texture_id() const;
 

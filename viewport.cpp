@@ -1,6 +1,6 @@
 ﻿#include "viewport.h"
 
-viewport::viewport(scene& scene_, int resolution_width, int resolution_height, int workers_count): target_scene(scene_)
+viewport::viewport(scene scene_, int resolution_width, int resolution_height, int workers_count): target_scene(std::move(scene_))
 {
 	// Set basic configs
 	max_bounces = 20;
@@ -90,7 +90,7 @@ void viewport::append_image(std::vector<float>& image)
 	if (dirty)
 		return;
 
-	if (backlog.size() > 500) // if resolution is too small, samples are submitted faster than update cycles and memory breaks
+	if (backlog.size() > 100) // if resolution is too small, samples are submitted faster than update cycles, then memory grows too large
 		return;
 
 	if (image.size() != current_tex.size())
@@ -168,7 +168,8 @@ void viewport::update()
 		} else
 		{
 			std::clog<<":(";
-			backlog.pop(); // skip
+			if (!backlog.empty())
+				backlog.pop(); // skip
 			// backlog = std::queue<std::vector<float>>(); // clear backlog to fix weirdness
 		}
 	}
@@ -211,10 +212,10 @@ void viewport::reset()
 	std::swap( backlog, empty );
 
 	// update resolution, clear data
+	target_scene.camera.ready();
+
 	current_tex = std::vector<float>(get_width() * get_height() * channels_per_pixel);
 	density_map = std::vector<int>(get_width() * get_height() * channels_per_pixel);
-
-	target_scene.camera.ready();
 
 	// reset workers
 	for (auto &worker : workers)

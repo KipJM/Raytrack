@@ -4,6 +4,7 @@
 #include <misc/cpp/imgui_stdlib.h>
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "scene_presets.h"
 #include "ui_components.h"
 #include "viewport.h"
 
@@ -25,6 +26,7 @@ public:
 	void render(viewport& viewport)
 	{
 		ImGui::DockSpaceOverViewport();
+		bool open_scn_popup = false;
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("Windows"))
@@ -44,7 +46,59 @@ public:
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Scenes"))
+			{
+				ImGui::SeparatorText("Create");
+
+				if (ImGui::MenuItem("Empty scene")) {
+					preset_scene_creator::selection = Empty;
+					open_scn_popup = true;
+				}
+
+				ImGui::SeparatorText("Load demos");
+
+				if(ImGui::MenuItem("Plain scene")) {
+					preset_scene_creator::selection = Sky;
+					open_scn_popup = true;
+				}
+				if(ImGui::MenuItem("Shiny sphere hate")) {
+					preset_scene_creator::selection = Chrome;
+					open_scn_popup = true;
+				}
+				if(ImGui::MenuItem("Weird Cornell box")) {
+					preset_scene_creator::selection = Cornell;
+					open_scn_popup = true;
+				}
+				if(ImGui::MenuItem("Lots of spheres")) {
+					preset_scene_creator::selection = Spheres;
+					open_scn_popup = true;
+				}
+				if(ImGui::MenuItem("Emissive")) {
+					preset_scene_creator::selection = Dark;
+					open_scn_popup = true;
+				}
+
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMainMenuBar();
+		}
+
+		if (open_scn_popup)
+		{
+			ImGui::OpenPopup("Confirm scene change?");
+		}
+		bool open_a = true;
+		if (ImGui::BeginPopupModal("Confirm scene change?", &open_a))
+		{
+			ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "All data will be lost!");
+			ImGui::TextWrapped("Press confirm to open the new scene. All textures, materials, objects and camera settings will be reset!");
+			if (ImGui::Button("Confirm, change to new scene"))
+			{
+				preset_scene_creator::update_scene(viewport, preset_scene_creator::selection);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
 		}
 
 		if (show_help) w_help(&show_help);

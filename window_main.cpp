@@ -15,6 +15,7 @@
 #include "misc.h"
 
 #include "scene.h"
+#include "scene_presets.h"
 #include "transformers.h"
 #include "viewport.h"
 #include "volume_convex.h"
@@ -39,127 +40,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 {
 	// if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	// 	glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-void scn_cornell_box(scene& scn)
-{
-	scn.world = hittable_list();
-
-	auto tex_check = make_shared<tex_checker>(1,color(1,1,1), color(0,0,0));	 tex_check->name = "checker";
-	auto tex_red = make_shared<tex_color>(1,0,0);					tex_red->name =		 "Red";
-	auto tex_white = make_shared<tex_color>(.8,.8,.75);				tex_white->name =	 "Off white";
-	auto tex_green = make_shared<tex_color>(.12,.45,.15);			tex_green->name =	 "Green";
-	auto tex_black = make_shared<tex_color>(0,0,0);					tex_black->name =	 "black";
-	auto tex_imag = make_shared<tex_image>("earthmap.jpg"); tex_imag->name = "iamge te";
-
-
-	auto mat_red   = make_shared<mat_translucent>(tex_red, 1.5);		mat_red->name =		 "Red Glass";
-	auto mat_white = make_shared<mat_diffuse>(tex_white);							mat_white->name =	 "White Diffuse";
-	auto mat_green = make_shared<mat_metallic>(tex_green, 0.5);			mat_green->name =	 "Green Metal";
-	auto mat_emission = make_shared<mat_emissive>(tex_white, color::one * 7);	mat_emission->name = "White Emissive";
-	auto mat_volume = make_shared<mat_volumetric>(tex_black);						mat_volume->name =	 "Black Volume";
-	auto mat_debug = make_shared<mat_debug_normal>();								mat_debug->name =	 "debug mat";
-
-
-	auto wall_a = make_shared<geo_quad>(point3(555,0,0), vec3(0,555,0), vec3(0,0,555), mat_green);
-	auto wall_b = make_shared<geo_quad>(point3(0,0,0), vec3(0,555,0), vec3(0,0,555), mat_red);
-	auto wall_c = make_shared<geo_disk>(point3(343,554,332), vec3(-130,0,0),vec3(0,0,-105), mat_emission);
-	auto wall_d = make_shared<geo_quad>(point3(0,0,0),vec3(555,0,0),vec3(0,0,555), mat_white);
-	auto wall_e = make_shared<geo_quad>(point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555), mat_white);
-	auto wall_f = make_shared<geo_quad>(point3(0,0,555), vec3(555,0,0), vec3(0,555,0), mat_white);
-
-	wall_a->name = "Green Wall";
-	wall_b->name = "Red Wall";
-	wall_c->name = "Light";
-	wall_d->name = "White wall A";
-	wall_e->name = "White Wall B";
-	wall_f->name = "White Wall C";
-
-	shared_ptr<hittable> cube1 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 330, 165), mat_white);
-	shared_ptr<hittable> cube2 = make_shared<geo_cube>(point3(0, 0, 0), point3(165, 165, 165), mat_white);
-	cube1->name = "Cube A";
-	cube2->name = "Cube B";
-
-	// shared_ptr<hittable> rx_cube1 = make_shared<trn_rotate_x>(cube1, 60);
-	// shared_ptr<hittable> ry_cube1 = make_shared<trn_rotate_y>(cube1, 15);
-	// shared_ptr<hittable> rz_cube1 = make_shared<trn_rotate_z>(cube1, 65);
-	shared_ptr<hittable> rot_cube1 = make_shared<trn_rotate>(cube1, vec3(60, 15, 65));
-
-	// shared_ptr<hittable> ry_cube2 = make_shared<trn_rotate_y>(cube2, -18);
-	shared_ptr<hittable> rot_cube2 = make_shared<trn_rotate>(cube2, vec3(0,-18,0));
-
-	shared_ptr<hittable> m_cube1 = make_shared<trn_move>(rot_cube1, vec3(265, 50, 295));
-	shared_ptr<hittable> m_cube2 = make_shared<trn_move>(rot_cube2, vec3(130, 0, 65));
-
-	shared_ptr<hittable> v_cube2 = make_shared<volume_convex>(m_cube2, .008, mat_volume);
-
-	shared_ptr<hittable> sphere = make_shared<geo_sphere>(point3(255,30,70), 160, mat_red);
-
-	shared_ptr<hittable_list> list = make_shared<hittable_list>(); list->name = "list test";
-	sphere->name = "Sphere O";
-	scn.objects.push_back(sphere);
-	scn.world.add(sphere);
-
-	scn.world.add(m_cube1);
-	scn.world.add(v_cube2);
-
-	scn.world.add(wall_a);
-	scn.world.add(wall_b);
-	scn.world.add(wall_c);
-	scn.world.add(wall_d);
-	scn.world.add(wall_e);
-	scn.world.add(wall_f);
-
-	scn.objects.push_back(list);
-	scn.objects.push_back(cube1);
-	scn.objects.push_back(cube2);
-	scn.objects.push_back(wall_a);
-	scn.objects.push_back(wall_b);
-	scn.objects.push_back(wall_c);
-	scn.objects.push_back(wall_d);
-	scn.objects.push_back(wall_e);
-	scn.objects.push_back(wall_f);
-	// scn.objects.push_back(rx_cube1);
-	// scn.objects.push_back(ry_cube1);
-	// scn.objects.push_back(rz_cube1);
-	// scn.objects.push_back(ry_cube2);
-	scn.objects.push_back(rot_cube1);
-	scn.objects.push_back(rot_cube2);
-	scn.objects.push_back(m_cube1);
-	scn.objects.push_back(m_cube2);
-	scn.objects.push_back(v_cube2);
-
-	scn.materials.push_back(mat_green);
-	scn.materials.push_back(mat_emission);
-	scn.materials.push_back(mat_red);
-	scn.materials.push_back(mat_white);
-	scn.materials.push_back(mat_volume);
-	scn.materials.push_back(mat_debug);
-
-	scn.textures.push_back(tex_red);
-	scn.textures.push_back(tex_white);
-	scn.textures.push_back(tex_green);
-	scn.textures.push_back(tex_black);
-	scn.textures.push_back(tex_check);
-	scn.textures.push_back(tex_imag);
-
-
-	scn.camera = camera();
-
-	scn.camera.background = color::zero;
-
-	scn.camera.basic_ratio = .1;
-	scn.camera.fill_ratio = .5;
-
-	scn.camera.sample_count = 1;
-	scn.camera.min_samples = 5;
-	scn.camera.max_bounces = 20;
-
-	scn.camera.vfov = 40;
-	scn.camera.position = point3(278,278,-800);
-	scn.camera.lookat = point3(278,278,0);
-	scn.camera.vup = vec3(0,1,0);
-	scn.camera.defocus_angle = 0;
 }
 
 int main(int argc, char* argv[])
@@ -235,10 +115,7 @@ int main(int argc, char* argv[])
 
 	// Init viewport
 	// TODO: do proper thingy
-	scene scn;
-	scn_cornell_box(scn);
-
-	viewport vp(scn, 300, 300, 8);
+	viewport vp(preset_scene_creator::create_scene(Cornell), 300, 300, 8);
 
 	while (!glfwWindowShouldClose(window))
 	{

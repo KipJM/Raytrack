@@ -14,7 +14,7 @@ class bvh_node : public hittable
 public:
 	hittable_type get_type() const override { return hittable_type::bvh; }
 
-	bvh_node(){} // WARN! ONLY FOR PLACEHOLDER FOR SCENE
+	bvh_node(){skip = true;} // WARN! ONLY FOR PLACEHOLDER FOR SCENE
 
 	// list is referenced :)
 	bvh_node(hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) { }
@@ -22,6 +22,12 @@ public:
 	// binary search
 	bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end)
 	{
+		if (start == 0 && end == 0)
+		{
+			skip = true;
+			return;
+		}
+
 		// Build total AABB first
 		bbox = aabb::empty;
 		for (size_t object_index = start; object_index < end; object_index++)
@@ -56,10 +62,14 @@ public:
 
 		}
 
+		skip = false;
 	}
 
 	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
+		if (skip)
+			return false;
+
 		if (!bbox.hit(r, ray_t))
 			return false;
 
@@ -79,6 +89,7 @@ public:
 	}
 
 private:
+	bool skip = false;
 	shared_ptr<hittable> left;
 	shared_ptr<hittable> right;
 	aabb bbox;

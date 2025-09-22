@@ -85,6 +85,7 @@ add_executable(RaytracingWeekend
         hittable_list.cpp
         ui_components.cpp
         stb_img_include.h
+        scene_presets.h
 )
 target_link_libraries(RaytracingWeekend PRIVATE glfw)
 
