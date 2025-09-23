@@ -30,7 +30,7 @@
 #include "primitives/materials/mat_translucent.h"
 #include "primitives/textures/tex_checker.h"
 #include "primitives/textures/tex_image.h"
-
+#include <Windows.h>
 void error_callback(int error, const char* description)
 {
 	std::cerr<<"Error: " << description << '\n';
@@ -44,6 +44,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(int argc, char* argv[])
 {
+	// hide console
+	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
 	{

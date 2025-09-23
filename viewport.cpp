@@ -120,7 +120,7 @@ void viewport::update()
 
 	if (!backlog.empty())
 	{
-		std::clog<<"backlog: " << backlog.size()<<"\n";
+		// std::clog<<"backlog: " << backlog.size()<<"\n";
 
 
 		// merge textures
