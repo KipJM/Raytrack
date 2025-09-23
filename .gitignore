@@ -50,3 +50,6 @@ image.ppm
 /include/imgui/examples/
 /include/imgui/.github/
 /include/imgui/.git_old/
+
+# no photoshopp
+*.psd
