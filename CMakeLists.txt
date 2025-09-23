@@ -75,7 +75,7 @@ add_executable(RaytracingWeekend
         transformers.h
         volume_convex.h
         primitives/materials/mat_volumetric.h
-        glad.c
+        include/glad/glad.c
         viewport.h
         render_worker.h
         render_worker.cpp
