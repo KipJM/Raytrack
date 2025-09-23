@@ -39,7 +39,7 @@ public:
 				ImGui::MenuItem("Camera Settings", "", &show_camera);
 				ImGui::Separator();
 				ImGui::MenuItem("Scene", "", &show_scene);
-				ImGui::MenuItem("Geometries", "", &show_geometry);
+				ImGui::MenuItem("Objects", "", &show_geometry);
 				ImGui::MenuItem("Materials", "", &show_material);
 				ImGui::MenuItem("Textures", "", &show_texture);
 
@@ -132,21 +132,107 @@ private:
 
 		ImGui::SeparatorText("Welcome to Raytrack!");
 		ImGui::TextColored(ImVec4(1,0,0,1), "This is very important! Please read!");
-		ImGui::BulletText("This is a CPU raytracer, so rendering is sometimes slow based on your machine. Please be patient.");
-		ImGui::BulletText("This engine works a bit differently than conventional editors. Highly recommend reading the content below.");
+		ImGui::BulletText("This is a CPU raytracer, so rendering is heavily dependent on your CPU's multicore performance.");
+		ImGui::BulletText("This engine works a bit differently than conventional editors. I highly recommend reading the content below.");
 		ImGui::BulletText("Goto the top left and click on the \"windows\" menu to open the necessary editor windows to use Raytrack.");
 
 		if (ImGui::CollapsingHeader("Introduction"))
 		{
-			ImGui::BulletText("Your render will show up on the Viewport.");
-			ImGui::BulletText("The cornell box scene is autoloaded when you open Raytrack.");
-			ImGui::BulletText("Adjust global rendering and performance settings with Rendering Settings.");
-			ImGui::BulletText("Adjust scene-specific camera settings with Camera Settings.");
-			ImGui::BulletText("Change the scene contents with the Scene, Geometries, Materials, and Textures windows.");
-			ImGui::BulletText("You should see tooltips besides most fields. Read them to understand what a setting does.");
-			ImGui::BulletText("Saving a scene is not currently implemented. Apologies.");
+			ImGui::BulletText("Raytrack is a raytracer, it works by simulating rays of light bouncing around in the scene.");
+			ImGui::BulletText("Raytracing is very accurate and versatile, but quite slow.");
+			ImGui::BulletText("Raytrack is designed to be as responsive as possible, but it still may take a few second to render any changes.");
+			ImGui::Spacing();
+			ImGui::BulletText("Only objects added to your scene will show up in your render.");
+			ImGui::BulletText("Most UI elements have tooltips. Hover to see relevant help information.");
+			ImGui::BulletText("Made by KIP. If you have any questions, ask them in the Github issues page");
+			ImGui::Text("ICYMI, this is very much a toy renderer! Not for serious use :)");
+			ImGui::TextLinkOpenURL("GitHub", "https://github.com/kipjm/raytrack");
+			ImGui::SameLine();
+			ImGui::TextLinkOpenURL("KIP Website", "https://kip.gay");
 		}
 
+		if (ImGui::CollapsingHeader("Editor windows"))
+		{
+			ImGui::BulletText("You can resize, dock, and undock any windows.");
+			ImGui::BulletText("Help: This help window!");
+			ImGui::BulletText("Viewport: Your render will be displayed here");
+			ImGui::BulletText("Render Settings: Global rendering and performance settings that persist between scenes.");
+			ImGui::BulletText("Camera Settings: Scene-specific camera parameters. They will be reset when you change scenes.");
+			ImGui::BulletText("Objects, Materials, Textures: Manages your staging resources, they will be reset when you change scenes. Learn more below!");
+			ImGui::BulletText("Scene: Only objects in this scene list will be rendered. Reset between scenes!");
+		}
+
+		if (ImGui::CollapsingHeader("User Interface"))
+		{
+			ImGui::BulletText("Windows can be windowed or docked, and they can be resized arbitrairly.");
+			ImGui::BulletText("Most value fields can be dragged to be modified incrementally.");
+			ImGui::BulletText("Ctrl-Click or double click a field to enter a specific value.");
+			ImGui::BulletText("Objects, materials, and textures can be dragged and dropped into reference fields.");
+			ImGui::BulletText("Objects can also be dragged and dropped into the scene list or compound lists.");
+			ImGui::BulletText("Hover on fields/text to get tooltips.");
+			ImGui::BulletText("Click the X to cancel a modal operation.");
+		}
+
+		if (ImGui::CollapsingHeader("Optimization (Render settings)"))
+		{
+			ImGui::BulletText("Raytrack focuses on responsiveness than speed of render completion.");
+			ImGui::BulletText("Raytrack provides many parameters to optimize your renders. Here are the main ones:");
+			ImGui::BulletText("Render threads: more threads mean your render gets finished quicker. But this is dependent on your multicore performance.");
+			ImGui::BulletText("Render probability: This dictates the rough percentage of pixels that will be drawn in randomly by a thread in a frame.");
+			ImGui::BulletText("By setting this value low, you'll get a more responsive render at the cost of taking longer to get the final render.");
+			ImGui::BulletText("The fill probability helps clean up the noise of black pixels. When pixels are neglected because of randomness, this probability will be used for this pixel instead.");
+			ImGui::BulletText("If you want a traditional slow renderer, change render probability to 1.");
+			ImGui::Spacing();
+			ImGui::BulletText("Bounded Volume Hierachy is also automatically calculated when you update the scene.");
+			ImGui::BulletText("But sometimes bounding boxes may fail to refresh. Modify object values to trigger a recalculation!");
+		}
+
+		if (ImGui::CollapsingHeader("Coordinate System"))
+		{
+			ImGui::BulletText("Raytrack uses a Y-up right handed coordinate system.");
+			ImGui::BulletText("X+ is right, Y+ is up, and Z- is forward.");
+			ImGui::BulletText("For rotation, we use right-handed euler angles in degrees.");
+			ImGui::BulletText("Rotation is applied in the order of X, Y, Z.");
+			ImGui::BulletText("All angles are in degrees, and meter can be considered the length unit.");
+		}
+
+		if (ImGui::CollapsingHeader("Scene"))
+		{
+			ImGui::BulletText("A scene is a collection of objects, materials, textures, and camera settings.");
+			ImGui::BulletText("However, not all objects will be rendered in a scene by default.");
+			ImGui::BulletText("Only objects in the scene list (scene window) will be rendered.");
+			ImGui::BulletText("The scene list contains references to objects.");
+			ImGui::BulletText("If you want to modify any object's properties, do it in the objects window.");
+			ImGui::BulletText("The scene will automatically refresh and re-render when you change anything.");
+		}
+
+		if (ImGui::CollapsingHeader("Objects"))
+		{
+			ImGui::BulletText("There are two types of objects: Geometry and modifiers.");
+			ImGui::BulletText("Geometry objects displays the parameterized geometry with the selected material.");
+			ImGui::BulletText("Modifiers takes an object reference, then displays the modified copy of that object.");
+			ImGui::BulletText("Please do not make circular references using object slots! That WILL crash the program.");
+		}
+
+		if (ImGui::CollapsingHeader("Materials"))
+		{
+			ImGui::BulletText("Materials dictate how light is redirected when it hits an object.");
+			ImGui::BulletText("Materials only have an effect when they're referenced by a object.");
+			ImGui::BulletText("Some materials may reference other materials. Please no circular references!");
+			ImGui::BulletText("As always, you can drag and drop into reference fields.");
+		}
+
+		if (ImGui::CollapsingHeader("Textures"))
+		{
+			ImGui::BulletText("Textures are just 2D data mapped to the UVs of an object.");
+			ImGui::BulletText("Similar to materials and objects, you can drag and drop.");
+			ImGui::BulletText("If you want a material to be a singular color, create a color texture.");
+			ImGui::BulletText("There's a useful button next to texture slots, it can quickly create color textures.");
+			ImGui::BulletText("You can also load your own image files using an image texture.");
+		}
+
+		ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Happy rendering!");
+		ImGui::Text("KIP");
 		ImGui::End();
 	}
 
@@ -492,7 +578,7 @@ private:
 	hittable_type_combo hittable_combo;
 	void w_geometries(bool* p_open, viewport& viewport, scene& scene)
 	{
-		if (!ImGui::Begin("Geometries", p_open))
+		if (!ImGui::Begin("Objects", p_open))
 		{
 			ImGui::End();
 			return;

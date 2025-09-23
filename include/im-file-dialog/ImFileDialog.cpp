@@ -14,7 +14,7 @@
 #include "../../stb_img_include.h"
 
 #ifdef _WIN32
-//#define NOMINMAX
+#define NOMINMAX
 #include <windows.h>
 #include <shellapi.h>
 #include <lmcons.h>
@@ -28,6 +28,7 @@
 #define GUI_ELEMENT_SIZE std::max(GImGui->FontSize + 10.f, 24.f)
 #define DEFAULT_ICON_SIZE 32
 #define PI 3.141592f
+
 
 namespace ifd {
 	static const char* GetDefaultFolderIcon();
