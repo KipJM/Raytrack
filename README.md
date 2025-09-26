@@ -13,7 +13,9 @@ Only Windows is currently supported, I don't have Linux/MacOS systems on hand to
 
 Raytracing itself heavily depends on your system's multicore CPU performance, it will take longer to render if your computer's CPU is weak.  
 
-**However**, to draw the graphical user interface, and to draw the render on screen, **OpenGL** is used and used only for that purpose. OpenGL 4.1 or higher is required, which should be supported by any machine made after 2010.  
+**However**, to draw the graphical user interface, and to draw the render on screen, **OpenGL** is used and used only for that purpose. OpenGL 4.1 or higher is required, which should be supported by any machine made after 2010. Note that iGPUs (PCs and laptops with no dedicated GPU) ARE supported.  
+
+**If for whatever reason your system does not support OpenGL 4.1 (e.g. you're using a virtual machine with no GPU), you'll need to use an OpenGL software renderer such as Mesa3D, however this is not explicitily supported by the scope of this project.**
 
 (For advanced users) If your system is more locked down, Raytrack has a feature which you can import an image file as a texture. This feature is not mandatory, but you have to allow filesystem access if you wish to use it.
 
