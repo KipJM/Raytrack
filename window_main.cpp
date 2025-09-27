@@ -30,7 +30,7 @@
 #include "primitives/materials/mat_translucent.h"
 #include "primitives/textures/tex_checker.h"
 #include "primitives/textures/tex_image.h"
-#include <Windows.h>
+// #include <Windows.h>
 void error_callback(int error, const char* description)
 {
 	std::cerr<<"Error: " << description << '\n';
@@ -44,8 +44,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(int argc, char* argv[])
 {
-	// hide console
-	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+	// hide console (WINDOWS ONLY)
+	// ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
 
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		return (void*)tex;
+		return reinterpret_cast<void*>(tex);
 	};
 	ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
 		GLuint texID = (GLuint)((uintptr_t)tex);
