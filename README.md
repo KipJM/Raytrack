@@ -39,7 +39,7 @@ some unique features about the project:
 
 ## Building
 *coming soon!*  
-Built using Visual Studio (For building to Windows), but MinGW also works with minimal or nochanges.  
+This project is developed using MinGW, and V1.0 was built using Visual Studio. However VS brought a lot of problems, so future builds are built using MinGW instead.
 Just use the root CmakeLists.txt, everything should build with no problem.
 
 ## This project uses
