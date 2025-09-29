@@ -9,7 +9,7 @@ Simply run `Raytrack.exe` within the zip file to launch the Raytrack graphical u
 ![Raytrack screenshot 1](https://github.com/KipJM/Raytrack/blob/master/promo/screenshot1.png)
 
 ## Requirements
-Only Windows is currently supported, I don't have Linux/MacOS systems on hand to build the projects on.  
+Windows is officially supported, **EXPERIMENTAL** Linux and MacOS are also included as of V1.1 .
 
 Raytracing itself heavily depends on your system's multicore CPU performance, it will take longer to render if your computer's CPU is weak.  
 
@@ -38,8 +38,7 @@ some unique features about the project:
 *Yes, the banner is a parody of those 3D software*
 
 ## Building
-*coming soon!*  
-This project is developed using MinGW, and V1.0 was built using Visual Studio. However VS brought a lot of problems, so future builds are built using MinGW instead.
+This project targets MinGW. However after basic testing via Github actions, gcc, AppleClang also seem to work.
 Just use the root CmakeLists.txt, everything should build with no problem.
 
 ## This project uses
