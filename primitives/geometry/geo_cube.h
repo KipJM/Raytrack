@@ -16,7 +16,7 @@ public:
 		this->name = name;
 	}
 
-	geo_cube(const point3 a, const point3 b, shared_ptr<material> mat) : material(mat), a(a), b(b)
+	geo_cube(const point3 a, const point3 b, shared_ptr<material> mat) : _material(mat), a(a), b(b)
 	{
 		list = hittable_list();
 
@@ -56,12 +56,12 @@ public:
 		modified += ImGui::DragDouble3("B Position", b.e);
 		ImGui::SetItemTooltip("The position of the opposite vertex of the cube.");
 
-		if ( material_slot("Material", material, _scene) )
+		if ( material_slot("Material", _material, _scene) )
 		{
 			modified = true;
 			for (std::shared_ptr<hittable>& side : list.objects)
 			{
-				std::static_pointer_cast<geo_quad>(side)->cube_set_mat(material);
+				std::static_pointer_cast<geo_quad>(side)->cube_set_mat(_material);
 			}
 		}
 
@@ -99,7 +99,7 @@ public:
 private:
 	point3 a, b;
 	hittable_list list;
-	shared_ptr<material> material;
+	shared_ptr<material> _material;
 
 };
 

@@ -6,8 +6,8 @@
 class tex_perlin : public texture
 {
 public:
-	tex_perlin(double scale, double turbulence = 1) : color(make_shared<tex_color>(1,1,1)), scale(scale), turbulence(turbulence) {}
-	tex_perlin(std::shared_ptr<texture> tex, double scale, double turbulence = 1) : color(tex), scale(scale), turbulence(turbulence) {}
+	tex_perlin(double scale, double turbulence = 1) : _color(make_shared<tex_color>(1,1,1)), scale(scale), turbulence(turbulence) {}
+	tex_perlin(std::shared_ptr<texture> tex, double scale, double turbulence = 1) : _color(tex), scale(scale), turbulence(turbulence) {}
 
 	tex_perlin(std::string name, std::shared_ptr<texture> tex) : tex_perlin(tex, 1, 1)
 	{
@@ -16,7 +16,7 @@ public:
 
 	color value(double u, double v, const point3& p) const override
 	{
-		return color::half * (1 + std::sin(scale * p.z() + 10 * noise.turbulence(p, turbulence))) * color->value(u, v, p);
+		return color::half * (1 + std::sin(scale * p.z() + 10 * noise.turbulence(p, turbulence))) * _color->value(u, v, p);
 	}
 
 	texture_type get_type() const override {return Perlin;}
@@ -24,7 +24,7 @@ public:
 	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
-		if (texture_slot("Color", color, this, _scene))
+		if (texture_slot("Color", _color, this, _scene))
 			modified = true;
 
 		if (ImGui::DragDouble("Noise scale", &scale, 0.5)) modified = true;
@@ -38,7 +38,7 @@ public:
 		return modified;
 	}
 private:
-	shared_ptr<texture> color;
+	shared_ptr<texture> _color;
 
 	perlin noise;
 	double scale;
