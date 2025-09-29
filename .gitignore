@@ -54,3 +54,4 @@ image.ppm
 # no photoshopp
 *.psd
 /.promo/
+/.builds/
