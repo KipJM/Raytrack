@@ -1,7 +1,7 @@
 ﻿#include "render_worker.h"
 #include "viewport.h"
 
-render_worker::render_worker(viewport& vp): viewport_(vp), early_exit(false), sigkill(false)
+render_worker::render_worker(viewport& vp): _viewport(vp), early_exit(false), sigkill(false)
 {
 	thread = std::thread(&render_worker::render_loop, this);
 }
@@ -33,10 +33,10 @@ void render_worker::render_loop()
 	{
 		// std::clog << "thread " << this << ": sigkill: " << sigkill << " early_exit: " << early_exit << '\n';
 		heartbeat = true;
-		if (render(viewport_.target_scene.camera, viewport_.target_scene.get_render_scene()))
+		if (render(_viewport.target_scene.s_camera, _viewport.target_scene.get_render_scene()))
 		{
 			// std::clog << "thread " << this << " render finished!\n";
-			viewport_.append_image(output);
+			_viewport.append_image(output);
 		}
 		else if (early_exit)
 		{
@@ -48,9 +48,9 @@ void render_worker::render_loop()
 	std::clog << "thread " << this << " quit successfully" << '\n';
 }
 
-bool render_worker::render(camera& camera, const hittable& world)
+bool render_worker::render(camera& _camera, const hittable& world)
 {
 	// clear render buffer
 	output = std::vector<float>();
-	return camera.render(world, output, early_exit, viewport_.density_map, viewport_.get_current_sample_count());
+	return _camera.render(world, output, early_exit, _viewport.density_map, _viewport.get_current_sample_count());
 }

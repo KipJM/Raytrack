@@ -5,7 +5,7 @@
 #include "user_interface.h"
 #include "viewport.h"
 
-bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
+bool hittable_list::inspector_ui(viewport& _viewport, scene& _scene)
 {
 	ImGui::Text("A compound is a collection of objects. Please, no circular references.");
 	if (ImGui::Button("Add"))
@@ -45,7 +45,7 @@ bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
 			ImGui::TableHeadersRow();
 
 			int count = 0;
-			for (std::shared_ptr<hittable>& object : scene.objects)
+			for (std::shared_ptr<hittable>& object : _scene.objects)
 			{
 				if (std::ranges::any_of(objects,
 				                        [&object](const std::shared_ptr<hittable>& sp)
@@ -69,7 +69,7 @@ bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
 				if (ImGui::Selectable(object->name.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
 				{
 					// Add object to compound
-					viewport.mark_scene_dirty();
+					_viewport.mark_scene_dirty();
 					add(std::shared_ptr(object));
 					ImGui::CloseCurrentPopup();
 				}
@@ -79,7 +79,7 @@ bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
 				ImGui::TextColored(user_interface::color_mesh, object->get_human_type().c_str());
 			}
 
-			if (scene.objects.empty())
+			if (_scene.objects.empty())
 			{
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
@@ -107,7 +107,7 @@ bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
 			// remove from scene
 			if (selection < objects.size())
 			{
-				viewport.mark_scene_dirty();
+				_viewport.mark_scene_dirty();
 				remove(selection);
 				selection = -1;
 			}
@@ -184,7 +184,7 @@ bool hittable_list::inspector_ui(viewport& viewport, scene& scene)
 				// Not Duplicate
 				if (payload->IsDelivery()) // Dropped
 				{
-					viewport.mark_scene_dirty();
+					_viewport.mark_scene_dirty();
 					add(std::shared_ptr(ref)); // copy
 				}
 			}

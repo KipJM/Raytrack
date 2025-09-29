@@ -23,7 +23,7 @@ public:
 		SetupImGuiStyle(ImGui::GetIO());
 	}
 
-	void render(viewport& viewport)
+	void render(viewport& _viewport)
 	{
 		ImGui::DockSpaceOverViewport();
 		bool open_scn_popup = false;
@@ -95,20 +95,20 @@ public:
 			ImGui::TextWrapped("Press confirm to open the new scene. All textures, materials, objects and camera settings will be reset!");
 			if (ImGui::Button("Confirm, change to new scene"))
 			{
-				preset_scene_creator::update_scene(viewport, preset_scene_creator::selection);
+				preset_scene_creator::update_scene(_viewport, preset_scene_creator::selection);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}
 
 		if (show_help) w_help(&show_help);
-		if (show_viewport) w_viewport(&show_viewport, viewport);
-		if (show_render) w_renderSettings(&show_render, viewport);
-		if (show_camera) w_cameraSettings(&show_camera, viewport);
-		if (show_scene) w_scene(&show_scene, viewport, viewport.target_scene);
-		if (show_geometry) w_geometries(&show_geometry, viewport, viewport.target_scene);
-		if (show_material) w_materials(&show_material, viewport, viewport.target_scene);
-		if (show_texture) w_textures(&show_texture, viewport, viewport.target_scene);
+		if (show_viewport) w_viewport(&show_viewport, _viewport);
+		if (show_render) w_renderSettings(&show_render, _viewport);
+		if (show_camera) w_cameraSettings(&show_camera, _viewport);
+		if (show_scene) w_scene(&show_scene, _viewport, _viewport.target_scene);
+		if (show_geometry) w_geometries(&show_geometry, _viewport, _viewport.target_scene);
+		if (show_material) w_materials(&show_material, _viewport, _viewport.target_scene);
+		if (show_texture) w_textures(&show_texture, _viewport, _viewport.target_scene);
 	}
 
 private:
@@ -237,7 +237,7 @@ private:
 	}
 
 	ImVec2 prev_resolution;
-	void w_viewport(bool* p_open, viewport& viewport)
+	void w_viewport(bool* p_open, viewport& _viewport)
 	{
 		if (!ImGui::Begin("Viewport", p_open))
 		{
@@ -245,45 +245,45 @@ private:
 			return;
 		}
 
-		ImGui::Text("Resolution: %d x %d", viewport.get_width(), viewport.get_height());
-		if (viewport.get_camera().auto_resolution)
+		ImGui::Text("Resolution: %d x %d", _viewport.get_width(), _viewport.get_height());
+		if (_viewport.get_camera().auto_resolution)
 		{
 			ImGui::SameLine();
 			ImGui::TextColored(ImVec4(1,1,0,1), "(Auto resolution enabled)");
 		}
-		ImGui::Text("Samples: %d", viewport.get_current_sample_count());
+		ImGui::Text("Samples: %d", _viewport.get_current_sample_count());
 
-		if (viewport.is_waiting())
+		if (_viewport.is_waiting())
 		{
 			ImGui::SameLine();
 			ImGui::TextColored(ImVec4(1,0,0,1), "(OUTDATED IMAGE! Waiting for new render!)");
 		}
 
 		// Auto resolution
-		if (viewport.get_camera().auto_resolution)
+		if (_viewport.get_camera().auto_resolution)
 		{
 			auto current_res = ImGui::GetContentRegionAvail();
 			if (current_res.x != prev_resolution.x || current_res.y != prev_resolution.y)
 			{
 				prev_resolution = current_res;
-				viewport.set_resolution(current_res.x, current_res.y);
+				_viewport.set_resolution(current_res.x, current_res.y);
 			}
 		}
 
 		// Auto scaling image
 		auto available_space = ImGui::GetContentRegionAvail();
-		auto ratio = std::min(available_space.x / viewport.get_width(), available_space.y / viewport.get_height());
+		auto ratio = std::min(available_space.x / _viewport.get_width(), available_space.y / _viewport.get_height());
 		ratio = std::min(ratio, 8.0f); // max ratio
-		auto scaled_size = ImVec2(viewport.get_width() * ratio, viewport.get_height() * ratio);
+		auto scaled_size = ImVec2(_viewport.get_width() * ratio, _viewport.get_height() * ratio);
 
 		ImGui::SetCursorPosX((available_space.x - scaled_size.x) * 0.5f);
 
-		ImGui::Image(static_cast<ImTextureID>(static_cast<intptr_t>(viewport.get_texture_id())), scaled_size);
+		ImGui::Image(static_cast<ImTextureID>(static_cast<intptr_t>(_viewport.get_texture_id())), scaled_size);
 
 		ImGui::End();
 	}
 
-	void w_renderSettings(bool* p_open, viewport& viewport)
+	void w_renderSettings(bool* p_open, viewport& _viewport)
 	{
 		if (!ImGui::Begin("Render Settings", p_open, ImGuiWindowFlags_AlwaysAutoResize))
 		{
@@ -294,42 +294,42 @@ private:
 
 		ImGui::SeparatorText("Rendering");
 
-		int mb = viewport.get_max_bounces();
-		if (ImGui::DragInt("Max ray bounces", &mb)) viewport.set_max_bounces(mb);
+		int mb = _viewport.get_max_bounces();
+		if (ImGui::DragInt("Max ray bounces", &mb)) _viewport.set_max_bounces(mb);
 		ImGui::SetItemTooltip("Maximum number of bounces a ray can have before getting terminated. Higher = better quality & slower rendering");
 
-		double bi = viewport.get_bias();
-		if (ImGui::InputDouble("bias", &bi)) viewport.set_bias(bi);
+		double bi = _viewport.get_bias();
+		if (ImGui::InputDouble("bias", &bi)) _viewport.set_bias(bi);
 		ImGui::SetItemTooltip("A small number. Fixes rendering issues. Do not touch this if you don't know what you're doing!");
 
 
 		ImGui::SeparatorText("Performance");
 
-		int tc = viewport.get_workers_count();
-		if (ImGui::InputInt("Render threads", &tc, 1, 10)) viewport.set_worker_count(tc);
+		int tc = _viewport.get_workers_count();
+		if (ImGui::InputInt("Render threads", &tc, 1, 10)) _viewport.set_worker_count(tc);
 		ImGui::SetItemTooltip("For multithreaded rendering. How many worker threads to render your image at the same time. A reasonable number will make rendering faster by utilizing your entire system, but setting this too high will reduce performance.");
 
-		int sc = viewport.get_sample_count();
-		if (ImGui::DragInt("Samples per worker", &sc, 1)) viewport.set_sample_count(sc);
+		int sc = _viewport.get_sample_count();
+		if (ImGui::DragInt("Samples per worker", &sc, 1)) _viewport.set_sample_count(sc);
 		ImGui::SetItemTooltip("How many samples for each pixel should a worker take for each iteration. A low number (like 1) will make rendering more responsive, but a higher number will give you higher quality results faster.");
 
-		int ms = viewport.get_min_samples();
-		if (ImGui::DragInt("Target samples count", &ms, 1)) viewport.set_min_samples(ms);
+		int ms = _viewport.get_min_samples();
+		if (ImGui::DragInt("Target samples count", &ms, 1)) _viewport.set_min_samples(ms);
 		ImGui::SetItemTooltip("After rendering a while, workers will prefer rendering pixels with less than this amount of samples based on the fill probability.");
 
-		float br = viewport.get_basic_ratio();
-		if (ImGui::DragFloat("Render probability", &br, 0.1, 0.01, 1)) viewport.set_basic_ratio(br);
+		float br = _viewport.get_basic_ratio();
+		if (ImGui::DragFloat("Render probability", &br, 0.1, 0.01, 1)) _viewport.set_basic_ratio(br);
 		ImGui::SetItemTooltip("Approximate ratio of pixels a worker will fill each iteration. A small ratio will make rendering more responsive, but slower.");
 
-		float fr = viewport.get_fill_ratio();
-		if (ImGui::DragFloat("Fill probability", &fr, 0.1, 0.01, 1)) viewport.set_fill_ratio(fr);
+		float fr = _viewport.get_fill_ratio();
+		if (ImGui::DragFloat("Fill probability", &fr, 0.1, 0.01, 1)) _viewport.set_fill_ratio(fr);
 		ImGui::SetItemTooltip("A special ratio to use for pixels with less samples than target after a while. Setting this relatively high will make workers actively fill holes in your render.");
 
 
 		ImGui::End();
 	}
 
-	void w_cameraSettings(bool* p_open, viewport& viewport)
+	void w_cameraSettings(bool* p_open, viewport& _viewport)
 	{
 		if (!ImGui::Begin("Camera Settings", p_open, ImGuiWindowFlags_AlwaysAutoResize))
 		{
@@ -338,7 +338,7 @@ private:
 		}
 		ImGui::SetItemTooltip("Scene-specific camera settings. They change between each scene.");
 
-		camera& cam = viewport.get_camera();
+		camera& cam = _viewport.get_camera();
 
 		ImGui::SeparatorText("Resolution");
 
@@ -349,7 +349,7 @@ private:
 		int iw = cam.image_width;
 		int ih = cam.image_height;
 		int res[] = {iw, ih};
-		if (ImGui::DragInt2("Resolution", res)) viewport.set_resolution(res[0], res[1]);
+		if (ImGui::DragInt2("Resolution", res)) _viewport.set_resolution(res[0], res[1]);
 		ImGui::SetItemTooltip("Disabled if auto resolution is enabled. Width x Height. Around 300x300 is recommended for fast renders.");
 		// ImGui::Text("Please don't make the resolution too small, some weird bugs with multithreaded rendering may cause a crash");
 		ImGui::EndDisabled();
@@ -385,7 +385,7 @@ private:
 		}
 		ImGui::SetItemTooltip("The sky color. This will influence the light cast onto objects as well.");
 
-		if (dirty) viewport.mark_dirty();
+		if (dirty) _viewport.mark_dirty();
 
 		ImGui::End();
 	}
@@ -393,7 +393,7 @@ private:
 private:
 	int scene_selection = -1;
 
-	void w_scene(bool *p_open, viewport& viewport, scene& scene)
+	void w_scene(bool *p_open, viewport& _viewport, scene& _scene)
 	{
 		if (!ImGui::Begin("Scene Hierarchy", p_open))
 		{
@@ -404,7 +404,7 @@ private:
 		if (ImGui::Button("Add"))
 			ImGui::OpenPopup("Add object to scene");
 
-		ImGui::BeginDisabled(!(scene_selection >= 0 && scene_selection < scene.world.objects.size()));
+		ImGui::BeginDisabled(!(scene_selection >= 0 && scene_selection < _scene.world.objects.size()));
 
 		ImGui::SameLine();
 		if (ImGui::Button("Remove"))
@@ -439,9 +439,9 @@ private:
 				ImGui::TableHeadersRow();
 
 				int count = 0;
-				for (std::shared_ptr<hittable>& object : scene.objects)
+				for (std::shared_ptr<hittable>& object : _scene.objects)
 				{
-					if (std::ranges::any_of(scene.world.objects,
+					if (std::ranges::any_of(_scene.world.objects,
 					[&object](const std::shared_ptr<hittable>& sp) {
 							return sp.get() == object.get(); // Compare underlying raw pointers
 					}))
@@ -458,8 +458,8 @@ private:
 					if (ImGui::Selectable(object->name.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
 					{
 						// Add object to scene
-						viewport.mark_scene_dirty();
-						scene.world.add(std::shared_ptr(object));
+						_viewport.mark_scene_dirty();
+						_scene.world.add(std::shared_ptr(object));
 						ImGui::CloseCurrentPopup();
 					}
 
@@ -468,7 +468,7 @@ private:
 					ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				}
 
-				if (scene.objects.empty())
+				if (_scene.objects.empty())
 				{
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -493,10 +493,10 @@ private:
 			if (ImGui::Button("Confirm"))
 			{
 				// remove from scene
-				if (scene_selection < scene.world.objects.size())
+				if (scene_selection < _scene.world.objects.size())
 				{
-					viewport.mark_scene_dirty();
-					scene.world.remove(scene_selection);
+					_viewport.mark_scene_dirty();
+					_scene.world.remove(scene_selection);
 				}
 				ImGui::CloseCurrentPopup();
 			}
@@ -516,9 +516,9 @@ private:
 			ImGui::TableSetupColumn("Type");
 			ImGui::TableHeadersRow();
 
-			for (int i = 0; i < scene.world.objects.size(); i++)
+			for (int i = 0; i < _scene.world.objects.size(); i++)
 			{
-				std::shared_ptr<hittable>& object = scene.world.objects[i];
+				std::shared_ptr<hittable>& object = _scene.world.objects[i];
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
@@ -531,7 +531,7 @@ private:
 				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 			}
 
-			if (scene.world.objects.empty())
+			if (_scene.world.objects.empty())
 			{
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
@@ -548,7 +548,7 @@ private:
 			{
 				std::shared_ptr<hittable> ref = *static_cast<std::shared_ptr<hittable>*>(payload->Data);
 
-				if (std::ranges::any_of(scene.world.objects,
+				if (std::ranges::any_of(_scene.world.objects,
 					[&ref](const std::shared_ptr<hittable>& sp) {
 							return sp.get() == ref.get(); // Compare underlying raw pointers
 					}))
@@ -562,8 +562,8 @@ private:
 					// Not Duplicate
 					if (payload->IsDelivery()) // Dropped
 					{
-						viewport.mark_scene_dirty();
-						scene.world.add(std::shared_ptr(ref)); // copy
+						_viewport.mark_scene_dirty();
+						_scene.world.add(std::shared_ptr(ref)); // copy
 					}
 				}
 			}
@@ -576,7 +576,7 @@ private:
 private:
 	int geo_selection = -1;
 	hittable_type_combo hittable_combo;
-	void w_geometries(bool* p_open, viewport& viewport, scene& scene)
+	void w_geometries(bool* p_open, viewport& _viewport, scene& _scene)
 	{
 		if (!ImGui::Begin("Objects", p_open))
 		{
@@ -592,7 +592,7 @@ private:
 				ImGui::OpenPopup("Create object");
 			}
 
-			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < scene.objects.size()));
+			ImGui::BeginDisabled(!(geo_selection >= 0 && geo_selection < _scene.objects.size()));
 
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
 			if (ImGui::Button("Deselect"))
@@ -613,9 +613,9 @@ private:
 				ImGui::TableSetupColumn("Type");
 				ImGui::TableHeadersRow();
 
-				for (int i = 0; i < scene.objects.size(); i++)
+				for (int i = 0; i < _scene.objects.size(); i++)
 				{
-					std::shared_ptr<hittable>& object = scene.objects[i];
+					std::shared_ptr<hittable>& object = _scene.objects[i];
 
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -639,7 +639,7 @@ private:
 					ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				}
 
-				if (scene.objects.empty())
+				if (_scene.objects.empty())
 				{
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -669,7 +669,7 @@ private:
 				bool open_b = true;
 				if (ImGui::BeginPopupModal("Define object", &open_b))
 				{
-					if (hittable_combo.create_prompt(scene))
+					if (hittable_combo.create_prompt(_scene))
 					{
 						// No need to refresh viewport since objects are not added to render by default
 						ImGui::ClosePopupToLevel(0, true);
@@ -688,17 +688,17 @@ private:
 		// Properties
 		if (ImGui::BeginChild("##geoprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
 		{
-			if (geo_selection >= 0 && geo_selection < scene.objects.size())
+			if (geo_selection >= 0 && geo_selection < _scene.objects.size())
 			{
-				shared_ptr<hittable>& object = scene.objects[geo_selection];
+				shared_ptr<hittable>& object = _scene.objects[geo_selection];
 
-				name_slot(*object, scene);
+				name_slot(*object, _scene);
 				ImGui::SetItemTooltip("You can rename it here.");
 
 				ImGui::TextColored(color_mesh, object->get_human_type().c_str());
 				ImGui::SetItemTooltip("Type of your object. Objects may be geometry, or modifiers.");
 				ImGui::Separator();
-				object->inspector_ui(viewport, scene);
+				object->inspector_ui(_viewport, _scene);
 			} else
 			{
 				ImGui::Text("Select an object to edit its properties.");
@@ -712,7 +712,7 @@ private:
 	// Materials
 	material_type_combo material_combo;
 	int mat_selection = -1;
-	void w_materials(bool* p_open, viewport& viewport, scene& scene)
+	void w_materials(bool* p_open, viewport& _viewport, scene& _scene)
 	{
 		if (!ImGui::Begin("Materials", p_open))
 		{
@@ -728,7 +728,7 @@ private:
 				ImGui::OpenPopup("Create material");
 			}
 
-			ImGui::BeginDisabled(!(mat_selection >= 0 && mat_selection < scene.materials.size()));
+			ImGui::BeginDisabled(!(mat_selection >= 0 && mat_selection < _scene.materials.size()));
 
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
 			if (ImGui::Button("Deselect"))
@@ -749,9 +749,9 @@ private:
 				ImGui::TableSetupColumn("Type");
 				ImGui::TableHeadersRow();
 
-				for (int i = 0; i < scene.materials.size(); i++)
+				for (int i = 0; i < _scene.materials.size(); i++)
 				{
-					std::shared_ptr<material>& mat = scene.materials[i];
+					std::shared_ptr<material>& mat = _scene.materials[i];
 
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -775,7 +775,7 @@ private:
 					ImGui::TextColored(color_mat, mat->get_human_type().c_str());
 				}
 
-				if (scene.materials.empty())
+				if (_scene.materials.empty())
 				{
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -805,7 +805,7 @@ private:
 				bool open_b = true;
 				if (ImGui::BeginPopupModal("Define material", &open_b))
 				{
-					if (material_combo.create_prompt(scene))
+					if (material_combo.create_prompt(_scene))
 					{
 						// No need to refresh viewport since objects are not added to render by default
 						ImGui::ClosePopupToLevel(0, true);
@@ -824,17 +824,17 @@ private:
 		// Properties
 		if (ImGui::BeginChild("##matprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
 		{
-			if (mat_selection >= 0 && mat_selection < scene.materials.size())
+			if (mat_selection >= 0 && mat_selection < _scene.materials.size())
 			{
-				shared_ptr<material>& mat = scene.materials[mat_selection];
+				shared_ptr<material>& mat = _scene.materials[mat_selection];
 
-				name_slot(*mat, scene);
+				name_slot(*mat, _scene);
 				ImGui::SetItemTooltip("You can rename it here.");
 
 				ImGui::TextColored(color_mat, mat->get_human_type().c_str());
 				ImGui::SetItemTooltip("Type of your material.");
 				ImGui::Separator();
-				mat->inspector_ui(viewport, scene);
+				mat->inspector_ui(_viewport, _scene);
 			} else
 			{
 				ImGui::Text("Select a material to edit its properties.");
@@ -849,7 +849,7 @@ private:
 	int tex_selection = -1;
 	texture_type_combo texture_combo;
 
-	void w_textures(bool* p_open, viewport& viewport, scene& scene)
+	void w_textures(bool* p_open, viewport& _viewport, scene& _scene)
 	{
 		if (!ImGui::Begin("Textures", p_open))
 		{
@@ -865,7 +865,7 @@ private:
 				ImGui::OpenPopup("Create texture");
 			}
 
-			ImGui::BeginDisabled(!(tex_selection >= 0 && tex_selection < scene.textures.size()));
+			ImGui::BeginDisabled(!(tex_selection >= 0 && tex_selection < _scene.textures.size()));
 
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70);
 			if (ImGui::Button("Deselect"))
@@ -886,9 +886,9 @@ private:
 				ImGui::TableSetupColumn("Type");
 				ImGui::TableHeadersRow();
 
-				for (int i = 0; i < scene.textures.size(); i++)
+				for (int i = 0; i < _scene.textures.size(); i++)
 				{
-					std::shared_ptr<texture>& tex = scene.textures[i];
+					std::shared_ptr<texture>& tex = _scene.textures[i];
 
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -912,7 +912,7 @@ private:
 					ImGui::TextColored(color_tex, tex->get_human_type().c_str());
 				}
 
-				if (scene.textures.empty())
+				if (_scene.textures.empty())
 				{
 					ImGui::TableNextRow();
 					ImGui::TableNextColumn();
@@ -942,7 +942,7 @@ private:
 				bool open_b = true;
 				if (ImGui::BeginPopupModal("Define texture", &open_b))
 				{
-					if (texture_combo.create_prompt(scene))
+					if (texture_combo.create_prompt(_scene))
 					{
 						// No need to refresh viewport since objects are not added to render by default
 						ImGui::ClosePopupToLevel(0, true);
@@ -961,17 +961,17 @@ private:
 		// Properties
 		if (ImGui::BeginChild("##texprop", ImVec2(0, 0), ImGuiChildFlags_NavFlattened))
 		{
-			if (tex_selection >= 0 && tex_selection < scene.textures.size())
+			if (tex_selection >= 0 && tex_selection < _scene.textures.size())
 			{
-				shared_ptr<texture>& tex = scene.textures[tex_selection];
+				shared_ptr<texture>& tex = _scene.textures[tex_selection];
 
-				name_slot(*tex, scene);
+				name_slot(*tex, _scene);
 				ImGui::SetItemTooltip("You can rename it here.");
 
 				ImGui::TextColored(color_tex, tex->get_human_type().c_str());
 				ImGui::SetItemTooltip("Type of your texture.");
 				ImGui::Separator();
-				tex->inspector_ui(viewport, scene);
+				tex->inspector_ui(_viewport, _scene);
 			} else
 			{
 				ImGui::Text("Select a texture to edit its properties.");

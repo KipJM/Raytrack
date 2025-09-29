@@ -1,6 +1,6 @@
 ﻿#include "viewport.h"
 
-viewport::viewport(scene scene_, int resolution_width, int resolution_height, int workers_count): target_scene(std::move(scene_))
+viewport::viewport(scene _scene, int resolution_width, int resolution_height, int workers_count): target_scene(std::move(_scene))
 {
 	// Set basic configs
 	max_bounces = 20;
@@ -100,7 +100,7 @@ void viewport::append_image(std::vector<float>& image)
 	}
 
 	backlog.push(std::move(image));
-	current_samples += target_scene.camera.sample_count;
+	current_samples += target_scene.s_camera.sample_count;
 }
 
 void viewport::update()
@@ -193,8 +193,8 @@ void viewport::set_resolution(int resolution_width, int resolution_height)
 
 
 	mark_dirty();
-	target_scene.camera.image_width = resolution_width;
-	target_scene.camera.image_height = resolution_height;
+	target_scene.s_camera.image_width = resolution_width;
+	target_scene.s_camera.image_height = resolution_height;
 
 	reset();
 
@@ -212,7 +212,7 @@ void viewport::reset()
 	std::swap( backlog, empty );
 
 	// update resolution, clear data
-	target_scene.camera.ready();
+	target_scene.s_camera.ready();
 
 	current_tex = std::vector<float>(get_width() * get_height() * channels_per_pixel);
 	density_map = std::vector<int>(get_width() * get_height() * channels_per_pixel);

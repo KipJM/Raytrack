@@ -41,10 +41,10 @@ public:
 
 	aabb bounding_box() const override { return bbox; }
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
-		if (hittable_slot("Target Object", object, *this, scene))
+		if (hittable_slot("Target Object", object, *this, _scene))
 			modified = true;
 
 		ImGui::SetItemTooltip("The object to translate. Please do not make circular references.");
@@ -55,7 +55,7 @@ public:
 
 		if (modified)
 		{
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 			bbox = object->bounding_box() + offset;
 		}
 
@@ -412,12 +412,12 @@ public:
 		return rot_z->bounding_box();
 	}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 		ImGui::Text("Rotation will be offset if you rotate a translated object. It's recommended to rotate first, then translate.");
 
-		if (hittable_slot("Target object", original, *this, scene))
+		if (hittable_slot("Target object", original, *this, _scene))
 		{
 			modified = true;
 			rot_x->internal_set_object(original);
@@ -435,7 +435,7 @@ public:
 		}
 		ImGui::SetItemTooltip("The rotate order is X, Y, then Z. Angles follow the right hand rule.");
 
-		if (modified) viewport.mark_scene_dirty();
+		if (modified) _viewport.mark_scene_dirty();
 		return modified;
 	}
 

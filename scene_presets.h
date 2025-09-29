@@ -31,23 +31,23 @@ class preset_scene_creator
 public:
 	static scene_preset selection;
 
-	static scene& update_scene(viewport& viewport, scene_preset preset)
+	static scene& update_scene(viewport& _viewport, scene_preset _preset)
 	{
-		viewport.mark_scene_dirty(); // Stop all workers
+		_viewport.mark_scene_dirty(); // Stop all workers
 
-		viewport.target_scene = create_scene(preset);
+		_viewport.target_scene = create_scene(_preset);
 
-		viewport.init_new_camera();
-		viewport.target_scene.mark_dirty(); // Restart workers in next frame
-		viewport.set_resolution(viewport.get_width(), viewport.get_height());
-		return viewport.target_scene;
+		_viewport.init_new_camera();
+		_viewport.target_scene.mark_dirty(); // Restart workers in next frame
+		_viewport.set_resolution(_viewport.get_width(), _viewport.get_height());
+		return _viewport.target_scene;
 	}
 
 	static scene create_scene(scene_preset preset)
 	{
 		scene new_scene = scene();
 		new_scene.world = hittable_list();
-		new_scene.camera = camera(); // Reset all params, redundant but put here in case some fuck ups
+		new_scene.s_camera = camera(); // Reset all params, redundant but put here in case some fuck ups
 
 		switch (preset)
 		{
@@ -77,32 +77,32 @@ public:
 private:
 	static void scn_empty(scene& scn)
 	{
-		scn.camera.background = color::one * 0.5;
+		scn.s_camera.background = color::one * 0.5;
 
-		scn.camera.image_width = 600;
-		scn.camera.image_height = 400;
+		scn.s_camera.image_width = 600;
+		scn.s_camera.image_height = 400;
 
-		scn.camera.vfov = 75;
-		scn.camera.position = point3(0, 0, 5);
-		scn.camera.lookat = point3(0, 0, 0);
-		scn.camera.vup = vec3(0, 1, 0);
-		scn.camera.defocus_angle = 0;
-		scn.camera.focus_distance = 20;
+		scn.s_camera.vfov = 75;
+		scn.s_camera.position = point3(0, 0, 5);
+		scn.s_camera.lookat = point3(0, 0, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
+		scn.s_camera.defocus_angle = 0;
+		scn.s_camera.focus_distance = 20;
 	}
 
 	static void scn_sky(scene& scn)
 	{
-		scn.camera.background = color(.53, .81, .92);
+		scn.s_camera.background = color(.53, .81, .92);
 
-		scn.camera.image_width = 600;
-		scn.camera.image_height = 400;
+		scn.s_camera.image_width = 600;
+		scn.s_camera.image_height = 400;
 
-		scn.camera.vfov = 75;
-		scn.camera.position = point3(0, 2, 5);
-		scn.camera.lookat = point3(0, 2, 0);
-		scn.camera.vup = vec3(0, 1, 0);
-		scn.camera.defocus_angle = 0;
-		scn.camera.focus_distance = 20;
+		scn.s_camera.vfov = 75;
+		scn.s_camera.position = point3(0, 2, 5);
+		scn.s_camera.lookat = point3(0, 2, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
+		scn.s_camera.defocus_angle = 0;
+		scn.s_camera.focus_distance = 20;
 
 		auto tex_green = make_shared<tex_color>(color(.62, .78, .27));
 		tex_green->name = "Green";
@@ -217,16 +217,16 @@ private:
 		scn.world.add(v_cube2);
 		scn.world.add(sphere);
 
-		scn.camera.background = color::zero;
+		scn.s_camera.background = color::zero;
 
-		scn.camera.image_width = 300;
-		scn.camera.image_height = 300;
+		scn.s_camera.image_width = 300;
+		scn.s_camera.image_height = 300;
 
-		scn.camera.vfov = 40;
-		scn.camera.position = point3(278, 278, -800);
-		scn.camera.lookat = point3(278, 278, 0);
-		scn.camera.vup = vec3(0, 1, 0);
-		scn.camera.defocus_angle = 0;
+		scn.s_camera.vfov = 40;
+		scn.s_camera.position = point3(278, 278, -800);
+		scn.s_camera.lookat = point3(278, 278, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
+		scn.s_camera.defocus_angle = 0;
 	}
 
 	static void scn_chrome(scene& scn)
@@ -262,17 +262,17 @@ private:
 		scn.world.add(geo_ground);
 		scn.world.add(geo_sph);
 
-		scn.camera.background = color(.592, .624, .658);
+		scn.s_camera.background = color(.592, .624, .658);
 
-		scn.camera.image_width = 600;
-		scn.camera.image_height = 400;
+		scn.s_camera.image_width = 600;
+		scn.s_camera.image_height = 400;
 
-		scn.camera.vfov = 75;
-		scn.camera.position = point3(0, 1, 3);
-		scn.camera.lookat = point3(0, 0, 0);
-		scn.camera.vup = vec3(0, 1, 0);
-		scn.camera.defocus_angle = 0;
-		scn.camera.focus_distance = 20;
+		scn.s_camera.vfov = 75;
+		scn.s_camera.position = point3(0, 1, 3);
+		scn.s_camera.lookat = point3(0, 0, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
+		scn.s_camera.defocus_angle = 0;
+		scn.s_camera.focus_distance = 20;
 	}
 
 	static void scn_spheres(scene& scn)
@@ -376,16 +376,16 @@ private:
 		scn.world.add(sphere2);
 		scn.world.add(sphere3);
 
-		scn.camera.image_width = 400;
-		scn.camera.image_height = 225;
+		scn.s_camera.image_width = 400;
+		scn.s_camera.image_height = 225;
 
-		scn.camera.vfov = 20;
-		scn.camera.position = point3(13, 2, 3);
-		scn.camera.lookat = point3(0, 0, 0);
-		scn.camera.vup = vec3(0, 1, 0);
+		scn.s_camera.vfov = 20;
+		scn.s_camera.position = point3(13, 2, 3);
+		scn.s_camera.lookat = point3(0, 0, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
 
-		scn.camera.defocus_angle = .6;
-		scn.camera.focus_distance = 10.0;
+		scn.s_camera.defocus_angle = .6;
+		scn.s_camera.focus_distance = 10.0;
 
 	}
 
@@ -418,16 +418,16 @@ private:
 		scn.world.add(geo_dis);
 		scn.world.add(geo_light);
 
-		scn.camera.image_width = 400;
-		scn.camera.image_height = 225;
-		scn.camera.background = color::zero;
+		scn.s_camera.image_width = 400;
+		scn.s_camera.image_height = 225;
+		scn.s_camera.background = color::zero;
 
-		scn.camera.vfov = 20;
-		scn.camera.position = point3(26, 3, 6);
-		scn.camera.lookat = point3(0, 2, 0);
-		scn.camera.vup = vec3(0, 1, 0);
+		scn.s_camera.vfov = 20;
+		scn.s_camera.position = point3(26, 3, 6);
+		scn.s_camera.lookat = point3(0, 2, 0);
+		scn.s_camera.vup = vec3(0, 1, 0);
 
-		scn.camera.defocus_angle = 0;
+		scn.s_camera.defocus_angle = 0;
 	}
 };
 

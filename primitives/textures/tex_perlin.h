@@ -21,10 +21,10 @@ public:
 
 	texture_type get_type() const override {return Perlin;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
-		if (texture_slot("Color", color, this, scene))
+		if (texture_slot("Color", color, this, _scene))
 			modified = true;
 
 		if (ImGui::DragDouble("Noise scale", &scale, 0.5)) modified = true;
@@ -33,7 +33,7 @@ public:
 		ImGui::SetItemTooltip("Along the Z axis only.");
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

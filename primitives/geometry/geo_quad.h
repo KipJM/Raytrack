@@ -74,7 +74,7 @@ public:
 		return true;
 	}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
@@ -87,7 +87,7 @@ public:
 		modified += ImGui::DragDouble3("V direction", v.e);
 		ImGui::SetItemTooltip("The local position of the top-left point of the quad. If you want a rectangel that is 1 unit tall, enter 0,1,0.");
 
-		modified += material_slot("Material", mat, scene);
+		modified += material_slot("Material", mat, _scene);
 
 		if (modified)
 		{
@@ -99,7 +99,7 @@ public:
 
 			set_bounding_box();
 
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 		}
 		return modified;
 	}

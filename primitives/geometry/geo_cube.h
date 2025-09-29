@@ -45,7 +45,7 @@ public:
 		return list.bounding_box();
 	}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		ImGui::Text("Cubes are aligned with the world axis. If you want it rotated, use a rotator.");
 		bool modified = false;
@@ -56,7 +56,7 @@ public:
 		modified += ImGui::DragDouble3("B Position", b.e);
 		ImGui::SetItemTooltip("The position of the opposite vertex of the cube.");
 
-		if ( material_slot("Material", material, scene) )
+		if ( material_slot("Material", material, _scene) )
 		{
 			modified = true;
 			for (std::shared_ptr<hittable>& side : list.objects)
@@ -68,7 +68,7 @@ public:
 		if (modified)
 		{
 			// perhaps, this is hell.
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 			auto min = point3(std::fmin(a.x(), b.x()), std::fmin(a.y(), b.y()), std::fmin(a.z(), b.z()));
 			auto max = point3(std::fmax(a.x(), b.x()), std::fmax(a.y(), b.y()), std::fmax(a.z(), b.z()));

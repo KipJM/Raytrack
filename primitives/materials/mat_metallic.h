@@ -28,11 +28,11 @@ public:
 
 	material_type get_type() const override {return material_type::Metallic;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
-		if (texture_slot("Albedo", albedo, scene))
+		if (texture_slot("Albedo", albedo, _scene))
 			modified = true;
 
 		if (ImGui::DragDouble("Roughness", &roughness, 0.1, 0, 1))
@@ -41,7 +41,7 @@ public:
 
 		if (modified)
 		{
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 		}
 		return modified;
 	}

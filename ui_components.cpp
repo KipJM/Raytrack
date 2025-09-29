@@ -17,7 +17,7 @@
 #include "primitives/textures/tex_uv_debug.h"
 
 bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude,
-                  scene& scene)
+                  scene& _scene)
 {
 	bool changed = false;
 	bool isnull = texture_ref == nullptr;
@@ -31,7 +31,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 			filter.Clear();
 		}
 
-		for (auto & i_tex : scene.textures)
+		for (auto & i_tex : _scene.textures)
 		{
 				if (self_exclude != nullptr && i_tex.get() == self_exclude) // self exclude is ignored when in hittable mode(self_exclude = null)
 				continue;
@@ -102,7 +102,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 		if (ImGui::InputText("Name", &name_buf))
 		{
 			if (name_buf.empty() ||
-				std::ranges::any_of(scene.textures,
+				std::ranges::any_of(_scene.textures,
 									[&name_buf](const std::shared_ptr<texture>& sp) {
 										return sp->name == name_buf; // Compare underlying raw pointers
 									}))
@@ -129,7 +129,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 			// Create texture
 			auto tex = make_shared<tex_color>(user_interface::popup_color_storage[0], user_interface::popup_color_storage[1], user_interface::popup_color_storage[2]);
 			tex->name = user_interface::popup_string_storage;
-			scene.textures.push_back(tex);
+			_scene.textures.push_back(tex);
 			texture_ref = shared_ptr(tex);
 			ImGui::CloseCurrentPopup();
 			changed = true;
@@ -142,7 +142,7 @@ bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, text
 }
 
 
-bool hittable_type_combo::create_prompt(scene& scene)
+bool hittable_type_combo::create_prompt(scene& _scene)
 {
 	ImGui::TextColored(user_interface::color_mesh, hittable_get_human_type(selection).c_str());
 
@@ -152,7 +152,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 	if (ImGui::InputText("Name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.objects,
+			std::ranges::any_of(_scene.objects,
 			                    [&name_buf](const std::shared_ptr<hittable>& sp) {
 				                    return sp->name == name_buf; // Compare underlying raw pointers
 			                    }))
@@ -172,7 +172,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 
 	if (selection == cube || selection == sphere || selection == quad || selection == disk || selection == volume)
 	{
-		material_slot("Material", material_ref, scene);
+		material_slot("Material", material_ref, _scene);
 		if (material_ref == nullptr)
 		{
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "A material must be assigned.");
@@ -182,7 +182,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 
 	if (selection == mover || selection == rotator || selection == volume)
 	{
-		hittable_slot("Target Object", object_ref, scene.world, scene); // scene.world as self-exclude, since it will never be used
+		hittable_slot("Target Object", object_ref, _scene.world, _scene); // scene.world as self-exclude, since it will never be used
 		if (object_ref == nullptr)
 		{
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "The target Object (Shape) must be designated.");
@@ -200,28 +200,28 @@ bool hittable_type_combo::create_prompt(scene& scene)
 		switch (selection)
 		{
 		case cube:
-			scene.objects.push_back(make_shared<geo_cube>(name, material_ref));
+			_scene.objects.push_back(make_shared<geo_cube>(name, material_ref));
 			break;
 		case disk:
-			scene.objects.push_back(make_shared<geo_disk>(name, material_ref));
+			_scene.objects.push_back(make_shared<geo_disk>(name, material_ref));
 			break;
 		case quad:
-			scene.objects.push_back(make_shared<geo_quad>(name, material_ref));
+			_scene.objects.push_back(make_shared<geo_quad>(name, material_ref));
 			break;
 		case sphere:
-			scene.objects.push_back(make_shared<geo_sphere>(name, material_ref));
+			_scene.objects.push_back(make_shared<geo_sphere>(name, material_ref));
 			break;
 		case list:
-			scene.objects.push_back(make_shared<hittable_list>(name));
+			_scene.objects.push_back(make_shared<hittable_list>(name));
 			break;
 		case volume:
-			scene.objects.push_back(make_shared<volume_convex>(name, object_ref, material_ref));
+			_scene.objects.push_back(make_shared<volume_convex>(name, object_ref, material_ref));
 			break;
 		case mover:
-			scene.objects.push_back(make_shared<trn_move>(name, object_ref));
+			_scene.objects.push_back(make_shared<trn_move>(name, object_ref));
 			break;
 		case rotator:
-			scene.objects.push_back(make_shared<trn_rotate>(name, object_ref));
+			_scene.objects.push_back(make_shared<trn_rotate>(name, object_ref));
 			break;
 		default:
 			// NOT SUPPOSED TO HAPPEN!
@@ -236,7 +236,7 @@ bool hittable_type_combo::create_prompt(scene& scene)
 	return false;
 }
 
-bool material_type_combo::create_prompt(scene& scene)
+bool material_type_combo::create_prompt(scene& _scene)
 {
 	ImGui::TextColored(user_interface::color_mat, material_get_human_type(selection).c_str());
 
@@ -246,7 +246,7 @@ bool material_type_combo::create_prompt(scene& scene)
 	if (ImGui::InputText("Name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.materials,
+			std::ranges::any_of(_scene.materials,
 			                    [&name_buf](const std::shared_ptr<material>& sp) {
 				                    return sp->name == name_buf; // Compare underlying raw pointers
 			                    }))
@@ -267,7 +267,7 @@ bool material_type_combo::create_prompt(scene& scene)
 	// only debug normal requires no texture ref
 	if (selection != Debug_Normal)
 	{
-		texture_slot("Texture", tex_ref, scene);
+		texture_slot("Texture", tex_ref, _scene);
 		if (tex_ref == nullptr)
 			satisfied = false;
 	}
@@ -282,22 +282,22 @@ bool material_type_combo::create_prompt(scene& scene)
 		switch (selection)
 		{
 		case Debug_Normal:
-			scene.materials.push_back(make_shared<mat_debug_normal>(name));
+			_scene.materials.push_back(make_shared<mat_debug_normal>(name));
 			break;
 		case Diffuse:
-			scene.materials.push_back(make_shared<mat_diffuse>(name, tex_ref));
+			_scene.materials.push_back(make_shared<mat_diffuse>(name, tex_ref));
 			break;
 		case Emissive:
-			scene.materials.push_back(make_shared<mat_emissive>(name, tex_ref));
+			_scene.materials.push_back(make_shared<mat_emissive>(name, tex_ref));
 			break;
 		case Metallic:
-			scene.materials.push_back(make_shared<mat_metallic>(name, tex_ref));
+			_scene.materials.push_back(make_shared<mat_metallic>(name, tex_ref));
 			break;
 		case Translucent:
-			scene.materials.push_back(make_shared<mat_translucent>(name, tex_ref));
+			_scene.materials.push_back(make_shared<mat_translucent>(name, tex_ref));
 			break;
 		case Volumetric:
-			scene.materials.push_back(make_shared<mat_volumetric>(name, tex_ref));
+			_scene.materials.push_back(make_shared<mat_volumetric>(name, tex_ref));
 			break;
 
 		default:
@@ -313,7 +313,7 @@ bool material_type_combo::create_prompt(scene& scene)
 	return false;
 }
 
-bool texture_type_combo::create_prompt(scene& scene)
+bool texture_type_combo::create_prompt(scene& _scene)
 {
 	ImGui::TextColored(user_interface::color_tex, texture_get_human_type(selection).c_str());
 
@@ -323,7 +323,7 @@ bool texture_type_combo::create_prompt(scene& scene)
 	if (ImGui::InputText("Name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.textures,
+			std::ranges::any_of(_scene.textures,
 								[&name_buf](const std::shared_ptr<texture>& sp) {
 									return sp->name == name_buf; // Compare underlying raw pointers
 								}))
@@ -381,7 +381,7 @@ bool texture_type_combo::create_prompt(scene& scene)
 		}
 	case Perlin:
 		{
-			texture_slot("Color", tex_ref_a, scene);
+			texture_slot("Color", tex_ref_a, _scene);
 			if (tex_ref_a == nullptr)
 			{
 				ImGui::TextColored(ImVec4(1.0f,.0f,.0f,1.0f), "Color texture must be assigned!");
@@ -396,7 +396,7 @@ bool texture_type_combo::create_prompt(scene& scene)
 		}
 	case Checker:
 		{
-			texture_slot("Texture A", tex_ref_a, scene);
+			texture_slot("Texture A", tex_ref_a, _scene);
 			ImGui::SetItemTooltip("Texture of the even squares");
 			if (tex_ref_a == nullptr)
 			{
@@ -404,7 +404,7 @@ bool texture_type_combo::create_prompt(scene& scene)
 				satisfied = false;
 			}
 
-			texture_slot("Texture B", tex_ref_b, scene);
+			texture_slot("Texture B", tex_ref_b, _scene);
 			ImGui::SetItemTooltip("Texture of the odd squares");
 			if (tex_ref_b == nullptr)
 			{
@@ -426,19 +426,19 @@ bool texture_type_combo::create_prompt(scene& scene)
 		switch (selection)
 		{
 		case Color:
-			scene.textures.push_back(make_shared<tex_color>(name, color_ref));
+			_scene.textures.push_back(make_shared<tex_color>(name, color_ref));
 			break;
 		case Image:
-			scene.textures.push_back(make_shared<tex_image>(name, path.c_str()));
+			_scene.textures.push_back(make_shared<tex_image>(name, path.c_str()));
 			break;
 		case Perlin:
-			scene.textures.push_back(make_shared<tex_perlin>(name, tex_ref_a));
+			_scene.textures.push_back(make_shared<tex_perlin>(name, tex_ref_a));
 			break;
 		case UV:
-			scene.textures.push_back(make_shared<tex_uv_debug>(name));
+			_scene.textures.push_back(make_shared<tex_uv_debug>(name));
 			break;
 		case Checker:
-			scene.textures.push_back(make_shared<tex_checker>(name, tex_ref_a, tex_ref_b));
+			_scene.textures.push_back(make_shared<tex_checker>(name, tex_ref_a, tex_ref_b));
 			break;
 
 		default:

@@ -33,15 +33,15 @@ public:
 
 	texture_type get_type() const override {return Checker;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
-		if (texture_slot("Texture A", even, this, scene))
+		if (texture_slot("Texture A", even, this, _scene))
 			modified = true;
 		ImGui::SetItemTooltip("The texture on even squares.");
 
-		if (texture_slot("Texture B", odd, this, scene))
+		if (texture_slot("Texture B", odd, this, _scene))
 			modified = true;
 		ImGui::SetItemTooltip("The texture on odd squares.");
 
@@ -53,7 +53,7 @@ public:
 		}
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

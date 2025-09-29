@@ -21,7 +21,7 @@ public:
 
 	texture_type get_type() const override {return UV;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		ImGui::Text("This procedural texture visualizes the UV coordinates via U=R, V=G.");
 		ImGui::TextDisabled("This texture has no properties to be modified!");

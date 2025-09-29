@@ -32,7 +32,7 @@ public:
 
 	texture_type get_type() const override {return Image;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		ImGui::Text("An image textures cannot be modified after it\'s created.");
 		ImGui::Text("To use a different image, create another image texture.");

@@ -20,10 +20,10 @@ public:
 
 	void render_loop();
 
-	bool render(camera& camera, const hittable& world);
+	bool render(camera& _camera, const hittable& world);
 
 private:
-	viewport& viewport_;
+	viewport& _viewport;
 	bool early_exit = false;
 	bool sigkill = false;
 	std::vector<float> output;

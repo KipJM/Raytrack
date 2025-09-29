@@ -17,7 +17,7 @@ public:
 
 	viewport() = delete;
 
-	viewport(scene scene_, int resolution_width, int resolution_height, int workers_count);
+	viewport(scene _scene, int resolution_width, int resolution_height, int workers_count);
 
 	unsigned int get_texture_id() const;
 
@@ -27,17 +27,17 @@ public:
 
 	camera& get_camera()
 	{
-		return target_scene.camera;
+		return target_scene.s_camera;
 	}
 
 	int get_width() const
 	{
-		return target_scene.camera.image_width;
+		return target_scene.s_camera.image_width;
 	}
 
 	int get_height() const
 	{
-		return target_scene.camera.image_height;
+		return target_scene.s_camera.image_height;
 	}
 
 	[[nodiscard]] int get_current_sample_count() const

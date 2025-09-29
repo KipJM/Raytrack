@@ -319,7 +319,7 @@ void scn_cornell_box(scene& scn)
 	// //cam.output = std::ofstream("image.ppm");
 
 	// cam.render(world);
-	scn.camera = cam;
+	scn.s_camera = cam;
 	scn.world = world;
 }
 

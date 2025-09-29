@@ -30,11 +30,11 @@ public:
 
 	material_type get_type() const override {return material_type::Emissive;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
-		if (texture_slot("Color", tex, scene)) modified = true;
+		if (texture_slot("Color", tex, _scene)) modified = true;
 		ImGui::SetItemTooltip("What color to emit. Must be non-black to be emissive, despite the tint.");
 
 		auto tint_buf = tint.get_float();
@@ -46,7 +46,7 @@ public:
 		ImGui::SetItemTooltip("This value will be multiplied with the color as the final emission. Note that components can go over 1 (HDR).");
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

@@ -11,7 +11,7 @@
 class scene
 {
 public:
-	camera camera;
+	camera s_camera;
 
 	std::vector<shared_ptr<hittable>> objects;
 	std::vector<shared_ptr<material>> materials;

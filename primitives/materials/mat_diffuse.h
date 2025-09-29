@@ -35,16 +35,16 @@ public:
 
 	material_type get_type() const override {return material_type::Diffuse;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
-		if (texture_slot("Albedo", albedo, scene))
+		if (texture_slot("Albedo", albedo, _scene))
 			modified = true;
 		ImGui::SetItemTooltip("The color reflected off of this perfectly rough material.");
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

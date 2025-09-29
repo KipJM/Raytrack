@@ -24,7 +24,7 @@ public:
 
 	material_type get_type() const override {return material_type::Debug_Normal;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		ImGui::Text("This material visualizes the normals of an object.");
 		ImGui::Text("There are no parameters for this material.");

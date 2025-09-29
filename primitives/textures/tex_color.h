@@ -26,13 +26,13 @@ class tex_color : public texture
 
 	texture_type get_type() const override {return Color;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		auto col_buf = albedo.get_float();
 		if (ImGui::ColorEdit3("Color", col_buf))
 		{
 			albedo.set_float(col_buf);
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 			return true;
 		}
 		return false;

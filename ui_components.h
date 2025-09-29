@@ -11,13 +11,13 @@
 
 
 // Name slots
-inline bool name_slot(hittable& object, scene& scene)
+inline bool name_slot(hittable& object, scene& _scene)
 {
 	std::string name_buf = object.name; // copy
 	if (ImGui::InputText("##name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.objects,
+			std::ranges::any_of(_scene.objects,
 			[&object, &name_buf](const std::shared_ptr<hittable>& sp) {
 					return sp.get() != &object && sp->name == name_buf; // Compare underlying raw pointers
 			}))
@@ -33,13 +33,13 @@ inline bool name_slot(hittable& object, scene& scene)
 	return false;
 }
 
-inline bool name_slot(material& mat, scene& scene)
+inline bool name_slot(material& mat, scene& _scene)
 {
 	std::string name_buf = mat.name; // copy
 	if (ImGui::InputText("##name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.materials,
+			std::ranges::any_of(_scene.materials,
 			[&mat, &name_buf](const std::shared_ptr<material>& sp) {
 					return sp.get() != &mat && sp->name == name_buf; // Compare underlying raw pointers
 			}))
@@ -55,13 +55,13 @@ inline bool name_slot(material& mat, scene& scene)
 	return false;
 }
 
-inline bool name_slot(texture& tex, scene& scene)
+inline bool name_slot(texture& tex, scene& _scene)
 {
 	std::string name_buf = tex.name;
 	if (ImGui::InputText("##name", &name_buf))
 	{
 		if (name_buf.empty() ||
-			std::ranges::any_of(scene.textures,
+			std::ranges::any_of(_scene.textures,
 				[&tex, &name_buf](const std::shared_ptr<texture>& sp) {
 					return sp.get() != &tex && sp->name == name_buf;
 				}))
@@ -79,7 +79,7 @@ inline bool name_slot(texture& tex, scene& scene)
 
 // Reference slots
 
-inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable_ref, hittable& self_exclude, scene& scene)
+inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable_ref, hittable& self_exclude, scene& _scene)
 {
 	bool changed = false;
 	bool isnull = hittable_ref == nullptr;
@@ -93,7 +93,7 @@ inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable
 			filter.Clear();
 		}
 
-		for (auto & i_obj : scene.objects)
+		for (auto & i_obj : _scene.objects)
 		{
 				if (i_obj.get() == &self_exclude)
 				continue; // prevent self-referencing. Other circular references may still happen though
@@ -143,7 +143,7 @@ inline bool hittable_slot(const char* label, std::shared_ptr<hittable>& hittable
 
 // material
 
-inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, std::shared_ptr<material>& self_exclude, scene& scene)
+inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, std::shared_ptr<material>& self_exclude, scene& _scene)
 {
 	bool changed = false;
 	bool isnull = material_ref == nullptr;
@@ -157,7 +157,7 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 			filter.Clear();
 		}
 
-		for (auto & i_mat : scene.materials)
+		for (auto & i_mat : _scene.materials)
 		{
 				if (self_exclude != nullptr && i_mat.get() == self_exclude.get()) // self exclude is ignored when in hittable mode(self_exclude = null)
 				continue;
@@ -205,19 +205,19 @@ inline bool material_slot(const char* label, std::shared_ptr<material>& material
 	return changed;
 }
 
-inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, scene& scene)
+inline bool material_slot(const char* label, std::shared_ptr<material>& material_ref, scene& _scene)
 {
 	shared_ptr<material> null_mat = nullptr;
-	return material_slot(label, material_ref, null_mat, scene);
+	return material_slot(label, material_ref, null_mat, _scene);
 }
 
 // texture
 
-bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude, scene& scene);
+bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, texture* self_exclude, scene& _scene);
 
-inline bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, scene& scene)
+inline bool texture_slot(const char* label, std::shared_ptr<texture>& texture_ref, scene& _scene)
 {
-	return texture_slot(label, texture_ref, nullptr, scene);
+	return texture_slot(label, texture_ref, nullptr, _scene);
 }
 
 
@@ -271,7 +271,7 @@ public:
 		material_ref = nullptr;
 	}
 
-	bool create_prompt(scene& scene);
+	bool create_prompt(scene& _scene);
 
 private:
 	const std::pair<hittable_type, const char*> types[8] = {
@@ -332,7 +332,7 @@ public:
 		tex_ref = nullptr;
 	}
 
-	bool create_prompt(scene& scene);
+	bool create_prompt(scene& _scene);
 
 private:
 	const std::pair<material_type, const char*> types[6] = {
@@ -397,7 +397,7 @@ public:
 		path = "";
 	}
 
-	bool create_prompt(scene& scene);
+	bool create_prompt(scene& _scene);
 
 private:
 	const std::pair<texture_type, const char*> types[5] = {

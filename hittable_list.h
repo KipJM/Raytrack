@@ -64,7 +64,7 @@ public:
 		return bbox;
 	}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override;
+	bool inspector_ui(viewport& _viewport, scene& _scene) override;
 
 private:
 	aabb bbox;

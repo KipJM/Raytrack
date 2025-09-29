@@ -75,7 +75,7 @@ public:
 
 	aabb bounding_box() const override { return bbox; }
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool changed = false;
 		if (ImGui::DragDouble3("Center", center.e))
@@ -91,14 +91,14 @@ public:
 		ImGui::SetItemTooltip("World distance from the surface to the center of your sphere. Note that objects are hollow.");
 
 
-		if (material_slot("Material", mat, scene))
+		if (material_slot("Material", mat, _scene))
 		{
 			changed = true;
 		}
 
 		if (changed)
 		{
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 			// Recalc bbox
 			auto rvec = vec3::one * radius;
 			bbox = aabb(center - rvec, center + rvec);

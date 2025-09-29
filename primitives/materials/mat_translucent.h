@@ -40,11 +40,11 @@ public:
 
 	material_type get_type() const override {return material_type::Translucent;}
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
 
-		if (texture_slot("Albedo", albedo, scene))
+		if (texture_slot("Albedo", albedo, _scene))
 			modified = true;
 
 		if (ImGui::DragDouble("Refraction index", &refraction_index, 0.5, 1.0001, 10))
@@ -52,7 +52,7 @@ public:
 		ImGui::SetItemTooltip("the ratio of the apparent speed of light outside to the speed in the medium. Search Wikipedia for refractive indexes of common materials.");
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

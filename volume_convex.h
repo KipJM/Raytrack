@@ -62,10 +62,10 @@ public:
 
 	aabb bounding_box() const override { return boundary->bounding_box(); }
 
-	bool inspector_ui(viewport& viewport, scene& scene) override
+	bool inspector_ui(viewport& _viewport, scene& _scene) override
 	{
 		bool modified = false;
-		modified += hittable_slot("Shape", boundary, *this, scene);
+		modified += hittable_slot("Shape", boundary, *this, _scene);
 		ImGui::SetItemTooltip("The volume will be in this object\'s shape. Please do not make circular references.");
 
 		double density = -1.0 / neg_inv_density;
@@ -76,11 +76,11 @@ public:
 		}
 		ImGui::SetItemTooltip("The density of the object is set here, not in materials. Density must be over 0.");
 
-		modified += material_slot("Material", phase_function, scene);
+		modified += material_slot("Material", phase_function, _scene);
 		ImGui::SetItemTooltip("Using a non-volumetric material will lead to unexpected results.");
 
 		if (modified)
-			viewport.mark_scene_dirty();
+			_viewport.mark_scene_dirty();
 
 		return modified;
 	}

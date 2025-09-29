@@ -58,7 +58,7 @@ public:
 	/// UI: Displays mat-specific inspector UI
 	///
 	/// Returns: True if mat is modified
-	virtual bool inspector_ui(viewport& viewport, scene& scene) {return false;}
+	virtual bool inspector_ui(viewport& _viewport, scene& _scene) {return false;}
 
 	virtual material_type get_type() const = 0;
 
