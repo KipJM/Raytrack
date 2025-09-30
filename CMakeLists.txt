@@ -4,7 +4,7 @@ project(RaytracingWeekend)
 
 set(CMAKE_CXX_STANDARD 23)
 
-if(NOT APPLE) # Windows, Linux
+if(WIN32) # Windows
 set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
 ENDIF()
 
