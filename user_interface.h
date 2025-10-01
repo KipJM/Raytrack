@@ -231,6 +231,15 @@ private:
 			ImGui::BulletText("You can also load your own image files using an image texture.");
 		}
 
+		if (ImGui::CollapsingHeader("About"))
+		{
+			ImGui::Text("Raytrack");
+			ImGui::Text("Version 1.2");
+			ImGui::Text("Changelog");
+			ImGui::BulletText("Debug console updates");
+			ImGui::BulletText("Experimental low-light per-pixel dynamic sampling");
+		}
+
 		ImGui::TextColored(ImVec4(1.0f,1.0f,0.0f,1.0f), "Happy rendering!");
 		ImGui::Text("KIP");
 		ImGui::End();
