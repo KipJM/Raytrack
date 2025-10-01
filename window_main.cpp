@@ -30,7 +30,11 @@
 #include "primitives/materials/mat_translucent.h"
 #include "primitives/textures/tex_checker.h"
 #include "primitives/textures/tex_image.h"
-// #include <Windows.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 void error_callback(int error, const char* description)
 {
 	std::cerr<<"Error: " << description << '\n';
@@ -44,8 +48,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(int argc, char* argv[])
 {
+#ifdef WIN32
 	// hide console (WINDOWS ONLY)
-	// ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+
+	std::clog << "==RAYTRACK DEBUG LOGS==\n";
+	std::clog << "DO NOT CLOSE THIS CONSOLE WINDOW.\n";
+	std::clog << "If you see lots of messages here, it\'s normal.\n\n";
 
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
