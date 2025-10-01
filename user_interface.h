@@ -61,7 +61,7 @@ public:
 					preset_scene_creator::selection = Sky;
 					open_scn_popup = true;
 				}
-				if(ImGui::MenuItem("Shiny sphere hate")) {
+				if(ImGui::MenuItem("Absolutely no shiny sphere")) {
 					preset_scene_creator::selection = Chrome;
 					open_scn_popup = true;
 				}
@@ -317,14 +317,17 @@ private:
 		if (ImGui::DragInt("Target samples count", &ms, 1)) _viewport.set_min_samples(ms);
 		ImGui::SetItemTooltip("After rendering a while, workers will prefer rendering pixels with less than this amount of samples based on the fill probability.");
 
-		float br = _viewport.get_basic_ratio();
-		if (ImGui::DragFloat("Render probability", &br, 0.1, 0.01, 1)) _viewport.set_basic_ratio(br);
+		double br = _viewport.get_basic_ratio();
+		if (ImGui::DragDouble("Render probability", &br, 0.1, 0.01, 1)) _viewport.set_basic_ratio(br);
 		ImGui::SetItemTooltip("Approximate ratio of pixels a worker will fill each iteration. A small ratio will make rendering more responsive, but slower.");
 
-		float fr = _viewport.get_fill_ratio();
-		if (ImGui::DragFloat("Fill probability", &fr, 0.1, 0.01, 1)) _viewport.set_fill_ratio(fr);
+		double fr = _viewport.get_fill_ratio();
+		if (ImGui::DragDouble("Fill probability", &fr, 0.1, 0.01, 1)) _viewport.set_fill_ratio(fr);
 		ImGui::SetItemTooltip("A special ratio to use for pixels with less samples than target after a while. Setting this relatively high will make workers actively fill holes in your render.");
 
+		int ds = _viewport.get_dark_samples();
+		if (ImGui::DragInt("Dark fill count", &ds)) _viewport.set_dark_samples(ds);
+		ImGui::SetItemTooltip("[EXPERIMENTAL] Number of additional samples for a pixel to help reduce noise in low-light areas, where black adds this number of samples, white adds none. Set to 0 to disable feature.");
 
 		ImGui::End();
 	}

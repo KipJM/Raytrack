@@ -98,6 +98,7 @@ private:
 	int min_samples;
 	double basic_ratio;
 	double fill_ratio;
+	int dark_samples; // how much the worker prefer dark pixels lol
 
 public:
 	[[nodiscard]] int get_max_bounces() const
@@ -177,6 +178,19 @@ public:
 		if (fill_ratio > 1) fill_ratio = 1;
 		this->fill_ratio = fill_ratio;
 		get_camera().fill_ratio = fill_ratio;
+		mark_dirty();
+	}
+
+	[[nodiscard]] int get_dark_samples() const
+	{
+		return dark_samples;
+	}
+
+	void set_dark_samples(int _dark_samples)
+	{
+		if (_dark_samples < 0) _dark_samples = 0;
+		this->dark_samples = _dark_samples;
+		get_camera().dark_samples = _dark_samples;
 		mark_dirty();
 	}
 };

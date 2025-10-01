@@ -9,6 +9,7 @@ viewport::viewport(scene _scene, int resolution_width, int resolution_height, in
 	min_samples = 30;
 	basic_ratio = 0.1;
 	fill_ratio = 0.7;
+	dark_samples = 0; // EXPERIMENTAL. Disabled by default for now
 	init_new_camera();
 
 	// init gl texture
@@ -237,6 +238,7 @@ void viewport::init_new_camera()
 	cam.min_samples = min_samples;
 	cam.basic_ratio = basic_ratio;
 	cam.fill_ratio = fill_ratio;
+	cam.dark_samples = dark_samples;
 	// cam.ready();
 	mark_dirty();
 }

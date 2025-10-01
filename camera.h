@@ -14,6 +14,8 @@ public:
 
 	double			basic_ratio		= 1;     // If < 1 and > 0, defines the random chance of this pixel being drawn (for multithreading)
 	double			fill_ratio		= 1;     // Random chance of neglected pixels being filled by this render cycle
+	int				dark_samples	= 0;	 // adds int(dark_influence * darkness[0~1]) of samples on top of the render
+
 	int				sample_count	= 1;     // Number of random samples taken for each pixel for each worker
 	int				min_samples		= 5;	 // Pixels with sample count below this will be preferred in they're not rendered after a while
 	int				max_bounces		= 10;    // Maximum amount of bounces for a ray
@@ -85,10 +87,11 @@ public:
 					render_pixel = true;
 
 
+				int new_sample_count = sample_count;
 				if (render_pixel)
 				{
 					rendered_pixels++;
-					for (int sample = 0; sample < sample_count; sample++)
+					for (int sample = 0; sample < new_sample_count; sample++)
 					{
 						// Early exit
 						if (early_exit)
@@ -102,11 +105,29 @@ public:
 						// technically HDR supported
 						ray r = get_ray(i, j);
 						pixel_color += ray_color(r, max_bounces, world);
+
+						if (dark_samples != 0 && sample == 0) // recalc sample count
+						{
+							// skip if first sample to improve responsiveness
+							if (px < density_map.size() && density_map[px] < 2) // 1 or 2 sample
+							{
+								// pass
+							}
+							else
+							{
+								double darkness = 1 - pixel_color.length(); // sqrt shouldn't be too big of a performance hit, run once per pixel
+								// clamp
+								darkness = std::clamp(darkness, 0.0, 1.0);
+								new_sample_count += static_cast<int>(dark_samples * darkness);
+							}
+						}
 					}
 				} else
 				{
 					pixel_color = color(-1,-1,-1); // -1 = SKIPPED
 				}
+
+				double sample_contribution = 1.0 / new_sample_count;
 
 				write_color(output, sample_contribution * pixel_color);
 				px+=3; // TODO: change if channel count changes
@@ -122,8 +143,8 @@ public:
 	}
 
 private:
-	// int		image_height = 0;	// Image height (px)
-	double	sample_contribution = 0; // the factor of each sample's influence on the pixel
+	// int		image_height = 0;	// [DEPRECATED] Image height (px)
+	// double	sample_contribution = 0; // [DEPRECATED] the factor of each sample's influence on the pixel
 	point3	center;			// Camera Center (3D)
 	point3	pixel00_loc;	// Location of screen pixel (0,0) (3D)
 	vec3	pixel_delta_u;	// Offset for one pixel to the right (3D)
@@ -142,7 +163,7 @@ private:
 		}
 		image_height = (image_height < 1) ? 1 : image_height;
 
-		sample_contribution = 1.0 / sample_count;
+		// sample_contribution = 1.0 / sample_count; // irrelevant
 
 		center = position;
 
