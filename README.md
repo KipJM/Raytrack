@@ -9,7 +9,7 @@ Simply run `Raytrack.exe` within the zip file to launch the Raytrack graphical u
 ![Raytrack screenshot 1](https://github.com/KipJM/Raytrack/blob/master/promo/screenshot1.png)
 
 ## Requirements
-Windows is officially supported, **EXPERIMENTAL** MacOS version is also included as of V1.1 .
+Windows is officially supported, **EXPERIMENTAL** Linux and MacOS builds are also included as of V1.1 .
 
 Raytracing itself heavily depends on your system's multicore CPU performance, it will take longer to render if your computer's CPU is weak.  
 
