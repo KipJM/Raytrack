@@ -2,6 +2,8 @@
 # Raytrack
 | An interactive, multithreaded software toy raytracing renderer with an user interface, written in c++.
 
+*Yes, the banner is a parody of that software company*
+
 ## Installation / Usage
 Go to [Releases](https://github.com/KipJM/Raytrack/releases/), download the latest version of Raytrack.
 Simply run `Raytrack.exe` within the zip file to launch the Raytrack graphical user interface.
@@ -33,9 +35,7 @@ some unique features about the project:
 - Arbitrary multithreading with generally no crashes
 - Intuitive UI with plenty of help content
 - Pretty full-featured renderer with all the basics: geometry, material, textures, BVH optimization, etc...
-- A random rendering system that very much improves rendering responsiveness
-
-*Yes, the banner is a parody of those 3D software*
+- An experimental brightness-aware pixel sampling algorithm that very much improves rendering responsiveness and reduce noise
 
 ## Building
 This project targets MinGW. However after basic testing via Github actions, gcc, AppleClang also seem to work.
